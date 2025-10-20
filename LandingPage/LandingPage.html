@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carmax</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="LandingPage.css">
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+    <div class="container">
+        <a class="navbar-brand" href="#"><i class="fas fa-car"></i> Carmax</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+            <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
+            <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+            <li class="nav-item"><a class="nav-link" href="#cars">Cars</a></li>
+            <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+        </ul>
+        <button class="btn btn-auth" data-bs-toggle="modal" data-bs-target="#loginModal">
+            <i class="fas fa-user"></i> Login
+        </button>
+        </div>
+    </div>
+    </nav>
+
+    <!-- Login Modal -->
+<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" style="max-width: 460px;">
+    <div class="modal-content p-0" style="background: transparent; box-shadow: none; border: none;">
+      <iframe 
+        id="loginFrame"
+        src="../LoginPage/loginPage.php"
+        style="
+          width: 100%;
+          height: 630px;
+          border: none;
+          border-radius: 16px;
+          overflow: hidden;
+          background: transparent;
+          display: block;
+        ">
+      </iframe>
+    </div>
+  </div>
+</div>
+
+
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-slideshow">
+            <!-- Slide 1 -->
+            <div class="hero-slide active" data-bg="url('images/car1.jpg') center/cover no-repeat">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <div class="col-lg-6">
+                            <div class="hero-content fade-in">
+                                <h1>Drive Your Dreams</h1>
+                                <p>Discover premium vehicles with unmatched quality and service. Your perfect car awaits at Elite Motors.</p>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="text-center slide-in-right">
+                                <img src="/Pictures/Carmax_logo.jpg" alt="Logo" class="img-fluid rounded shadow">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 2 -->
+             <div class="hero-slide active" data-bg="url('images/car1.jpg') center/cover no-repeat">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <div class="col-lg-6">
+                            <div class="hero-content fade-in">
+                                <h1>Drive Your Dreams</h1>
+                                <p>Discover premium vehicles with unmatched quality and service. Your perfect car awaits at Elite Motors.</p>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="text-center slide-in-right">
+                                <img src="/Pictures/Peep.jpg" alt="Car" class="img-fluid rounded shadow">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3 -->
+             <div class="hero-slide active" data-bg="url('images/car1.jpg') center/cover no-repeat">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <div class="col-lg-6">
+                            <div class="hero-content fade-in">
+                                <h1>Drive Your Dreams</h1>
+                                <p>Discover premium vehicles with unmatched quality and service. Your perfect car awaits at Elite Motors.</p>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="text-center slide-in-right">
+                                <img src="/Pictures/peep2.jpg" alt="Car" class="img-fluid rounded shadow">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 4 -->
+             <div class="hero-slide active" data-bg="url('images/car1.jpg') center/cover no-repeat">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <div class="col-lg-6">
+                            <div class="hero-content fade-in">
+                                <h1>Drive Your Dreams</h1>
+                                <p>Discover premium vehicles with unmatched quality and service. Your perfect car awaits at Elite Motors.</p>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="text-center slide-in-right">
+                                <img src="/Pictures/peep3.jpg" alt="Car" class="img-fluid rounded shadow">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        <!-- Slideshow Controls -->
+        <div class="slideshow-controls">
+            <button class="slide-nav prev" onclick="changeSlide(-1)">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="slide-nav next" onclick="changeSlide(1)">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+
+        <!-- Slide Indicators -->
+        <div class="slide-indicators">
+            <button class="indicator active" onclick="currentSlide(1)"></button>
+            <button class="indicator" onclick="currentSlide(2)"></button>
+            <button class="indicator" onclick="currentSlide(3)"></button>
+            <button class="indicator" onclick="currentSlide(4)"></button>
+        </div>
+    </section>
+
+
+    <!-- About Section -->
+    <section id="about" class="section-padding about-section">
+    <div class="container">
+        <h2 class="section-title fade-in text-center mb-5">Carmax</h2>
+
+        <!-- Row 1: History -->
+        <div class="row align-items-center mb-5">
+        <div class="col-md-6 slide-in-left">
+            <div class="about-card p-4 shadow-lg rounded-4 bg-dark text-white">
+            <div class="about-icon mb-3"><i class="fas fa-history"></i></div>
+            <h4 class="mb-3">Our History</h4>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptate distinctio laudantium similique tempora architecto, esse ratione modi a. Odio dolore minus illo dolor, quidem fugiat ipsam dolorem!</p>
+            </div>
+        </div>
+        <div class="col-md-6 slide-in-right">
+            <img src="/Pictures/Carmaxold.jpg" alt="Our History" class="img-fluid rounded-4 shadow-lg">
+        </div>
+        </div>
+
+        <!-- Row 2: Mission -->
+        <div class="row align-items-center flex-md-row-reverse mb-5">
+        <div class="col-md-6 slide-in-right">
+            <div class="about-card p-4 shadow-lg rounded-4 bg-dark text-white">
+            <div class="about-icon mb-3"><i class="fas fa-bullseye"></i></div>
+            <h4 class="mb-3">Our Mission</h4>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Cupiditate laboriosam odit sunt veritatis corporis suscipit. Dolorem deserunt eveniet ex fugiat blanditiis eligendi similique odio? Voluptatum quidem illum ut!</p>
+            </div>
+        </div>
+        <div class="col-md-6 slide-in-left">
+            <img src="/Pictures/Mission.jpg" alt="Our Mission" class="img-fluid rounded-4 shadow-lg">
+        </div>
+        </div>
+
+        <!-- Row 3: Vision -->
+        <div class="row align-items-center mb-5">
+        <div class="col-md-6 slide-in-left">
+            <div class="about-card p-4 shadow-lg rounded-4 bg-dark text-white">
+            <div class="about-icon mb-3"><i class="fas fa-eye"></i></div>
+            <h4 class="mb-3">Our Vision</h4>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Inventore, nihil natus asperiores fuga blanditiis est corporis aliquid explicabo harum nulla dolores impedit modi perspiciatis? Facere dolore repellat ipsam temporibus.</p>
+            </div>
+        </div>
+        <div class="col-md-6 slide-in-right">
+            <img src="/Pictures/Vision.jpg" alt="Our Vision" class="img-fluid rounded-4 shadow-lg">
+        </div>
+        </div>
+
+    </div>
+    </section>
+
+    <!-- Cars Preview Section -->
+    <section id="cars" class="section-padding bg-light">
+        <div class="container">
+            <h2 class="section-title fade-in">Featured Vehicles</h2>
+            <div class="row">
+                <div class="col-lg-4 col-md-6">
+                <div class="car-card fade-in">
+                    <div class="car-image">
+                    <img src="/Pictures/BMW-X5.jpg" alt="BMW-X5" class="img-fluid">
+                    </div>
+                    <div class="car-info">
+                    <h5>BMW X5 2024</h5>
+                    <p class="text-muted">Luxury SUV with premium features</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="car-price">₱45,000</span>
+                        <button class="btn btn-sm btn-primary-custom view-details"
+                        data-name="BMW X5 2024"
+                        data-desc="Luxury SUV with premium features."
+                        data-price="₱45,000"
+                        data-engine="3.5L EcoBoost V6"
+                        data-transmission="10-Speed Automatic"
+                        data-image="/Pictures/BMW-X5.jpg">
+                        View Details
+                        </button>
+                    </div>
+                    </div>
+                </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="car-card fade-in">
+                        <div class="car-image">
+                        <img src="/Pictures/Benz-C.jpg" alt="Mercedes C-Class" class="img-fluid">
+                        </div>
+                        <div class="car-info">
+                        <h5>Mercedes C-Class 2024</h5>
+                        <p class="text-muted">Elegant sedan with advanced technology</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="car-price">₱55,000</span>
+                            <button class="btn btn-sm btn-primary-custom view-details"
+                            data-name="Mercedes C-Class 2024"
+                            data-desc="A refined luxury sedan that combines elegance with cutting-edge technology, offering comfort, performance, and advanced driver assistance features."
+                            data-price="₱55,000"
+                            data-engine="2.0L Turbocharged I4"
+                            data-transmission="9-Speed Automatic"
+                            data-image="/Pictures/Benz-C.jpg">
+                            View Details
+                            </button>
+                        </div>
+                        </div>
+                    </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6">
+                    <div class="car-card slide-in-right">
+                        <div class="car-image">
+                        <img src="/Pictures/Audi.jpg" alt="Audi Q7" class="img-fluid">
+                        </div>
+                        <div class="car-info">
+                        <h5>Audi Q7 2024</h5>
+                        <p class="text-muted">Spacious luxury SUV for families</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="car-price">₱68,000</span>
+                            <button class="btn btn-sm btn-primary-custom view-details"
+                            data-name="Audi Q7 2024"
+                            data-desc="A spacious and stylish luxury SUV designed for families, featuring advanced safety systems, premium interiors, and smooth all-wheel drive performance."
+                            data-price="₱68,000"
+                            data-engine="3.0L V6 TFSI"
+                            data-transmission="8-Speed Automatic Quattro"
+                            data-image="/Pictures/Audi.jpg">
+                            View Details
+                            </button>
+                        </div>
+                        </div>
+                    </div>
+                    </div>
+
+                <div class="col-lg-4 col-md-6">
+                <div class="car-card slide-in-left">
+                    <div class="car-image">
+                    <img src="/Pictures/Tesla.jpg" alt="Tesla Model S" class="img-fluid">
+                    </div>
+                    <div class="car-info">
+                    <h5>Tesla Model S 2024</h5>
+                    <p class="text-muted">Electric luxury sedan</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="car-price">₱95,000</span>
+                        <button class="btn btn-sm btn-primary-custom view-details"
+                        data-name="Tesla Model S 2024"
+                        data-desc="A high-performance electric sedan with impressive acceleration, long driving range, and futuristic technology, redefining luxury and sustainability."
+                        data-price="₱95,000"
+                        data-engine="Dual Motor Electric"
+                        data-transmission="Single-Speed Automatic"
+                        data-image="/Pictures/Tesla.jpg">
+                        View Details
+                        </button>
+                    </div>
+                    </div>
+                </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                <div class="car-card fade-in">
+                    <div class="car-image">
+                    <img src="/Pictures/ford.jpg" alt="Ford F-150" class="img-fluid">
+                    </div>
+                    <div class="car-info">
+                    <h5>Ford F-150 2024</h5>
+                    <p class="text-muted">America's best-selling truck</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="car-price">₱45,000</span>
+                        <button class="btn btn-sm btn-primary-custom view-details"
+                        data-name="Ford F-150 2024"
+                        data-desc="Americas legendary pickup truck, built tough with powerful engines, high towing capacity, and modern tech for both work and adventure."
+                        data-price="₱45,000"
+                        data-engine="3.5L EcoBoost V6"
+                        data-transmission="10-Speed Automatic"
+                        data-image="/Pictures/Ford.jpg">
+                        View Details
+                        </button>
+                    </div>
+                    </div>
+                </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                <div class="car-card slide-in-right">
+                    <div class="car-image">
+                    <img src="/Pictures/Porsche.jpg" alt="Porsche 911" class="img-fluid">
+                    </div>
+                    <div class="car-info">
+                    <h5>Porsche 911 2024</h5>
+                    <p class="text-muted">Iconic sports car performance</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="car-price">₱120,000</span>
+                        <button class="btn btn-sm btn-primary-custom view-details"
+                        data-name="Porsche 911 2024"
+                        data-desc="An iconic sports car delivering thrilling performance, timeless design, and precision handling — the ultimate driver’s machine."
+                        data-price="₱120,000"
+                        data-engine="3.0L Twin-Turbocharged Flat-6"
+                        data-transmission="8-Speed PDK Automatic"
+                        data-image="/Pictures/Porsche.jpg">
+                        View Details
+                        </button>
+                    </div>
+                    </div>
+                </div>
+                </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer" id="contact">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5><i class="fas fa-car"></i> Carmax</h5>
+                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quas accusamus iste est vel officiis exercitationem perferendis soluta, ut dolores earum distinctio autem, facere hic illo eveniet? Nobis neque dolor ducimus!</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>Contact Info</h5>
+                    <p><i class="fas fa-map-marker-alt"></i> 123 Auto Street, Car City, CC 12345</p>
+                    <p><i class="fas fa-phone"></i> (555) 123-4567</p>
+                    <p><i class="fas fa-envelope"></i> info@carmax.com</p>
+                </div>
+            </div>
+            <hr style="margin: 2rem 0 1rem; border-color: #444;">
+            <div class="text-center">
+                <p>&copy; 2025 Carmax. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Auth Modal -->
+    <div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content auth-modal">
+                <div class="auth-tabs">
+                    <button class="auth-tab active" id="loginTab" onclick="switchTab('login')">Login</button>
+                    <button class="auth-tab" id="signupTab" onclick="switchTab('signup')">Sign Up</button>
+                </div>
+    
+                <div class="modal-body p-0">
+                    <!-- Login Form -->
+                    <div id="loginForm" class="auth-form">
+                        <h4 class="mb-3">Welcome Back!</h4>
+                        <form>
+                            <div class="mb-3">
+                                <input type="email" class="form-control" placeholder="Email Address" required>
+                            </div>
+                            <div class="mb-3">
+                                <input type="password" class="form-control" placeholder="Password" required>
+                            </div>
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="rememberMe">
+                                <label class="form-check-label" for="rememberMe">Remember me</label>
+                            </div>
+                            <button type="submit" class="btn btn-primary-custom w-100 mb-3">Login</button>
+                            <div class="text-center">
+                                <a href="#" class="text-muted">Forgot Password?</a>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Sign Up Form -->
+                    <div id="signupForm" class="auth-form" style="display: none;">
+                        <h4 class="mb-3">Create Account</h4>
+                        <form>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <input type="text" class="form-control" placeholder="First Name" name="firstName" required>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <input type="text" class="form-control" placeholder="Middle Name" name="middleName">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <input type="text" class="form-control" placeholder="Last Name" name="lastName" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <input type="email" class="form-control" placeholder="Email Address" required>
+                            </div>
+                            <div class="mb-3">
+                                <h4 class="mb-3">Phone Number</h4>
+                                <input type="tel" class="form-control" id="signupPhone" name="phone"
+                                    maxlength="13" placeholder="Enter your phone number (912 345 6789)" required>
+                            </div>
+                            <div class="mb-3">
+                                <h4 class="mb-3">Password</h4>
+                                <input type="password" class="form-control" placeholder="Password" required>
+                            </div>
+                            <div class="mb-3">
+                                <input type="password" class="form-control" placeholder="Confirm Password" required>
+                            </div>
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="agreeTerms" disabled required>
+                                <label class="form-check-label" for="agreeTerms">
+                                    I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Terms & Conditions</a>
+                                </label>
+                            </div>      
+                            <button type="submit" class="btn btn-primary-custom w-100">Create Account</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <!-- Terms & Conditions Modal -->
+    <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="termsModalLabel">Terms & Conditions</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla sit amet sapien vitae lorem ultrices gravida. 
+            Suspendisse potenti. Proin ultricies, orci sit amet fermentum dictum, justo elit suscipit urna, eget suscipit 
+            nisi lorem in massa.</p>
+            <p>By using Carmax, you agree to our policies regarding data usage, security, and service terms.</p>
+            <p><strong>Please read carefully before proceeding.</strong></p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" id="acceptTerms" class="btn btn-primary" data-bs-dismiss="modal">I Agree</button>
+        </div>
+        </div>
+    </div>
+    </div>
+
+        <!-- Car Details Modal -->
+    <div class="modal fade" id="carDetailsModal" tabindex="-1" aria-labelledby="carDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+        
+        <div class="modal-header">
+            <h5 class="modal-title" id="carDetailsModalLabel"></h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        
+        <div class="modal-body">
+            <img id="carImage" src="" class="img-fluid rounded mb-3" alt="">
+            <p><strong>Price:</strong> <span id="carPrice"></span></p>
+            <p><strong>Engine:</strong> <span id="carEngine"></span></p>
+            <p><strong>Transmission:</strong> <span id="carTransmission"></span></p>
+            <p id="carDescription"></p>
+        </div>
+        
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+        
+        </div>
+    </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Tab switching functionality
+        function switchTab(tab) {
+            const loginTab = document.getElementById('loginTab');
+            const signupTab = document.getElementById('signupTab');
+            const loginForm = document.getElementById('loginForm');
+            const signupForm = document.getElementById('signupForm');
+
+            if (tab === 'login') {
+                loginTab.classList.add('active');
+                signupTab.classList.remove('active');
+                loginForm.style.display = 'block';
+                signupForm.style.display = 'none';
+            } else {
+                signupTab.classList.add('active');
+                loginTab.classList.remove('active');
+                signupForm.style.display = 'block';
+                loginForm.style.display = 'none';
+            }
+        }
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Navbar background change on scroll
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.style.background = 'rgba(255, 255, 255, 0.98)';
+            } else {
+                navbar.style.background = 'rgba(255, 255, 255, 0.95)';
+            }
+        });
+
+        // Animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationDelay = '0s';
+                    entry.target.style.animationPlayState = 'running';
+                }
+            });
+        }, observerOptions);
+
+        // Observe all animated elements
+        document.querySelectorAll('.fade-in, .slide-in-left, .slide-in-right').forEach(el => {
+            el.style.animationPlayState = 'paused';
+            observer.observe(el);
+        });
+
+        // Form submission handling
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                alert('Form submitted successfully! This is a demo.');
+            });
+        });
+
+        // Add hover effects to car cards
+        document.querySelectorAll('.car-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-10px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+
+        // Add click effects to buttons
+        document.querySelectorAll('.btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.cssText = `
+                    width: ${size}px;
+                    height: ${size}px;
+                    left: ${x}px;
+                    top: ${y}px;
+                    position: absolute;
+                    border-radius: 50%;
+                    background: rgba(255,255,255,0.5);
+                    transform: scale(0);
+                    animation: ripple 0.6s linear;
+                    pointer-events: none;
+                `;
+                
+                this.style.position = 'relative';
+                this.style.overflow = 'hidden';
+                this.appendChild(ripple);
+                
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+
+        // Add CSS for ripple effect
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Enable checkbox only after clicking "I Agree"
+     // Enable checkbox + return to Sign Up form
+    document.getElementById("acceptTerms").addEventListener("click", function() {
+        // Enable and check the box
+        const agreeCheckbox = document.getElementById("agreeTerms");
+        agreeCheckbox.disabled = false;
+        agreeCheckbox.checked = true;
+
+        // Reopen the Auth Modal
+        let authModal = new bootstrap.Modal(document.getElementById("authModal"));
+        authModal.show();
+
+        // Switch to the Sign Up tab automatically
+        let signUpTab = document.querySelector('#authModal .nav-link#signup-tab');
+        let tab = new bootstrap.Tab(signUpTab);
+        tab.show();
+    });
+    
+    const phoneInput = document.getElementById("signupPhone");
+
+    phoneInput.addEventListener("input", function() {
+        if (!this.value.startsWith("+63")) {
+            this.value = "+63";
+        }
+        this.value = this.value.replace(/[^0-9+]/g, ''); // Only + and digits
+        if (this.value.length > 13) {
+            this.value = this.value.slice(0, 13); // +63 + 10 digits
+        }
+    });
+
+        let slideIndex = 0;
+    const slides = document.querySelectorAll(".hero-slide");
+    const indicators = document.querySelectorAll(".indicator");
+
+    function showSlide(index) {
+        slides.forEach((slide, i) => {
+            slide.classList.remove("active");
+            indicators[i].classList.remove("active");
+            if (i === index) {
+                slide.classList.add("active");
+                indicators[i].classList.add("active");
+            }
+        });
+        slideIndex = index;
+    }
+
+    function changeSlide(n) {
+        let newIndex = (slideIndex + n + slides.length) % slides.length;
+        showSlide(newIndex);
+    }
+
+    function currentSlide(n) {
+        showSlide(n - 1);
+    }
+
+    // Auto-slide every 5 seconds
+    setInterval(() => {
+        changeSlide(1);
+    }, 5000);
+
+    // Initialize
+    showSlide(0);
+    
+    // For View Details
+        document.querySelectorAll(".view-details").forEach(button => {
+    button.addEventListener("click", () => {
+        // Get data from button
+        const name = button.getAttribute("data-name");
+        const desc = button.getAttribute("data-desc");
+        const price = button.getAttribute("data-price");
+        const engine = button.getAttribute("data-engine");
+        const transmission = button.getAttribute("data-transmission");
+        const image = button.getAttribute("data-image");
+
+        // Fill modal
+        document.getElementById("carDetailsModalLabel").textContent = name;
+        document.getElementById("carDescription").textContent = desc;
+        document.getElementById("carPrice").textContent = price;
+        document.getElementById("carEngine").textContent = engine;
+        document.getElementById("carTransmission").textContent = transmission;
+        document.getElementById("carImage").src = image;
+        document.getElementById("carImage").alt = name;
+
+        // Show modal
+        let modal = new bootstrap.Modal(document.getElementById("carDetailsModal"));
+        modal.show();
+    });
+    });
+    </script>
+</body>
+</html>
