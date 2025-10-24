@@ -2,44 +2,31 @@
 session_start();
 include '../db_connect.php';
 
-// ✅ Check login session and role
-if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'operation') {
+// ✅ Check login session
+if (!isset($_SESSION['id'])) {
     header('Location: ../LoginPage/loginPage.php');
     exit();
 }
 
+// ✅ Session variables
+$id = $_SESSION['id'];
 $userName = $_SESSION['user_name'];
 $userRole = $_SESSION['role'];
 
-$canEdit = ($userRole === 'operation' || $userRole === 'superadmin');
-if (isset($_POST['save_changes'])) {
-    $id = $_POST['vehicle_id'];
-    $plate_number = $_POST['plate_number'];
-    $vehicle_model = $_POST['vehicle_model'];
-    $color = $_POST['color'];
-    $status = $_POST['status'];
+// ✅ Allow edit only for acquisition & superadmin
+$canEdit = ($userRole === 'acquisition' || $userRole === 'superadmin');
 
-    // ✅ Update query
-    $updateQuery = "UPDATE vehicle_acquisition 
-                    SET plate_number='$plate_number', vehicle_model='$vehicle_model', color='$color', status='$status'
-                    WHERE id='$id'";
-
-    if ($conn->query($updateQuery)) {
-        echo "<script>
-            alert('Changes saved successfully');
-            window.location.href = 'operationPage.php';
-        </script>";
-        exit();
-    } else {
-        echo "<script>
-            alert('Error updating record: " . $conn->error . "');
-            window.location.href = 'operationPage.php';
-        </script>";
-        exit();
-    }
+// ✅ Search functionality
+$search = isset($_GET['search']) ? $conn->real_escape_string($_GET['search']) : '';
+$searchQuery = '';
+if (!empty($search)) {
+    $searchQuery = " AND (plate_number LIKE '%$search%' 
+                     OR vehicle_model LIKE '%$search%' 
+                     OR color LIKE '%$search%')";
 }
-// ✅ Fetch all acquisitions sent to operations
-$query = "SELECT * FROM vehicle_acquisition WHERE status = 'Sent to Operations' ORDER BY created_at DESC";
+
+// ✅ Get all acquisitions including drafts & sent ones
+$query = "SELECT * FROM vehicle_acquisition WHERE status IN ('Draft', 'Sent to Operations') $searchQuery ORDER BY created_at DESC";
 $result = $conn->query($query);
 ?>
 <!DOCTYPE html>
@@ -47,13 +34,12 @@ $result = $conn->query($query);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Operations Dashboard - CarMax</title>
+    <title>Recent Acquisitions - CarMax</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="../css/operationPage.css">
-</head>
+    <link rel="stylesheet" href="../css/acquiPage.css">
 
-<style>
+    <style>
     .photo-grid {
         display: flex;
         flex-wrap: wrap;
@@ -74,76 +60,106 @@ $result = $conn->query($query);
         border: 1px solid #ddd;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
-</style>
+    .table_blue {
+        background-color: white;
+        color: #1E40AF;
+    }
+    </style>
+</head>
 <body>
 
-<!-- ✅ Header -->
+<!--Header -->
 <div class="header">
     <div class="header-left">
         <img src="../Pictures/Carmax_logo.jpg" alt="CarMax" class="logo">
-        <div class="header-title fs-4 fw-bold">Operation Dashboard</div>
+        <div class="header-title">Recent Acquisitions</div>
     </div>
-    <div class="user-info d-flex align-items-center gap-2">
+
+    <div class="user-info">
         <i class="fas fa-user-circle" style="font-size: 24px;"></i>
-        <span><?php echo htmlspecialchars($userName); ?> (Operation Admin)</span>
-        <a href="../logout.php" style="margin-left:15px;color:white;text-decoration:none;">
+        <span>
+            <?php 
+                $role = $_SESSION['role'];
+                $title = match($role) {
+                    'acquisition' => 'Acquisition Admin',
+                    'operation' => 'Operation Admin',
+                    'superadmin' => 'Super Admin',
+                    default => ucfirst($role)
+                };
+                echo htmlspecialchars($userName) . " ($title)";
+            ?>
+        </span>
+        <a href="../logout.php" style="margin-left: 15px; color: white; text-decoration: none;">
             <i class="fas fa-sign-out-alt"></i> Logout
         </a>
     </div>
 </div>
 
-<!-- ✅ Sidebar -->
+<!--Sidebar -->
 <div class="sidebar">
-    <a href="operationPage.php" class="sidebar-item active">
-        <i class="fas fa-inbox"></i><span>Received Acquisitions</span>
+    <a href="../AcquisitionPage/acquiPage.php" class="sidebar-item">
+        <i class="fas fa-car"></i><span>Acquisition</span>
     </a>
-    <a href="operationPage.php" class="sidebar-item">
-        <i class="fas fa-inbox"></i><span>Request for Payment</span>
+    <a href="../InventoryPage/inventoryPage.php" class="sidebar-item">
+        <i class="fas fa-warehouse"></i><span>Inventory</span>
     </a>
-    <a href="operationPage.php" class="sidebar-item">
-        <i class="fas fa-inbox"></i><span>Parts Needed/Order</span>
-    </a>
-    <a href="operationPage.php" class="sidebar-item">
-        <i class="fas fa-inbox"></i><span>Recon Cost</span>
-    </a>
-    <a href="operationPage.php" class="sidebar-item">
-        <i class="fas fa-inbox"></i><span>Sales</span>
+    <a href="../AcquisitionPage/recentAcquisition.php" class="sidebar-item active">
+        <i class="fas fa-history"></i><span>Recent Acquisition</span>
     </a>
 </div>
 
-<!-- ✅ Main Content -->
+<!-- Main Content -->
 <div class="main-content">
     <div class="sap-card">
-        <div class="sap-card-header">
-            <i class="fas fa-clipboard-list"></i> Received Acquisitions
+        <div class="sap-card-header d-flex justify-content-between align-items-center">
+            <div><i class="fas fa-table"></i> Recent Acquisitions</div>
+            <div>
+                <form method="GET" class="d-flex gap-2">
+                    <input type="text" name="search" class="form-control" placeholder="Search..." 
+                           value="<?php echo htmlspecialchars($search); ?>" style="width: 300px;">
+                    <button type="submit" class="btn-carmax-secondary">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                    <?php if (!empty($search)): ?>
+                        <a href="recentAcquisition.php" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Clear
+                        </a>
+                    <?php endif; ?>
+                </form>
+            </div>
         </div>
+
         <div class="sap-card-body">
-            <table class="table table-hover">
-                <thead class="table-dark">
+            <table class="sap-table table table-hover">
+                <thead class="table-blue">
                     <tr>
                         <th>Plate Number</th>
                         <th>Model</th>
                         <th>Year</th>
                         <th>Color</th>
                         <th>Price</th>
+                        <th>Status</th>
                         <th>Checked By</th>
-                        <th>Last Updated</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if ($result && $result->num_rows > 0): ?>
                         <?php while ($row = $result->fetch_assoc()): ?>
-                            <tr data-bs-toggle="modal" data-bs-target="#viewModal<?= $row['acquisition_id'] ?>" style="cursor:pointer;">
+                            <tr style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#viewModal<?= $row['acquisition_id'] ?>">
                                 <td><?= htmlspecialchars($row['plate_number']) ?></td>
                                 <td><?= htmlspecialchars($row['vehicle_model']) ?></td>
                                 <td><?= htmlspecialchars($row['year_model']) ?></td>
                                 <td><?= htmlspecialchars($row['color']) ?></td>
                                 <td>₱<?= number_format($row['projected_recon_price'], 2) ?></td>
+                                <td>
+                                    <span class="badge bg-<?= $row['status'] == 'Draft' ? 'secondary' : 'warning' ?>">
+                                        <?= htmlspecialchars($row['status']) ?>
+                                    </span>
+                                </td>
                                 <td><?= htmlspecialchars($row['approved_checked_by']) ?></td>
-                                <td><?= $row['last_updated_by'] ? htmlspecialchars($row['last_updated_by']) . '<br><small>' . htmlspecialchars($row['last_updated_at']) . '</small>' : '—' ?></td>
                             </tr>
 
-         <!--Modal -->
+        <!--Modal -->
         <div class="modal fade" id="viewModal<?= $row['acquisition_id'] ?>" tabindex="-1">
           <div class="modal-dialog modal-xl modal-dialog-scrollable">
             <div class="modal-content" data-id="<?= $row['acquisition_id'] ?>">
@@ -152,7 +168,7 @@ $result = $conn->query($query);
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
               </div>
 
-        <form method="POST" action="/AcquisitionPage/saveAcquisitionUpdate.php" enctype="multipart/form-data">
+        <form method="POST" action="saveAcquisitionUpdate.php" enctype="multipart/form-data">
           <input type="hidden" name="acquisition_id" value="<?= $row['acquisition_id'] ?>">
           <div class="modal-body">
 
@@ -273,7 +289,7 @@ $result = $conn->query($query);
 </div></div></div>
 
 <?php endwhile; else: ?>
-<tr><td colspan="7" class="text-center">No sent acquisitions found.</td></tr>
+<tr><td colspan="7" class="text-center">No acquisitions found.</td></tr>
 <?php endif; ?>
 </tbody></table></div></div></div>
 

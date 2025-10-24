@@ -1,78 +1,60 @@
 <?php
 session_start();
-
-// Database connection
-$conn = new mysqli('localhost', 'root', '', 'carmax_carmona');
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+include '../db_connect.php';
 
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'] ?? '';
     $password = $_POST['password'] ?? '';
-    $recaptchaResponse = $_POST['g-recaptcha-response'] ?? '';
-    
-    // Verify reCAPTCHA
-    if (empty($recaptchaResponse)) {
-        $error = 'Please complete the reCAPTCHA verification.';
-    } else {
-        $email = $conn->real_escape_string($email);
-        $sql = "SELECT * FROM users WHERE email = '$email' AND status = 'active'";
-        $result = $conn->query($sql);
-        
-        if ($result->num_rows === 1) {
-            $user = $result->fetch_assoc();
-            
-            if (password_verify($password, $user['password'])) {
-                // Set session variables
-                $_SESSION['user_id'] = $user['id'];
-                $_SESSION['user_email'] = $user['email'];
-                $_SESSION['user_role'] = $user['role'];
-                $_SESSION['user_name'] = $user['firstname'] . ' ' . $user['lastname'];
-                
-                // Update last login
-                $userId = $user['id'];
-                $conn->query("UPDATE users SET last_login = NOW() WHERE id = $userId");
-                
-                // ✅ FIXED: Redirect the entire window, not just inside the iframe
-                $role = strtolower($user['role']);
-                switch ($role) {
-                    case 'acquisition':
-                        echo "<script>
-                            window.top.location.href = '../AcquisitionPage/acquiPage.php';
-                        </script>";
-                        break;
-                    case 'operation':
-                        echo "<script>
-                            window.top.location.href = '../OperationPage/operationPage.php';
-                        </script>";
-                        break;
-                    case 'superadmin':
-                        echo "<script>
-                            window.top.location.href = '../SuperadminPage/superadminPage.php';
-                        </script>";
-                        break;
-                    default:
-                        echo "<script>
-                            alert('Unknown role. Please contact the administrator.');
-                            window.top.location.href = '../LoginPage/loginPage.php';
-                        </script>";
-                        break;
-                }
-                exit();
-            } else {
-                $error = 'Invalid email or password';
+
+    $email = $conn->real_escape_string($email);
+    $sql = "SELECT * FROM users WHERE email = '$email' AND status = 'active'";
+    $result = $conn->query($sql);
+
+    if ($result->num_rows === 1) {
+        $user = $result->fetch_assoc();
+
+        if (password_verify($password, $user['password'])) {
+            // Save session data
+            $_SESSION['id'] = $user['id'];
+            $_SESSION['email'] = $user['email'];
+            $_SESSION['role'] = $user['role'];
+            $_SESSION['user_name'] = $user['firstname'] . ' ' . $user['lastname'];
+
+            // Update last login time
+            $conn->query("UPDATE users SET last_login = NOW() WHERE id = {$user['id']}");
+
+            // Redirect based on role 
+            switch ($user['role']) {
+                case 'acquisition':
+                    $redirect = "../AcquisitionPage/acquiPage.php";
+                    break;
+                case 'operation':
+                    $redirect = "../OperationPage/operationPage.php";
+                    break;
+                case 'superadmin':
+                    $redirect = "../SuperadminPage/superadminPage.php";
+                    break;
+                default:
+                    $redirect = "../LandingPage/LandingPage.php";
             }
+
+            echo "<script>
+                window.top.location.href = '$redirect';
+            </script>";
+            exit;
         } else {
-            $error = 'Invalid email or password';
+            $error = 'Invalid email or password.';
         }
+    } else {
+        $error = 'Invalid email or password.';
     }
 }
-
-$conn->close();
 ?>
+
+
+
 
 
 <!DOCTYPE html>
