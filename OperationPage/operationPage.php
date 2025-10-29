@@ -2,8 +2,8 @@
 session_start();
 include '../db_connect.php';
 
-// ✅ Check login session and role
-if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'operation') {
+// Check login session and role
+if (!isset($_SESSION['id']) || ($_SESSION['role'] !== 'operation' && $_SESSION['role'] !== 'superadmin')) {
     header('Location: ../LoginPage/loginPage.php');
     exit();
 }
@@ -11,35 +11,8 @@ if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'operation') {
 $userName = $_SESSION['user_name'];
 $userRole = $_SESSION['role'];
 
-$canEdit = ($userRole === 'operation' || $userRole === 'superadmin');
-if (isset($_POST['save_changes'])) {
-    $id = $_POST['vehicle_id'];
-    $plate_number = $_POST['plate_number'];
-    $vehicle_model = $_POST['vehicle_model'];
-    $color = $_POST['color'];
-    $status = $_POST['status'];
-
-    // ✅ Update query
-    $updateQuery = "UPDATE vehicle_acquisition 
-                    SET plate_number='$plate_number', vehicle_model='$vehicle_model', color='$color', status='$status'
-                    WHERE id='$id'";
-
-    if ($conn->query($updateQuery)) {
-        echo "<script>
-            alert('Changes saved successfully');
-            window.location.href = 'operationPage.php';
-        </script>";
-        exit();
-    } else {
-        echo "<script>
-            alert('Error updating record: " . $conn->error . "');
-            window.location.href = 'operationPage.php';
-        </script>";
-        exit();
-    }
-}
-// ✅ Fetch all acquisitions sent to operations
-$query = "SELECT * FROM vehicle_acquisition WHERE status = 'Sent to Operations' ORDER BY created_at DESC";
+// Fetch all acquisitions sent to operations
+$query = "SELECT * FROM vehicle_acquisition WHERE status = 'Sent to Operations' ORDER BY sent_to_operations_at DESC";
 $result = $conn->query($query);
 ?>
 <!DOCTYPE html>
@@ -51,83 +24,101 @@ $result = $conn->query($query);
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../css/operationPage.css">
+    <style>
+        .photo-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: flex-start;
+        }
+        .photo-box {
+            flex: 1 1 calc(33.333% - 15px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .photo-box img {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .info-row {
+            display: flex;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .info-label {
+            font-weight: 600;
+            width: 200px;
+            color: #555;
+        }
+        .info-value {
+            flex: 1;
+            color: #333;
+        }
+    </style>
 </head>
-
-<style>
-    .photo-grid {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 15px;
-        justify-content: flex-start;
-    }
-    .photo-box {
-        flex: 1 1 calc(33.333% - 15px);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-    .photo-box img {
-        width: 100%;
-        max-height: 200px;
-        object-fit: cover;
-        border-radius: 10px;
-        border: 1px solid #ddd;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-</style>
 <body>
 
-<!-- ✅ Header -->
+<!-- Header -->
 <div class="header">
     <div class="header-left">
         <img src="../Pictures/Carmax_logo.jpg" alt="CarMax" class="logo">
-        <div class="header-title fs-4 fw-bold">Operation Dashboard</div>
+        <div class="header-title fs-4 fw-bold">Operations Dashboard</div>
     </div>
     <div class="user-info d-flex align-items-center gap-2">
         <i class="fas fa-user-circle" style="font-size: 24px;"></i>
-        <span><?php echo htmlspecialchars($userName); ?> (Operation Admin)</span>
+        <span>
+            <?php 
+                $title = $userRole === 'operation' ? 'Operation Admin' : 'Super Admin';
+                echo htmlspecialchars($userName) . " ($title)";
+            ?>
+        </span>
         <a href="../logout.php" style="margin-left:15px;color:white;text-decoration:none;">
             <i class="fas fa-sign-out-alt"></i> Logout
         </a>
     </div>
 </div>
 
-<!-- ✅ Sidebar -->
+<!-- Sidebar -->
 <div class="sidebar">
     <a href="operationPage.php" class="sidebar-item active">
         <i class="fas fa-inbox"></i><span>Received Acquisitions</span>
     </a>
-    <a href="operationPage.php" class="sidebar-item">
-        <i class="fas fa-inbox"></i><span>Request for Payment</span>
+    <a href="#" class="sidebar-item">
+        <i class="fas fa-money-bill-wave"></i><span>Request for Payment</span>
     </a>
-    <a href="operationPage.php" class="sidebar-item">
-        <i class="fas fa-inbox"></i><span>Parts Needed/Order</span>
+    <a href="#" class="sidebar-item">
+        <i class="fas fa-tools"></i><span>Parts Needed/Order</span>
     </a>
-    <a href="operationPage.php" class="sidebar-item">
-        <i class="fas fa-inbox"></i><span>Recon Cost</span>
+    <a href="#" class="sidebar-item">
+        <i class="fas fa-calculator"></i><span>Recon Cost</span>
     </a>
-    <a href="operationPage.php" class="sidebar-item">
-        <i class="fas fa-inbox"></i><span>Sales</span>
+    <a href="#" class="sidebar-item">
+        <i class="fas fa-shopping-cart"></i><span>Sales</span>
     </a>
 </div>
 
-<!-- ✅ Main Content -->
+<!-- Main Content -->
 <div class="main-content">
     <div class="sap-card">
         <div class="sap-card-header">
-            <i class="fas fa-clipboard-list"></i> Received Acquisitions
+            <i class="fas fa-clipboard-list"></i> Received Acquisitions 
         </div>
         <div class="sap-card-body">
-            <table class="table table-hover">
-                <thead class="table-dark">
+            <table class="sap-table table table-hover">
+                <thead class="table-success">
                     <tr>
                         <th>Plate Number</th>
                         <th>Model</th>
                         <th>Year</th>
                         <th>Color</th>
                         <th>Price</th>
-                        <th>Checked By</th>
-                        <th>Last Updated</th>
+                        <th>Sent By</th>
+                        <th>Received Date</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -139,164 +130,166 @@ $result = $conn->query($query);
                                 <td><?= htmlspecialchars($row['year_model']) ?></td>
                                 <td><?= htmlspecialchars($row['color']) ?></td>
                                 <td>₱<?= number_format($row['projected_recon_price'], 2) ?></td>
-                                <td><?= htmlspecialchars($row['approved_checked_by']) ?></td>
-                                <td><?= $row['last_updated_by'] ? htmlspecialchars($row['last_updated_by']) . '<br><small>' . htmlspecialchars($row['last_updated_at']) . '</small>' : '—' ?></td>
+                                <td><?= htmlspecialchars($row['sent_to_operations_by'] ?? 'N/A') ?></td>
+                                <td><?= $row['sent_to_operations_at'] ? date('M d, Y h:i A', strtotime($row['sent_to_operations_at'])) : 'N/A' ?></td>
                             </tr>
+                        <?php endwhile; ?>
+                    <?php else: ?>
+                        <tr><td colspan="7" class="text-center">No vehicles received from acquisition team yet.</td></tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
 
-         <!--Modal -->
-        <div class="modal fade" id="viewModal<?= $row['acquisition_id'] ?>" tabindex="-1">
-          <div class="modal-dialog modal-xl modal-dialog-scrollable">
-            <div class="modal-content" data-id="<?= $row['acquisition_id'] ?>">
-              <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title"><i class="fas fa-car"></i> Vehicle Acquisition Details</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-              </div>
-
-        <form method="POST" action="/AcquisitionPage/saveAcquisitionUpdate.php" enctype="multipart/form-data">
-          <input type="hidden" name="acquisition_id" value="<?= $row['acquisition_id'] ?>">
-          <div class="modal-body">
-
-            <!--Basic Info -->
-            <h6 class="text-primary fw-bold mb-3"><i class="fas fa-info-circle"></i> Basic Information</h6>
-            <div class="row g-3 mb-4">
-              <div class="col-md-3"><label>Plate Number</label><input type="text" class="form-control" name="plate_number" value="<?= htmlspecialchars($row['plate_number']) ?>" disabled></div>
-              <div class="col-md-3"><label>Vehicle Model</label><input type="text" class="form-control" name="vehicle_model" value="<?= htmlspecialchars($row['vehicle_model']) ?>" disabled></div>
-              <div class="col-md-3"><label>Year Model</label><input type="number" class="form-control" name="year_model" value="<?= htmlspecialchars($row['year_model']) ?>" disabled></div>
-              <div class="col-md-3"><label>Color</label><input type="text" class="form-control" name="color" value="<?= htmlspecialchars($row['color']) ?>" disabled></div>
-            </div>
-
-            <!--Vehicle Photos -->
-            <h6 class="text-primary fw-bold mb-3"><i class="fas fa-images"></i> Vehicle Photos</h6>
-            <div class="photo-grid mb-4">
-              <?php 
-              $photos = ['wholecar' => 'Whole Car','dashboard' => 'Dashboard','hood' => 'Hood','interior' => 'Interior','exterior' => 'Exterior','trunk' => 'Trunk'];
-              foreach ($photos as $key => $label):
-                $photoField = $key . '_photo';
-                $photoPath = htmlspecialchars($row[$photoField] ?? '');
-              ?>
-              <div class="photo-box">
-                <label><?= $label ?></label>
-                <?php if (!empty($photoPath)): ?>
-                  <img src="../uploads/<?= $photoPath ?>" alt="<?= $label ?>">
-                <?php else: ?>
-                  <div class="text-muted">No image uploaded</div>
-                <?php endif; ?>
-                <input type="file" name="<?= $photoField ?>" class="form-control mt-2 d-none" accept="image/*">
-              </div>
-              <?php endforeach; ?>
-            </div>
-
-            <!--Issue Photos -->
-            <?php 
-            if (!empty($row['issue_photos'])):
-                $issuePhotos = json_decode($row['issue_photos'], true);
-                if (!is_array($issuePhotos)) $issuePhotos = explode(',', $row['issue_photos']);
+            <!-- ✅ Modals should be rendered AFTER the table -->
+            <?php
+            // Re-run query or use the same result if not exhausted
+            $result->data_seek(0); 
+            while ($row = $result->fetch_assoc()): 
             ?>
-            <h6 class="text-primary fw-bold mb-3"><i class="fas fa-exclamation-triangle"></i> Issue Photos</h6>
-            <div class="photo-grid mb-4">
-              <?php foreach ($issuePhotos as $photo): $photo = trim($photo); if (!empty($photo)): ?>
-              <div class="photo-box">
-                <img src="../uploads/<?= htmlspecialchars($photo) ?>" alt="Issue Photo">
-              </div>
-              <?php endif; endforeach; ?>
-              <input type="file" name="issue_photos[]" class="form-control mt-2 d-none" accept="image/*" multiple>
+            <div class="modal fade" id="viewModal<?= $row['acquisition_id'] ?>" tabindex="-1">
+                <div class="modal-dialog modal-xl modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header bg-primary text-white">
+                            <h5 class="modal-title">
+                                <i class="fas fa-car"></i> Vehicle Details - <?= htmlspecialchars($row['vehicle_model']) ?>
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+
+                        <div class="modal-body">
+                            <!-- Basic Info -->
+                            <h6 class="text-primary fw-bold mb-3"><i class="fas fa-info-circle"></i> Basic Information</h6>
+                            <div class="mb-4">
+                                <div class="info-row"><div class="info-label">Plate Number:</div><div class="info-value"><?= htmlspecialchars($row['plate_number']) ?></div></div>
+                                <div class="info-row"><div class="info-label">Vehicle Model:</div><div class="info-value"><?= htmlspecialchars($row['vehicle_model']) ?></div></div>
+                                <div class="info-row"><div class="info-label">Year Model:</div><div class="info-value"><?= htmlspecialchars($row['year_model']) ?></div></div>
+                                <div class="info-row"><div class="info-label">Color:</div><div class="info-value"><?= htmlspecialchars($row['color']) ?></div></div>
+                                <div class="info-row"><div class="info-label">Projected Recon Price:</div><div class="info-value">₱<?= number_format($row['projected_recon_price'], 2) ?></div></div>
+                            </div>
+
+                            <!-- Vehicle Photos -->
+                            <h6 class="text-primary fw-bold mb-3"><i class="fas fa-images"></i> Vehicle Photos</h6>
+                            <div class="photo-grid mb-4">
+                                <?php 
+                                $photos = ['wholecar'=>'Whole Car','dashboard'=>'Dashboard','hood'=>'Hood','interior'=>'Interior','exterior'=>'Exterior','trunk'=>'Trunk'];
+                                foreach ($photos as $key => $label):
+                                    $photoField = $key.'_photo';
+                                    $photoPath = htmlspecialchars($row[$photoField] ?? '');
+                                ?>
+                                <div class="photo-box">
+                                    <label><?= $label ?></label>
+                                    <?php if (!empty($photoPath)): ?>
+                                        <img src="../uploads/<?= $photoPath ?>" alt="<?= $label ?>">
+                                    <?php else: ?>
+                                        <div class="text-muted">No image</div>
+                                    <?php endif; ?>
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
+
+                            <!-- Issues Section -->
+                            <?php 
+                            $issuesQuery = $conn->query("SELECT * FROM acquisition_issues WHERE acquisition_id = {$row['acquisition_id']}");
+                            if ($issuesQuery && $issuesQuery->num_rows > 0): 
+                            ?>
+                            <h6 class="text-primary fw-bold mb-3"><i class="fas fa-exclamation-triangle"></i> Issues (Resolved)</h6>
+                            <div class="table-responsive mb-4">
+                                <table class="table table-bordered">
+                                    <thead><tr><th>Issue Name</th><th>Photo</th><th>Status</th><th>Repaired By</th></tr></thead>
+                                    <tbody>
+                                        <?php while ($issue = $issuesQuery->fetch_assoc()): ?>
+                                        <tr>
+                                            <td><?= htmlspecialchars($issue['issue_name']) ?></td>
+                                            <td>
+                                                <?php if (!empty($issue['issue_photo'])): ?>
+                                                    <img src="../uploads/<?= htmlspecialchars($issue['issue_photo']) ?>" style="max-width:100px; max-height:100px; border-radius:5px;">
+                                                <?php endif; ?>
+                                            </td>
+                                            <td><span class="badge bg-success"><i class="fas fa-check"></i> Repaired</span></td>
+                                            <td><?= htmlspecialchars($issue['repaired_by'] ?? 'N/A') ?></td>
+                                        </tr>
+                                        <?php endwhile; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <?php endif; ?>
+
+                            <!-- Parts Section -->
+                            <?php 
+                            $partsQuery = $conn->query("SELECT * FROM acquisition_parts WHERE acquisition_id = {$row['acquisition_id']}");
+                            if ($partsQuery && $partsQuery->num_rows > 0): 
+                            ?>
+                            <h6 class="text-primary fw-bold mb-3"><i class="fas fa-tools"></i> Parts (Ordered)</h6>
+                            <div class="table-responsive mb-4">
+                                <table class="table table-bordered">
+                                    <thead><tr><th>Part Name</th><th>Status</th><th>Ordered By</th></tr></thead>
+                                    <tbody>
+                                        <?php while ($part = $partsQuery->fetch_assoc()): ?>
+                                        <tr>
+                                            <td><?= htmlspecialchars($part['part_name']) ?></td>
+                                            <td><span class="badge bg-success"><i class="fas fa-check"></i> Ordered</span></td>
+                                            <td><?= htmlspecialchars($part['ordered_by'] ?? 'N/A') ?></td>
+                                        </tr>
+                                        <?php endwhile; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <?php endif; ?>
+
+                            <!-- Vehicle Condition -->
+                            <h6 class="text-primary fw-bold mb-3"><i class="fas fa-clipboard-check"></i> Vehicle Condition</h6>
+                            <div class="mb-4">
+                                <div class="info-row"><div class="info-label">Spare Tires:</div><div class="info-value"><?= htmlspecialchars($row['spare_tires']) ?></div></div>
+                                <div class="info-row"><div class="info-label">Complete Tools:</div><div class="info-value"><?= htmlspecialchars($row['complete_tools']) ?></div></div>
+                                <div class="info-row"><div class="info-label">Original Plate:</div><div class="info-value"><?= htmlspecialchars($row['original_plate']) ?></div></div>
+                                <div class="info-row"><div class="info-label">Complete Documents:</div><div class="info-value"><?= htmlspecialchars($row['complete_documents']) ?></div></div>
+                            </div>
+
+                            <!-- Document Photos -->
+                            <?php 
+                            if (!empty($row['document_photos'])):
+                                $docPhotos = json_decode($row['document_photos'], true);
+                                if (!is_array($docPhotos)) $docPhotos = explode(',', $row['document_photos']);
+                            ?>
+                            <h6 class="text-primary fw-bold mb-3"><i class="fas fa-file-contract"></i> Document Photos</h6>
+                            <div class="photo-grid mb-4">
+                                <?php foreach ($docPhotos as $photo): $photo = trim($photo); if (!empty($photo)): ?>
+                                <div class="photo-box"><img src="../uploads/<?= htmlspecialchars($photo) ?>" alt="Document"></div>
+                                <?php endif; endforeach; ?>
+                            </div>
+                            <?php endif; ?>
+
+                            <!-- Remarks -->
+                           <h6 class="text-primary fw-bold mb-3"><i class="fas fa-comment"></i> Remarks</h6>
+                           <div class="alert alert-info"><?= nl2br(htmlspecialchars($row['remarks'] ?? 'No remarks')) ?></div>
+
+                            <!-- Timeline -->
+                            <h6 class="text-primary fw-bold mb-3"><i class="fas fa-history"></i> Process Timeline</h6>
+                            <div class="mb-4">
+                                <div class="info-row"><div class="info-label">Quality Checked By:</div><div class="info-value"><?= htmlspecialchars($row['quality_checked_by'] ?? 'N/A') ?></div></div>
+                                <div class="info-row"><div class="info-label">Quality Checked At:</div><div class="info-value"><?= $row['quality_checked_at'] ? date('M d, Y h:i A', strtotime($row['quality_checked_at'])) : 'N/A' ?></div></div>
+                                <div class="info-row"><div class="info-label">Approved By:</div><div class="info-value"><?= htmlspecialchars($row['approved_by'] ?? 'N/A') ?></div></div>
+                                <div class="info-row"><div class="info-label">Approved At:</div><div class="info-value"><?= $row['approved_at'] ? date('M d, Y h:i A', strtotime($row['approved_at'])) : 'N/A' ?></div></div>
+                                <div class="info-row"><div class="info-label">Sent to Operations By:</div><div class="info-value"><?= htmlspecialchars($row['sent_to_operations_by'] ?? 'N/A') ?></div></div>
+                                <div class="info-row"><div class="info-label">Sent to Operations At:</div><div class="info-value"><?= $row['sent_to_operations_at'] ? date('M d, Y h:i A', strtotime($row['sent_to_operations_at'])) : 'N/A' ?></div></div>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <?php endif; ?>
+            <?php endwhile; ?>
+        </div>
+    </div>
+</div>
 
-            <!--Document Photos -->
-            <?php 
-            if (!empty($row['document_photos'])):
-                $docPhotos = json_decode($row['document_photos'], true);
-                if (!is_array($docPhotos)) $docPhotos = explode(',', $row['document_photos']);
-            ?>
-            <h6 class="text-primary fw-bold mb-3"><i class="fas fa-file-contract"></i> Document Photos</h6>
-            <div class="photo-grid mb-4">
-              <?php foreach ($docPhotos as $photo): $photo = trim($photo); if (!empty($photo)): ?>
-              <div class="photo-box">
-                <img src="../uploads/<?= htmlspecialchars($photo) ?>" alt="Document Photo">
-              </div>
-              <?php endif; endforeach; ?>
-              <input type="file" name="document_photos[]" class="form-control mt-2 d-none" accept="image/*" multiple>
-            </div>
-            <?php endif; ?>
-
-            <!--Vehicle Condition -->
-            <h6 class="text-primary fw-bold mb-3"><i class="fas fa-clipboard-check"></i> Vehicle Condition</h6>
-            <div class="row g-3 mb-4">
-              <?php 
-              $conditionFields = ['spare_tires'=>'Spare Tires','complete_tools'=>'Complete Tools','original_plate'=>'Original Plate','complete_documents'=>'Complete Documents'];
-              foreach ($conditionFields as $field=>$label): ?>
-              <div class="col-md-3">
-                <label><?= $label ?></label>
-                <select class="form-select" name="<?= $field ?>" disabled>
-                  <option value="Yes" <?= $row[$field]=='Yes'?'selected':'' ?>>Yes</option>
-                  <option value="No" <?= $row[$field]=='No'?'selected':'' ?>>No</option>
-                </select>
-              </div>
-              <?php endforeach; ?>
-            </div>
-
-            <!-- Remarks -->
-            <h6 class="text-primary fw-bold mb-3"><i class="fas fa-comment"></i> General Remarks</h6>
-            <textarea class="form-control mb-4" name="remarks" rows="3" disabled><?= htmlspecialchars($row['remarks'] ?? '') ?></textarea>
-
-            <!-- Financial Details -->
-            <h6 class="text-primary fw-bold mb-3"><i class="fas fa-peso-sign"></i> Financial Details</h6>
-            <div class="row g-3 mb-4">
-              <div class="col-md-4"><label>Projected Recon Price</label><input type="number" class="form-control" name="projected_recon_price" value="<?= htmlspecialchars($row['projected_recon_price']) ?>" disabled></div>
-              <div class="col-md-4"><label>Checked By</label><input type="text" class="form-control" name="approved_checked_by" value="<?= htmlspecialchars($row['approved_checked_by']) ?>" disabled></div>
-              <div class="col-md-4">
-                <label>Status</label>
-                <select class="form-select" name="status" disabled>
-                  <option <?= $row['status']=='Draft'?'selected':'' ?>>Draft</option>
-                  <option <?= $row['status']=='Sent to Operations'?'selected':'' ?>>Sent to Operations</option>
-                </select>
-              </div>
-            </div>
-
-            <?php if (!empty($row['last_updated_by'])): ?>
-              <div class="text-muted mt-3 small">
-                <strong>Last updated by:</strong> <?= htmlspecialchars($row['last_updated_by']) ?> <br>
-                <strong>On:</strong> <?= htmlspecialchars($row['last_updated_at']) ?>
-              </div>
-            <?php endif; ?>
-
-          </div>
-
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-    <?php if ($canEdit): ?>
-      <button type="button" class="btn btn-warning" onclick="enableEdit(this)">Edit</button>
-    <?php endif; ?>
-  </div>
-</form>
-</div></div></div>
-
-<?php endwhile; else: ?>
-<tr><td colspan="7" class="text-center">No sent acquisitions found.</td></tr>
-<?php endif; ?>
-</tbody></table></div></div></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-<script>
-function enableEdit(btn) {
-  const modal = btn.closest('.modal-content');
-  const inputs = modal.querySelectorAll('input:not([type="hidden"]), select, textarea');
-  const fileInputs = modal.querySelectorAll('input[type="file"]');
-  const form = modal.querySelector('form');
-  const isEditing = btn.dataset.editing === "true";
 
-  if (!isEditing) {
-    inputs.forEach(el => el.disabled = false);
-    fileInputs.forEach(f => f.classList.remove('d-none'));
-    btn.textContent = 'Save Changes';
-    btn.classList.replace('btn-warning', 'btn-success');
-    btn.dataset.editing = "true";
-  } else {
-    form.submit();
-  }
-}
-</script>
 
 </body>
 </html>

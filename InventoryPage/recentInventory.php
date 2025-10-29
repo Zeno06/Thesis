@@ -32,40 +32,7 @@ $result = $conn->query($sql);
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="../css/inventory.css" rel="stylesheet">
-    <style>
-    .modal-dialog-scrollable .modal-body {
-    max-height: calc(100vh - 180px); /* Adjust to fit your header/footer */
-    overflow-y: auto !important;
-    overflow-x: hidden;
-
-    .approved-section {
-  margin-top: 20px;
-}
-.approved-section label {
-  font-weight: 600;
-}
-    .photo-grid {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 15px;
-        justify-content: flex-start;
-    }
-    .photo-box {
-        flex: 1 1 calc(33.333% - 15px);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-    .photo-box img {
-        width: 100%;
-        max-height: 200px;
-        object-fit: cover;
-        border-radius: 10px;
-        border: 1px solid #ddd;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-}
-    </style>
+ 
 </head>
 
 <body>
@@ -93,17 +60,24 @@ $result = $conn->query($sql);
         </div>
     </div>
 
-    <div class="sidebar">
-        <a href="../AcquisitionPage/acquiPage.php" class="sidebar-item">
-            <i class="fas fa-car"></i><span>Acquisition</span>
-        </a>
-        <a href="inventoryPage.php" class="sidebar-item">
-            <i class="fas fa-plus-circle"></i><span>Add Inventory</span>
-        </a>
-        <a href="recentInventory.php" class="sidebar-item active">
-            <i class="fas fa-history"></i><span>Recent Inventory</span>
-        </a>
-    </div>
+<div class="sidebar">
+    <a href="/AcquisitionPage/acquiPage.php" class="sidebar-item ">
+        <i class="fas fa-car"></i><span>Acquisition</span>
+    </a>
+     <a href="/AcquisitionPage/qualityPage.php" class="sidebar-item">
+        <i class="fas fa-list"></i><span>Quality Check</span>
+    </a>
+    <a href="/AcquisitionPage/approvePage.php" class="sidebar-item">
+        <i class="fas fa-check-square"></i><span>Approved Acquisition</span>
+    </a>
+    <a href="/InventoryPage/inventoryPage.php" class="sidebar-item">
+       <i class="fas fa-warehouse"></i><span>Inventory</span>
+    </a>
+        <a href="/InventoryPage/recentInventory.php" class="sidebar-item active">
+       <i class="fas fa-history"></i><span>Recent Inventory</span>
+    </a>
+</div>
+
 <div class="main-content">
     <div class="sap-card">
         <div class="sap-card-header">
@@ -126,7 +100,7 @@ $result = $conn->query($sql);
 
 <div class="sap-card-body">
     <table class="sap-table table table-hover">
-        <thead class="table-dark">
+        <thead class="table-primary">
             <tr>
                 <th>Date Acquired</th>
                 <th>Plate Number</th>
@@ -160,9 +134,9 @@ $result = $conn->query($sql);
 </div>
 
 <?php 
-// Render all modals outside the table
+
 if ($result && $result->num_rows > 0):
-    $result->data_seek(0); // rewind the result pointer
+    $result->data_seek(0); 
     while ($row = $result->fetch_assoc()):
 ?>
 <!-- Inventory Modal -->
@@ -364,6 +338,7 @@ if ($result && $result->num_rows > 0):
                     <?php else: ?>
                         <p class="text-muted">No receipts uploaded</p>
                     <?php endif; ?>
+                    
                      <!-- Upload Receipts -->
                     <div class="edit-only" style="display:none;">
                         <label class="form-label">Upload New Receipts</label>

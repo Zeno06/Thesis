@@ -130,20 +130,23 @@ $userName = $_SESSION['user_name'];
     </div>
 
     <!-- Sidebar -->
-    <div class="sidebar">
-        <a href="../AcquisitionPage/acquiPage.php" class="sidebar-item">
-            <i class="fas fa-car"></i>
-            <span>Acquisition</span>
-        </a>
-        <a href="inventoryPage.php" class="sidebar-item active">
-           <i class="fas fa-plus-circle"></i>
-            <span>Add Inventory</span>
-        </a>
-        <a href="recentInventory.php" class="sidebar-item">
-           <i class="fas fa-history"></i>
-            <span>Recent Inventory</span>
-        </a>
-    </div>
+<div class="sidebar">
+    <a href="/AcquisitionPage/acquiPage.php" class="sidebar-item ">
+        <i class="fas fa-car"></i><span>Acquisition</span>
+    </a>
+     <a href="/AcquisitionPage/qualityPage.php" class="sidebar-item">
+        <i class="fas fa-list"></i><span>Quality Check</span>
+    </a>
+    <a href="/AcquisitionPage/approvePage.php" class="sidebar-item">
+        <i class="fas fa-check-square"></i><span>Approved Acquisition</span>
+    </a>
+    <a href="/InventoryPage/inventoryPage.php" class="sidebar-item active">
+       <i class="fas fa-warehouse"></i><span>Inventory</span>
+    </a>
+        <a href="/InventoryPage/recentInventory.php" class="sidebar-item">
+       <i class="fas fa-history"></i><span>Recent Inventory</span>
+    </a>
+</div>
 
     <!-- Main Content -->
     <div class="main-content">
@@ -212,7 +215,7 @@ $userName = $_SESSION['user_name'];
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Plate Number</label>
-                            <input type="text" class="form-control" name="plateNumber" placeholder="e.g., ABC1234" required>
+                            <input type="text" class="form-control" name="plateNumber" placeholder="e.g., NEM1034" required>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Fuel Type</label>
