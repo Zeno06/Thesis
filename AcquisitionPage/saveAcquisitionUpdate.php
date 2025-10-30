@@ -7,7 +7,7 @@ if (!isset($_SESSION['id']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit();
 }
 
-// 🧹 Sanitize Inputs
+
 $acquisition_id = intval($_POST['acquisition_id']);
 $plate_number = $conn->real_escape_string($_POST['plate_number']);
 $vehicle_model = $conn->real_escape_string($_POST['vehicle_model']);
@@ -18,16 +18,16 @@ $status = isset($_POST['status']) ? $conn->real_escape_string($_POST['status']) 
 $approved_checked_by = $conn->real_escape_string($_POST['approved_checked_by']);
 $remarks = $conn->real_escape_string($_POST['remarks'] ?? '');
 
-// ✅ Track user
+// Track user
 $updatedBy = $conn->real_escape_string($_SESSION['user_name']);
 $updatedAt = date('Y-m-d H:i:s');
 
-// 🗂 Create unique upload directory (per vehicle)
+// Create unique upload directory (per vehicle)
 $folderName = preg_replace('/[^A-Za-z0-9_\-]/', '_', "{$vehicle_model}_{$plate_number}_{$year_model}");
 $uploadDir = __DIR__ . "/../uploads/{$folderName}/";
 if (!file_exists($uploadDir)) mkdir($uploadDir, 0777, true);
 
-// 🧰 Helper functions
+// Helper functions
 function uploadFile($field, $uploadDir, $oldValue) {
     if (isset($_FILES[$field]) && $_FILES[$field]['error'] === UPLOAD_ERR_OK) {
         $filename = time() . '_' . basename($_FILES[$field]['name']);
@@ -54,10 +54,10 @@ function uploadMultiple($field, $uploadDir, $oldValue) {
     return $oldValue;
 }
 
-// 🧾 Get old data
+//  Get old data
 $old = $conn->query("SELECT * FROM vehicle_acquisition WHERE acquisition_id=$acquisition_id")->fetch_assoc();
 
-// 🖼 Handle file uploads (keep old if not replaced)
+// Handle file uploads (keep old if not replaced)
 $photoFields = ['wholecar_photo', 'dashboard_photo', 'hood_photo', 'interior_photo', 'exterior_photo', 'trunk_photo'];
 foreach ($photoFields as $field) {
     $old[$field] = uploadFile($field, $uploadDir, $old[$field]);
@@ -65,7 +65,7 @@ foreach ($photoFields as $field) {
 $issue_photos = uploadMultiple('issue_photos', $uploadDir, $old['issue_photos']);
 $document_photos = uploadMultiple('document_photos', $uploadDir, $old['document_photos']);
 
-// 💾 Update query
+// Update query
 $sql = "UPDATE vehicle_acquisition SET 
     plate_number='$plate_number',
     vehicle_model='$vehicle_model',

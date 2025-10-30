@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 24, 2025 at 08:03 AM
+-- Generation Time: Oct 30, 2025 at 02:49 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -20,6 +20,37 @@ SET time_zone = "+00:00";
 --
 -- Database: `carmax_carmona`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `acquisition_issues`
+--
+
+CREATE TABLE `acquisition_issues` (
+  `issue_id` int(11) NOT NULL,
+  `acquisition_id` int(11) NOT NULL,
+  `issue_name` varchar(255) NOT NULL,
+  `issue_photo` varchar(255) DEFAULT NULL,
+  `is_repaired` tinyint(1) DEFAULT 0,
+  `repaired_by` varchar(100) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `acquisition_parts`
+--
+
+CREATE TABLE `acquisition_parts` (
+  `part_id` int(11) NOT NULL,
+  `acquisition_id` int(11) NOT NULL,
+  `part_name` varchar(255) NOT NULL,
+  `is_ordered` tinyint(1) DEFAULT 0,
+  `ordered_by` varchar(100) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -45,8 +76,8 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `email`, `password`, `role`, `lastname`, `firstname`, `status`, `created_at`, `last_login`) VALUES
 (10, 'sa.admin@carmax.com', '$2y$10$lmcVdwlCSRFOa.OKCRtSp./Vvf1j9Nyo3O832/g6z87SalnaOpH32', 'superadmin', 'Admin', 'Super', 'active', '2025-10-15 08:54:32', '2025-10-15 09:08:35'),
-(11, 'aq.cruz@carmax.com', '$2y$10$lmcVdwlCSRFOa.OKCRtSp./Vvf1j9Nyo3O832/g6z87SalnaOpH32', 'acquisition', 'Cruz', 'Juan', 'active', '2025-10-15 08:54:32', '2025-10-24 05:32:48'),
-(12, 'op.reyes@carmax.com', '$2y$10$lmcVdwlCSRFOa.OKCRtSp./Vvf1j9Nyo3O832/g6z87SalnaOpH32', 'operation', 'Reyes', 'Maria', 'active', '2025-10-15 08:54:32', '2025-10-24 05:53:56');
+(11, 'aq.cruz@carmax.com', '$2y$10$lmcVdwlCSRFOa.OKCRtSp./Vvf1j9Nyo3O832/g6z87SalnaOpH32', 'acquisition', 'Cruz', 'Juan', 'active', '2025-10-15 08:54:32', '2025-10-29 16:33:52'),
+(12, 'op.reyes@carmax.com', '$2y$10$lmcVdwlCSRFOa.OKCRtSp./Vvf1j9Nyo3O832/g6z87SalnaOpH32', 'operation', 'Reyes', 'Maria', 'active', '2025-10-15 08:54:32', '2025-10-29 16:24:21');
 
 -- --------------------------------------------------------
 
@@ -58,30 +89,30 @@ CREATE TABLE `vehicle_acquisition` (
   `acquisition_id` int(11) NOT NULL,
   `vehicle_model` varchar(100) NOT NULL,
   `plate_number` varchar(20) NOT NULL,
-  `year_model` int(11) DEFAULT NULL,
-  `color` varchar(50) DEFAULT NULL,
+  `year_model` int(11) NOT NULL,
+  `color` varchar(50) NOT NULL,
   `wholecar_photo` varchar(255) DEFAULT NULL,
   `dashboard_photo` varchar(255) DEFAULT NULL,
   `hood_photo` varchar(255) DEFAULT NULL,
   `interior_photo` varchar(255) DEFAULT NULL,
   `exterior_photo` varchar(255) DEFAULT NULL,
   `trunk_photo` varchar(255) DEFAULT NULL,
-  `issue_photos` text DEFAULT NULL,
+  `spare_tires` enum('Yes','No') NOT NULL,
+  `complete_tools` enum('Yes','No') NOT NULL,
+  `original_plate` enum('Yes','No') NOT NULL,
+  `complete_documents` enum('Yes','No') NOT NULL,
   `document_photos` text DEFAULT NULL,
-  `issue_remarks` text DEFAULT NULL,
-  `parts_needed` text DEFAULT NULL,
-  `spare_tires` enum('Yes','No') DEFAULT NULL,
-  `complete_tools` enum('Yes','No') DEFAULT NULL,
-  `original_plate` enum('Yes','No') DEFAULT NULL,
-  `complete_documents` enum('Yes','No') DEFAULT NULL,
   `remarks` text DEFAULT NULL,
-  `projected_recon_price` decimal(10,2) DEFAULT NULL,
-  `approved_checked_by` varchar(255) DEFAULT NULL,
-  `created_by` int(11) DEFAULT NULL,
+  `projected_recon_price` decimal(10,2) NOT NULL,
+  `created_by` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `status` enum('Draft','Sent to Operations','Approved','Rejected') DEFAULT 'Draft',
-  `last_updated_by` varchar(100) DEFAULT NULL,
-  `last_updated_at` datetime DEFAULT NULL
+  `status` enum('Draft','Quality Check','Approved','Sent to Operations') DEFAULT 'Draft',
+  `quality_checked_by` varchar(100) DEFAULT NULL,
+  `quality_checked_at` datetime DEFAULT NULL,
+  `approved_by` varchar(100) DEFAULT NULL,
+  `approved_at` datetime DEFAULT NULL,
+  `sent_to_operations_by` varchar(100) DEFAULT NULL,
+  `sent_to_operations_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -123,6 +154,20 @@ CREATE TABLE `vehicle_inventory` (
 --
 
 --
+-- Indexes for table `acquisition_issues`
+--
+ALTER TABLE `acquisition_issues`
+  ADD PRIMARY KEY (`issue_id`),
+  ADD KEY `acquisition_id` (`acquisition_id`);
+
+--
+-- Indexes for table `acquisition_parts`
+--
+ALTER TABLE `acquisition_parts`
+  ADD PRIMARY KEY (`part_id`),
+  ADD KEY `acquisition_id` (`acquisition_id`);
+
+--
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
@@ -149,6 +194,18 @@ ALTER TABLE `vehicle_inventory`
 --
 
 --
+-- AUTO_INCREMENT for table `acquisition_issues`
+--
+ALTER TABLE `acquisition_issues`
+  MODIFY `issue_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+--
+-- AUTO_INCREMENT for table `acquisition_parts`
+--
+ALTER TABLE `acquisition_parts`
+  MODIFY `part_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
@@ -158,17 +215,29 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `vehicle_acquisition`
 --
 ALTER TABLE `vehicle_acquisition`
-  MODIFY `acquisition_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `acquisition_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `vehicle_inventory`
 --
 ALTER TABLE `vehicle_inventory`
-  MODIFY `inventory_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `inventory_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `acquisition_issues`
+--
+ALTER TABLE `acquisition_issues`
+  ADD CONSTRAINT `acquisition_issues_ibfk_1` FOREIGN KEY (`acquisition_id`) REFERENCES `vehicle_acquisition` (`acquisition_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `acquisition_parts`
+--
+ALTER TABLE `acquisition_parts`
+  ADD CONSTRAINT `acquisition_parts_ibfk_1` FOREIGN KEY (`acquisition_id`) REFERENCES `vehicle_acquisition` (`acquisition_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `vehicle_acquisition`
