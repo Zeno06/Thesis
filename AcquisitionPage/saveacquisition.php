@@ -39,26 +39,9 @@ function uploadFile($field, $uploadDir, $folderName) {
     return null;
 }
 
-function uploadMultiple($field, $uploadDir, $folderName) {
-    $files = [];
-    if (isset($_FILES[$field]) && !empty($_FILES[$field]['name'][0])) {
-        foreach ($_FILES[$field]['tmp_name'] as $index => $tmpName) {
-            if ($_FILES[$field]['error'][$index] === UPLOAD_ERR_OK) {
-                $filename = time() . '_' . $index . '_' . basename($_FILES[$field]['name'][$index]);
-                $targetPath = $uploadDir . $filename;
-                if (move_uploaded_file($tmpName, $targetPath)) {
-                    // Return path relative to uploads folder
-                    $files[] = $folderName . '/' . basename($uploadDir) . '/' . $filename;
-                }
-            }
-        }
-    }
-    return json_encode($files);
-}
-
 // Get form data
 $color = $_POST['color'] ?? '';
-$projectedReconPrice = $_POST['projectedPrice'] ?? 0.00;
+$acquiredPrice = $_POST['acquiredPrice'] ?? 0.00;
 $spareTires = $_POST['spareTires'] ?? '';
 $completeTools = $_POST['completeTools'] ?? '';
 $originalPlate = $_POST['originalPlate'] ?? '';
@@ -74,7 +57,9 @@ $exterior = uploadFile('exterior', $vehiclePhotosDir, $folderName);
 $trunk = uploadFile('trunk', $vehiclePhotosDir, $folderName);
 
 // Upload document photos to documents folder
-$documentPhotos = uploadMultiple('documentPhotos', $documentsDir, $folderName);
+$orcrPhoto = uploadFile('orcrPhoto', $documentsDir, $folderName);
+$deedOfSalePhoto = uploadFile('deedOfSalePhoto', $documentsDir, $folderName);
+$insurancePhoto = uploadFile('insurancePhoto', $documentsDir, $folderName);
 
 $status = 'Quality Check';
 
@@ -83,17 +68,19 @@ $stmt = $conn->prepare("
     INSERT INTO vehicle_acquisition (
         vehicle_model, plate_number, year_model, color,
         wholecar_photo, dashboard_photo, hood_photo, interior_photo, exterior_photo, trunk_photo,
-        document_photos, spare_tires, complete_tools, original_plate, complete_documents,
-        remarks, projected_recon_price, created_by, status
-    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        orcr_photo, deed_of_sale_photo, insurance_photo,
+        spare_tires, complete_tools, original_plate, complete_documents,
+        remarks, acquired_price, created_by, status
+    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
 ");
 
 $stmt->bind_param(
-    "ssisssssssssssssdis",
+    "ssisssssssssssssssdis",
     $model, $plate, $year, $color,
     $wholecar, $dashboard, $hood, $interior, $exterior, $trunk,
-    $documentPhotos, $spareTires, $completeTools, $originalPlate, $completeDocuments,
-    $remarks, $projectedReconPrice, $user_id, $status
+    $orcrPhoto, $deedOfSalePhoto, $insurancePhoto,
+    $spareTires, $completeTools, $originalPlate, $completeDocuments,
+    $remarks, $acquiredPrice, $user_id, $status
 );
 
 if ($stmt->execute()) {

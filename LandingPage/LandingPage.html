@@ -53,7 +53,6 @@
 </div>
 
 
-
     <!-- Hero Section -->
     <section id="home" class="hero">
         <div class="hero-slideshow">
@@ -77,7 +76,7 @@
             </div>
 
             <!-- Slide 2 -->
-             <div class="hero-slide active" data-bg="url('images/car1.jpg') center/cover no-repeat">
+             <div class="hero-slide" data-bg="url('images/car1.jpg') center/cover no-repeat">
                 <div class="container">
                     <div class="row align-items-center">
                         <div class="col-lg-6">
@@ -96,7 +95,7 @@
             </div>
 
             <!-- Slide 3 -->
-             <div class="hero-slide active" data-bg="url('images/car1.jpg') center/cover no-repeat">
+             <div class="hero-slide" data-bg="url('images/car1.jpg') center/cover no-repeat">
                 <div class="container">
                     <div class="row align-items-center">
                         <div class="col-lg-6">
@@ -115,7 +114,7 @@
             </div>
 
             <!-- Slide 4 -->
-             <div class="hero-slide active" data-bg="url('images/car1.jpg') center/cover no-repeat">
+             <div class="hero-slide" data-bg="url('images/car1.jpg') center/cover no-repeat">
                 <div class="container">
                     <div class="row align-items-center">
                         <div class="col-lg-6">
@@ -132,6 +131,7 @@
                     </div>
                 </div>
             </div>
+        </div>
 
         <!-- Slideshow Controls -->
         <div class="slideshow-controls">
@@ -203,154 +203,53 @@
     </div>
     </section>
 
-    <!-- Cars Preview Section -->
-    <section id="cars" class="section-padding bg-light">
-        <div class="container">
-            <h2 class="section-title fade-in">Featured Vehicles</h2>
-            <div class="row">
-                <div class="col-lg-4 col-md-6">
-                <div class="car-card fade-in">
-                    <div class="car-image">
-                    <img src="/Pictures/BMW-X5.jpg" alt="BMW-X5" class="img-fluid">
-                    </div>
-                    <div class="car-info">
-                    <h5>BMW X5 2024</h5>
-                    <p class="text-muted">Luxury SUV with premium features</p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="car-price">₱45,000</span>
-                        <button class="btn btn-sm btn-primary-custom view-details"
-                        data-name="BMW X5 2024"
-                        data-desc="Luxury SUV with premium features."
-                        data-price="₱45,000"
-                        data-engine="3.5L EcoBoost V6"
-                        data-transmission="10-Speed Automatic"
-                        data-image="/Pictures/BMW-X5.jpg">
-                        View Details
-                        </button>
-                    </div>
-                    </div>
-                </div>
-                </div>
+   <!-- Featured Vehicles Section -->
+   <section id="featured-vehicles" class="section-padding text-center">
+      <div class="container">
+        <h2 class="section-title">Featured Vehicles</h2>
+        
+        <!-- Spotlight Vehicle -->
+        <div id="spotlightContainer" class="spotlight-container">
+          <!-- Spotlight vehicle will be loaded here -->
+        </div>
 
-                <div class="col-lg-4 col-md-6">
-                    <div class="car-card fade-in">
-                        <div class="car-image">
-                        <img src="/Pictures/Benz-C.jpg" alt="Mercedes C-Class" class="img-fluid">
-                        </div>
-                        <div class="car-info">
-                        <h5>Mercedes C-Class 2024</h5>
-                        <p class="text-muted">Elegant sedan with advanced technology</p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="car-price">₱55,000</span>
-                            <button class="btn btn-sm btn-primary-custom view-details"
-                            data-name="Mercedes C-Class 2024"
-                            data-desc="A refined luxury sedan that combines elegance with cutting-edge technology, offering comfort, performance, and advanced driver assistance features."
-                            data-price="₱55,000"
-                            data-engine="2.0L Turbocharged I4"
-                            data-transmission="9-Speed Automatic"
-                            data-image="/Pictures/Benz-C.jpg">
-                            View Details
-                            </button>
-                        </div>
-                        </div>
-                    </div>
-                    </div>
+        <!-- Vehicle Controls -->
+        <div class="vehicles-controls">
+          <div class="vehicles-search">
+            <input type="text" id="searchInput" placeholder="Search by model, year, or color..." class="form-control">
+            <select id="sortSelect" class="form-select">
+              <option value="default">Sort by</option>
+              <option value="price-low">Price: Low to High</option>
+              <option value="price-high">Price: High to Low</option>
+              <option value="year-new">Year: Newest First</option>
+              <option value="year-old">Year: Oldest First</option>
+            </select>
+          </div>
+          <div class="vehicles-view-toggle">
+            <button class="view-btn active" id="gridViewBtn" onclick="setViewMode('grid')">
+              <i class="fas fa-th"></i>
+            </button>
+            <button class="view-btn" id="listViewBtn" onclick="setViewMode('list')">
+              <i class="fas fa-list"></i>
+            </button>
+          </div>
+        </div>
 
-                    <div class="col-lg-4 col-md-6">
-                    <div class="car-card slide-in-right">
-                        <div class="car-image">
-                        <img src="/Pictures/Audi.jpg" alt="Audi Q7" class="img-fluid">
-                        </div>
-                        <div class="car-info">
-                        <h5>Audi Q7 2024</h5>
-                        <p class="text-muted">Spacious luxury SUV for families</p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="car-price">₱68,000</span>
-                            <button class="btn btn-sm btn-primary-custom view-details"
-                            data-name="Audi Q7 2024"
-                            data-desc="A spacious and stylish luxury SUV designed for families, featuring advanced safety systems, premium interiors, and smooth all-wheel drive performance."
-                            data-price="₱68,000"
-                            data-engine="3.0L V6 TFSI"
-                            data-transmission="8-Speed Automatic Quattro"
-                            data-image="/Pictures/Audi.jpg">
-                            View Details
-                            </button>
-                        </div>
-                        </div>
-                    </div>
-                    </div>
+        <!-- Vehicles Grid -->
+        <div id="vehiclesContainer" class="grid-view">
+        </div>
 
-                <div class="col-lg-4 col-md-6">
-                <div class="car-card slide-in-left">
-                    <div class="car-image">
-                    <img src="/Pictures/Tesla.jpg" alt="Tesla Model S" class="img-fluid">
-                    </div>
-                    <div class="car-info">
-                    <h5>Tesla Model S 2024</h5>
-                    <p class="text-muted">Electric luxury sedan</p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="car-price">₱95,000</span>
-                        <button class="btn btn-sm btn-primary-custom view-details"
-                        data-name="Tesla Model S 2024"
-                        data-desc="A high-performance electric sedan with impressive acceleration, long driving range, and futuristic technology, redefining luxury and sustainability."
-                        data-price="₱95,000"
-                        data-engine="Dual Motor Electric"
-                        data-transmission="Single-Speed Automatic"
-                        data-image="/Pictures/Tesla.jpg">
-                        View Details
-                        </button>
-                    </div>
-                    </div>
-                </div>
-                </div>
-
-                <div class="col-lg-4 col-md-6">
-                <div class="car-card fade-in">
-                    <div class="car-image">
-                    <img src="/Pictures/ford.jpg" alt="Ford F-150" class="img-fluid">
-                    </div>
-                    <div class="car-info">
-                    <h5>Ford F-150 2024</h5>
-                    <p class="text-muted">America's best-selling truck</p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="car-price">₱45,000</span>
-                        <button class="btn btn-sm btn-primary-custom view-details"
-                        data-name="Ford F-150 2024"
-                        data-desc="Americas legendary pickup truck, built tough with powerful engines, high towing capacity, and modern tech for both work and adventure."
-                        data-price="₱45,000"
-                        data-engine="3.5L EcoBoost V6"
-                        data-transmission="10-Speed Automatic"
-                        data-image="/Pictures/Ford.jpg">
-                        View Details
-                        </button>
-                    </div>
-                    </div>
-                </div>
-                </div>
-
-                <div class="col-lg-4 col-md-6">
-                <div class="car-card slide-in-right">
-                    <div class="car-image">
-                    <img src="/Pictures/Porsche.jpg" alt="Porsche 911" class="img-fluid">
-                    </div>
-                    <div class="car-info">
-                    <h5>Porsche 911 2024</h5>
-                    <p class="text-muted">Iconic sports car performance</p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="car-price">₱120,000</span>
-                        <button class="btn btn-sm btn-primary-custom view-details"
-                        data-name="Porsche 911 2024"
-                        data-desc="An iconic sports car delivering thrilling performance, timeless design, and precision handling — the ultimate driver’s machine."
-                        data-price="₱120,000"
-                        data-engine="3.0L Twin-Turbocharged Flat-6"
-                        data-transmission="8-Speed PDK Automatic"
-                        data-image="/Pictures/Porsche.jpg">
-                        View Details
-                        </button>
-                    </div>
-                    </div>
-                </div>
-                </div>
+        <!-- Pagination -->
+        <div class="pagination-container">
+          <button class="pagination-btn" id="prevBtn" onclick="changePage(-1)">
+            <i class="fas fa-chevron-left"></i> Previous
+          </button>
+          <span class="pagination-info" id="pageInfo"></span>
+          <button class="pagination-btn" id="nextBtn" onclick="changePage(1)">
+            Next <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
     </section>
 
     <!-- Footer -->
@@ -359,11 +258,11 @@
             <div class="row">
                 <div class="col-md-4">
                     <h5><i class="fas fa-car"></i> Carmax</h5>
-                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quas accusamus iste est vel officiis exercitationem perferendis soluta, ut dolores earum distinctio autem, facere hic illo eveniet? Nobis neque dolor ducimus!</p>
+                    <p>Your trusted partner in finding quality pre-owned vehicles.</p>
                 </div>
                 <div class="col-md-6">
                     <h5>Contact Info</h5>
-                    <p><i class="fas fa-map-marker-alt"></i> 123 Auto Street, Car City, CC 12345</p>
+                    <p><i class="fas fa-map-marker-alt"></i> 123 Auto Street, Car City</p>
                     <p><i class="fas fa-phone"></i> (555) 123-4567</p>
                     <p><i class="fas fa-envelope"></i> info@carmax.com</p>
                 </div>
@@ -375,77 +274,354 @@
         </div>
     </footer>
 
-    
-        <!-- Car Details Modal -->
+    <!-- Car Details Modal -->
     <div class="modal fade" id="carDetailsModal" tabindex="-1" aria-labelledby="carDetailsModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-        
-        <div class="modal-header">
-            <h5 class="modal-title" id="carDetailsModalLabel"></h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="carDetailsModalLabel"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                
+                <div class="modal-body">
+                    <!-- Image Gallery -->
+                    <div id="carImageGallery" class="mb-3">
+                        <div id="carouselImages" class="carousel slide" data-bs-ride="carousel">
+                            <div class="carousel-inner" id="carouselInner"></div>
+                            <button class="carousel-control-prev" type="button" data-bs-target="#carouselImages" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon"></span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#carouselImages" data-bs-slide="next">
+                                <span class="carousel-control-next-icon"></span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Selling Price -->
+                    <div class="alert alert-success text-center mb-4" style="font-size: 1.5rem; font-weight: bold;">
+                        <i class="fas fa-tag"></i> SELLING PRICE: <span id="carSellingPrice"></span>
+                    </div>
+
+                    <!-- Vehicle Details -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <p><strong>Plate Number:</strong> <span id="carPlateNumber"></span></p>
+                            <p><strong>Year:</strong> <span id="carYear"></span></p>
+                            <p><strong>Color:</strong> <span id="carColor"></span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Spare Tires:</strong> <span id="carSpareTires"></span></p>
+                            <p><strong>Complete Tools:</strong> <span id="carCompleteTools"></span></p>
+                            <p><strong>Original Plate:</strong> <span id="carOriginalPlate"></span></p>
+                            <p><strong>Complete Documents:</strong> <span id="carCompleteDocuments"></span></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
         </div>
-        
-        <div class="modal-body">
-            <img id="carImage" src="" class="img-fluid rounded mb-3" alt="">
-            <p><strong>Price:</strong> <span id="carPrice"></span></p>
-            <p><strong>Engine:</strong> <span id="carEngine"></span></p>
-            <p><strong>Transmission:</strong> <span id="carTransmission"></span></p>
-            <p id="carDescription"></p>
-        </div>
-        
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        </div>
-        
-        </div>
-    </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Tab switching functionality
-        function switchTab(tab) {
-            const loginTab = document.getElementById('loginTab');
-            const signupTab = document.getElementById('signupTab');
-            const loginForm = document.getElementById('loginForm');
-            const signupForm = document.getElementById('signupForm');
+        // Global variables
+        let allVehicles = [];
+        let filteredVehicles = [];
+        let currentPage = 1;
+        const vehiclesPerPage = 6;
+        let currentViewMode = 'grid';
 
-            if (tab === 'login') {
-                loginTab.classList.add('active');
-                signupTab.classList.remove('active');
-                loginForm.style.display = 'block';
-                signupForm.style.display = 'none';
-            } else {
-                signupTab.classList.add('active');
-                loginTab.classList.remove('active');
-                signupForm.style.display = 'block';
-                loginForm.style.display = 'none';
+        // Load Released Vehicles
+        async function loadVehicles() {
+            try {
+                const response = await fetch('../AcquisitionPage/getReleasedVehicle.php');
+                const data = await response.json();
+                
+                if (data.success && data.vehicles.length > 0) {
+                    allVehicles = data.vehicles;
+                    filteredVehicles = [...allVehicles];
+                    
+                    // Load spotlight vehicle (first vehicle)
+                    loadSpotlight();
+                    
+                    // Display vehicles
+                    displayVehicles();
+                } else {
+                    document.getElementById('vehiclesContainer').innerHTML = 
+                        '<div class="col-12 text-center"><p>No vehicles available at the moment. Check back soon!</p></div>';
+                }
+            } catch (error) {
+                console.error('Error loading vehicles:', error);
+                document.getElementById('vehiclesContainer').innerHTML = 
+                    '<div class="col-12 text-center"><p class="text-danger">Error loading vehicles. Please try again later.</p></div>';
             }
         }
 
-        // Smooth scrolling for navigation links
+        // Load Spotlight Vehicle
+        function loadSpotlight() {
+            if (allVehicles.length === 0) return;
+            
+            const spotlightVehicle = allVehicles[0];
+            const photoPath = spotlightVehicle.wholecar_photo 
+                ? `../uploads/${spotlightVehicle.wholecar_photo}` 
+                : '/Pictures/placeholder-car.jpg';
+            
+            const sellingPrice = spotlightVehicle.selling_price 
+                ? `₱${parseFloat(spotlightVehicle.selling_price).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}` 
+                : 'Price on Request';
+            
+            const spotlightHTML = `
+                <span class="spotlight-badge"><i class="fas fa-star"></i> Featured</span>
+                <div class="spotlight-content">
+                    <div class="spotlight-image">
+                        <img src="${photoPath}" alt="${spotlightVehicle.model}">
+                    </div>
+                    <div class="spotlight-info">
+                        <h3>${spotlightVehicle.model} ${spotlightVehicle.year}</h3>
+                        <p class="spotlight-price">${sellingPrice}</p>
+                        <div class="spotlight-details">
+                            <div class="spotlight-detail-item">
+                                <i class="fas fa-calendar"></i>
+                                <span>${spotlightVehicle.year}</span>
+                            </div>
+                            <div class="spotlight-detail-item">
+                                <i class="fas fa-palette"></i>
+                                <span>${spotlightVehicle.color}</span>
+                            </div>
+                            <div class="spotlight-detail-item">
+                                <i class="fas fa-id-card"></i>
+                                <span>${spotlightVehicle.masked_plate}</span>
+                            </div>
+                            <div class="spotlight-detail-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span>${spotlightVehicle.complete_documents}</span>
+                            </div>
+                        </div>
+                        <div class="spotlight-actions">
+                            <button class="btn btn-primary-custom" onclick='showVehicleDetails(${JSON.stringify(spotlightVehicle).replace(/'/g, "&apos;")})'>
+                                <i class="fas fa-info-circle"></i> View Full Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('spotlightContainer').innerHTML = spotlightHTML;
+        }
+
+        // Display Vehicles with Pagination
+        function displayVehicles() {
+            const container = document.getElementById('vehiclesContainer');
+            const start = (currentPage - 1) * vehiclesPerPage;
+            const end = start + vehiclesPerPage;
+            const vehiclesToShow = filteredVehicles.slice(start, end);
+            
+            if (vehiclesToShow.length === 0) {
+                container.innerHTML = '<div class="col-12 text-center"><p>No vehicles found matching your criteria.</p></div>';
+                updatePagination();
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            vehiclesToShow.forEach(vehicle => {
+                const photoPath = vehicle.wholecar_photo 
+                    ? `../uploads/${vehicle.wholecar_photo}` 
+                    : '/Pictures/placeholder-car.jpg';
+                
+                const sellingPrice = vehicle.selling_price 
+                    ? `₱${parseFloat(vehicle.selling_price).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}` 
+                    : 'Price on Request';
+                
+                const cardHTML = `
+                    <div class="car-card fade-in">
+                        <div class="car-image">
+                            <img src="${photoPath}" alt="${vehicle.model}" class="img-fluid">
+                        </div>
+                        <div class="car-info">
+                            <h5>${vehicle.model} ${vehicle.year}</h5>
+                            <p class="text-muted">${vehicle.color}</p>
+                            <p class="text-muted"><small>Plate: ${vehicle.masked_plate}</small></p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="car-price">${sellingPrice}</span>
+                                <button class="btn btn-sm btn-view-details"
+                                    onclick='showVehicleDetails(${JSON.stringify(vehicle).replace(/'/g, "&apos;")})'>
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                container.insertAdjacentHTML('beforeend', cardHTML);
+            });
+            
+            updatePagination();
+        }
+
+        // Update Pagination
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredVehicles.length / vehiclesPerPage);
+            document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${totalPages}`;
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = currentPage === totalPages || totalPages === 0;
+        }
+
+        // Change Page
+        function changePage(direction) {
+            const totalPages = Math.ceil(filteredVehicles.length / vehiclesPerPage);
+            currentPage += direction;
+            if (currentPage < 1) currentPage = 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            displayVehicles();
+            document.getElementById('featured-vehicles').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Set View Mode
+        function setViewMode(mode) {
+            currentViewMode = mode;
+            const container = document.getElementById('vehiclesContainer');
+            const gridBtn = document.getElementById('gridViewBtn');
+            const listBtn = document.getElementById('listViewBtn');
+            
+            if (mode === 'grid') {
+                container.classList.remove('list-view');
+                container.classList.add('grid-view');
+                gridBtn.classList.add('active');
+                listBtn.classList.remove('active');
+            } else {
+                container.classList.remove('grid-view');
+                container.classList.add('list-view');
+                listBtn.classList.add('active');
+                gridBtn.classList.remove('active');
+            }
+        }
+
+        // Search and Filter
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            filteredVehicles = allVehicles.filter(vehicle => 
+                vehicle.model.toLowerCase().includes(searchTerm) ||
+                vehicle.year.toString().includes(searchTerm) ||
+                vehicle.color.toLowerCase().includes(searchTerm)
+            );
+            currentPage = 1;
+            displayVehicles();
+        });
+
+        // Sort Vehicles
+        document.getElementById('sortSelect').addEventListener('change', function(e) {
+            const sortValue = e.target.value;
+            
+            switch(sortValue) {
+                case 'price-low':
+                    filteredVehicles.sort((a, b) => parseFloat(a.selling_price || 0) - parseFloat(b.selling_price || 0));
+                    break;
+                case 'price-high':
+                    filteredVehicles.sort((a, b) => parseFloat(b.selling_price || 0) - parseFloat(a.selling_price || 0));
+                    break;
+                case 'year-new':
+                    filteredVehicles.sort((a, b) => b.year - a.year);
+                    break;
+                case 'year-old':
+                    filteredVehicles.sort((a, b) => a.year - b.year);
+                    break;
+                default:
+                    filteredVehicles = [...allVehicles];
+            }
+            
+            currentPage = 1;
+            displayVehicles();
+        });
+
+        function showVehicleDetails(vehicle) {
+            // Set modal title
+            document.getElementById('carDetailsModalLabel').textContent = 
+                `${vehicle.model} ${vehicle.year}`;
+            
+            // Set selling price
+            const sellingPrice = vehicle.selling_price 
+                ? `₱${parseFloat(vehicle.selling_price).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}` 
+                : 'Contact us for pricing';
+            document.getElementById('carSellingPrice').textContent = sellingPrice;
+            
+            // Set basic details
+            document.getElementById('carPlateNumber').textContent = vehicle.masked_plate;
+            document.getElementById('carYear').textContent = vehicle.year;
+            document.getElementById('carColor').textContent = vehicle.color;
+            document.getElementById('carSpareTires').textContent = vehicle.spare_tires;
+            document.getElementById('carCompleteTools').textContent = vehicle.complete_tools;
+            document.getElementById('carOriginalPlate').textContent = vehicle.original_plate;
+            document.getElementById('carCompleteDocuments').textContent = vehicle.complete_documents;
+            
+            // Build image carousel
+            const carouselInner = document.getElementById('carouselInner');
+            carouselInner.innerHTML = '';
+            
+            const photos = [
+                { path: vehicle.wholecar_photo, label: 'Whole Car' },
+                { path: vehicle.dashboard_photo, label: 'Dashboard' },
+                { path: vehicle.hood_photo, label: 'Hood' },
+                { path: vehicle.interior_photo, label: 'Interior' },
+                { path: vehicle.exterior_photo, label: 'Exterior' },
+                { path: vehicle.trunk_photo, label: 'Trunk' }
+            ].filter(p => p.path);
+            
+            photos.forEach((photo, index) => {
+                const item = document.createElement('div');
+                item.className = `carousel-item ${index === 0 ? 'active' : ''}`;
+                item.innerHTML = `
+                    <img src="../uploads/${photo.path}" class="d-block w-100 rounded" alt="${photo.label}">
+                    <div class="carousel-caption d-none d-md-block">
+                        <h5>${photo.label}</h5>
+                    </div>
+                `;
+                carouselInner.appendChild(item);
+            });
+            
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('carDetailsModal'));
+            modal.show();
+        }
+
+        // Slideshow functionality
+        let slideIndex = 0;
+        const slides = document.querySelectorAll(".hero-slide");
+        const indicators = document.querySelectorAll(".indicator");
+
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.remove("active");
+                if (indicators[i]) indicators[i].classList.remove("active");
+                if (i === index) {
+                    slide.classList.add("active");
+                    if (indicators[i]) indicators[i].classList.add("active");
+                }
+            });
+            slideIndex = index;
+        }
+
+        function changeSlide(n) {
+            let newIndex = (slideIndex + n + slides.length) % slides.length;
+            showSlide(newIndex);
+        }
+
+        function currentSlide(n) {
+            showSlide(n - 1);
+        }
+
+        // Smooth scrolling
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
                 const target = document.querySelector(this.getAttribute('href'));
                 if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
             });
-        });
-
-        // Navbar background change on scroll
-        window.addEventListener('scroll', function() {
-            const navbar = document.querySelector('.navbar');
-            if (window.scrollY > 50) {
-                navbar.style.background = 'rgba(255, 255, 255, 0.98)';
-            } else {
-                navbar.style.background = 'rgba(255, 255, 255, 0.95)';
-            }
         });
 
         // Animation on scroll
@@ -463,161 +639,19 @@
             });
         }, observerOptions);
 
-        // Observe all animated elements
         document.querySelectorAll('.fade-in, .slide-in-left, .slide-in-right').forEach(el => {
             el.style.animationPlayState = 'paused';
             observer.observe(el);
         });
 
-        // Form submission handling
-        document.querySelectorAll('form').forEach(form => {
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                alert('Form submitted successfully! This is a demo.');
-            });
-        });
-
-        // Add hover effects to car cards
-        document.querySelectorAll('.car-card').forEach(card => {
-            card.addEventListener('mouseenter', function() {
-                this.style.transform = 'translateY(-10px) scale(1.02)';
-            });
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadVehicles();
+            showSlide(0);
             
-            card.addEventListener('mouseleave', function() {
-                this.style.transform = 'translateY(0) scale(1)';
-            });
+            // Auto-slide every 5 seconds
+            setInterval(() => changeSlide(1), 5000);
         });
-
-        // Add click effects to buttons
-        document.querySelectorAll('.btn').forEach(button => {
-            button.addEventListener('click', function(e) {
-                const ripple = document.createElement('span');
-                const rect = this.getBoundingClientRect();
-                const size = Math.max(rect.width, rect.height);
-                const x = e.clientX - rect.left - size / 2;
-                const y = e.clientY - rect.top - size / 2;
-                
-                ripple.style.cssText = `
-                    width: ${size}px;
-                    height: ${size}px;
-                    left: ${x}px;
-                    top: ${y}px;
-                    position: absolute;
-                    border-radius: 50%;
-                    background: rgba(255,255,255,0.5);
-                    transform: scale(0);
-                    animation: ripple 0.6s linear;
-                    pointer-events: none;
-                `;
-                
-                this.style.position = 'relative';
-                this.style.overflow = 'hidden';
-                this.appendChild(ripple);
-                
-                setTimeout(() => ripple.remove(), 600);
-            });
-        });
-
-        // Add CSS for ripple effect
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes ripple {
-                to {
-                    transform: scale(4);
-                    opacity: 0;
-                }
-            }
-        `;
-        document.head.appendChild(style);
-
-        // Enable checkbox only after clicking "I Agree"
-     // Enable checkbox + return to Sign Up form
-    document.getElementById("acceptTerms").addEventListener("click", function() {
-        // Enable and check the box
-        const agreeCheckbox = document.getElementById("agreeTerms");
-        agreeCheckbox.disabled = false;
-        agreeCheckbox.checked = true;
-
-        // Reopen the Auth Modal
-        let authModal = new bootstrap.Modal(document.getElementById("authModal"));
-        authModal.show();
-
-        // Switch to the Sign Up tab automatically
-        let signUpTab = document.querySelector('#authModal .nav-link#signup-tab');
-        let tab = new bootstrap.Tab(signUpTab);
-        tab.show();
-    });
-    
-    const phoneInput = document.getElementById("signupPhone");
-
-    phoneInput.addEventListener("input", function() {
-        if (!this.value.startsWith("+63")) {
-            this.value = "+63";
-        }
-        this.value = this.value.replace(/[^0-9+]/g, ''); // Only + and digits
-        if (this.value.length > 13) {
-            this.value = this.value.slice(0, 13); // +63 + 10 digits
-        }
-    });
-
-        let slideIndex = 0;
-    const slides = document.querySelectorAll(".hero-slide");
-    const indicators = document.querySelectorAll(".indicator");
-
-    function showSlide(index) {
-        slides.forEach((slide, i) => {
-            slide.classList.remove("active");
-            indicators[i].classList.remove("active");
-            if (i === index) {
-                slide.classList.add("active");
-                indicators[i].classList.add("active");
-            }
-        });
-        slideIndex = index;
-    }
-
-    function changeSlide(n) {
-        let newIndex = (slideIndex + n + slides.length) % slides.length;
-        showSlide(newIndex);
-    }
-
-    function currentSlide(n) {
-        showSlide(n - 1);
-    }
-
-    // Auto-slide every 5 seconds
-    setInterval(() => {
-        changeSlide(1);
-    }, 5000);
-
-    // Initialize
-    showSlide(0);
-    
-    // For View Details
-        document.querySelectorAll(".view-details").forEach(button => {
-    button.addEventListener("click", () => {
-        // Get data from button
-        const name = button.getAttribute("data-name");
-        const desc = button.getAttribute("data-desc");
-        const price = button.getAttribute("data-price");
-        const engine = button.getAttribute("data-engine");
-        const transmission = button.getAttribute("data-transmission");
-        const image = button.getAttribute("data-image");
-
-        // Fill modal
-        document.getElementById("carDetailsModalLabel").textContent = name;
-        document.getElementById("carDescription").textContent = desc;
-        document.getElementById("carPrice").textContent = price;
-        document.getElementById("carEngine").textContent = engine;
-        document.getElementById("carTransmission").textContent = transmission;
-        document.getElementById("carImage").src = image;
-        document.getElementById("carImage").alt = name;
-
-        // Show modal
-        let modal = new bootstrap.Modal(document.getElementById("carDetailsModal"));
-        modal.show();
-    });
-    });
     </script>
 </body>
 </html>

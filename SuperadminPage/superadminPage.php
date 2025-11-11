@@ -2,7 +2,7 @@
 session_start();
 
 // Check if logged in and has correct role
-if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'superadmin') {
+if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'superadmin') {
     header('Location: /loginPage/loginPage.php');
     exit();
 }
@@ -12,43 +12,54 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'superadmin') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Super Admin Dashboard - CarMax</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            background: #f3f4f6;
-        }
-        .header {
-            background: #1e40af;
-            color: white;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-        .logout-btn {
-            background: #f59e0b;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-        }
-    </style>
+    <title>Super Admin Dashboard</title>
+    <link rel="stylesheet" href="../css/superadmin.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <div class="header">
-        <h1>👑 Super Admin Dashboard</h1>
-        <p><strong>Welcome:</strong> <?php echo htmlspecialchars($_SESSION['user_name']); ?></p>
-        <p><strong>Email:</strong> <?php echo htmlspecialchars($_SESSION['user_email']); ?></p>
+<div class="header">
+    <div class="header-left">
+        <img src="../Pictures/Carmax_logo.jpg" class="logo" alt="CarMax Logo">
+        <div class="header-title h5 mb-0">Super Admin Dashboard</div>
     </div>
     
-    <a href="/logout.php" class="logout-btn">Logout</a>
-    
-    <h2>System Management</h2>
-    <p>Super admin dashboard content goes here...</p>
-    <p>From here, you can create new users with their email and password.</p>
+    <div class="user-info">
+        <i class="fas fa-user-circle" style="font-size: 24px;"></i>
+        <span>
+            <?php 
+                $role = $_SESSION['role'];
+                $title = match($role) {
+                    'acquisition' => 'Acquisition Admin',
+                    'operation' => 'Operation Admin',
+                    'superadmin' => 'Super Admin',
+                    default => ucfirst($role)
+                };
+                echo htmlspecialchars($_SESSION['user_name']) . " ($title)";
+            ?>
+        </span>
+        <a href="../logout.php" style="margin-left: 15px; color: white; text-decoration: none;">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    </div>
+</div>
+
+
+<div class="sidebar">
+    <a href="viewLogs.php" class="sidebar-item active">
+        <i class ="fas fa-list"></i> View Logs
+    </a>
+    <a href="manageUsers.php" class="sidebar-item">
+        <i class="fas fa-list"></i><span>Manage Accounts</span>
+    </a>
+    <a href="viewAcquisition.php" class="sidebar-item">
+        <i class="fas fa-check-square"></i><span>View Acquisition</span>
+    </a>
+    <a href="viewSales.php" class="sidebar-item">
+       <i class="fas fa-warehouse"></i><span>Sales Reports</span>
+    </a>
+</div>
+
+
 </body>
 </html>

@@ -11,7 +11,6 @@ $userName = $_SESSION['user_name'];
 $user_id = $_SESSION['id'];
 ?>
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,7 +19,6 @@ $user_id = $_SESSION['id'];
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../css/acquiPage.css">
- 
 </head>
 <body>
 
@@ -127,34 +125,33 @@ $user_id = $_SESSION['id'];
                 </div>
             </div>
 
-<h5 class="section-title">Issues</h5>
-<table class="table table-bordered mb-3" id="issuesTable">
-    <thead>
-        <tr>
-            <th>Issue Name</th>
-            <th>Issue Photo</th>
-            <th style="width: 15%">Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td><input type="text" class="form-control" name="issue_names[]" placeholder="e.g., Dent on door"></td>
-            <td>
-                <input type="file" class="form-control" name="issue_photos[]" accept="image/*" onchange="previewImage(this)">
-                <img class="image-preview d-none mt-2" alt="Preview" style="max-width: 300px; border-radius: 6px;">
-            </td>
-            <td>
-                <button type="button" class="btn btn-sm btn-danger" onclick="removeIssueRow(this)">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </td>
-        </tr>
-    </tbody>
-</table>
-<button type="button" class="btn btn-sm btn-carmax-secondary mb-3" onclick="addIssueRow()">
-    <i class="fas fa-plus"></i> Add Issue
-</button>
-
+            <h5 class="section-title">Issues</h5>
+            <table class="table table-bordered mb-3" id="issuesTable">
+                <thead>
+                    <tr>
+                        <th>Issue Name</th>
+                        <th>Issue Photo</th>
+                        <th style="width: 15%">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><input type="text" class="form-control" name="issue_names[]" placeholder="e.g., Dent on door"></td>
+                        <td>
+                            <input type="file" class="form-control" name="issue_photos[]" accept="image/*" onchange="previewImage(this)">
+                            <img class="image-preview d-none mt-2" alt="Preview" style="max-width: 300px; border-radius: 6px;">
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-danger" onclick="removeIssueRow(this)">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <button type="button" class="btn btn-sm btn-carmax-secondary mb-3" onclick="addIssueRow()">
+                <i class="fas fa-plus"></i> Add Issue
+            </button>
 
             <h5 class="section-title">Parts Needed</h5>
             <table class="table table-bordered mb-3" id="partsTable">
@@ -174,7 +171,7 @@ $user_id = $_SESSION['id'];
             <button type="button" class="btn btn-sm btn-carmax-secondary mb-3" onclick="addPartRow()"><i class="fas fa-plus"></i> Add Part</button>
 
             <h5 class="section-title">Vehicle Condition</h5>
-            <div class="row g-3">
+            <div class="row g-3 mb-4">
                 <div class="col-md-3"><label>Spare Tires</label><select class="form-select" name="spareTires" required><option>Yes</option><option>No</option></select></div>
                 <div class="col-md-3"><label>Complete Tools</label><select class="form-select" name="completeTools" required><option>Yes</option><option>No</option></select></div>
                 <div class="col-md-3"><label>Original Plate</label><select class="form-select" name="originalPlate" required><option>Yes</option><option>No</option></select></div>
@@ -182,16 +179,31 @@ $user_id = $_SESSION['id'];
             </div>
 
             <h5 class="section-title">Document Photos</h5>
-            <input type="file" class="form-control mb-3" name="documentPhotos[]" multiple accept="image/*,application/pdf" onchange="previewMultipleImages(this)" required>
-            <div id="documentPreviewContainer" class="d-flex flex-wrap gap-2"></div>
+            <div class="row g-3 mb-3">
+                <div class="col-md-4">
+                    <label>OR/CR Photo</label>
+                    <input type="file" class="form-control" name="orcrPhoto" accept="image/*,application/pdf" onchange="previewImage(this)" required>
+                    <img class="image-preview d-none mt-2" alt="Preview" style="max-width: 300px; border-radius: 6px;">
+                </div>
+                <div class="col-md-4">
+                    <label>Deed of Sale Photo</label>
+                    <input type="file" class="form-control" name="deedOfSalePhoto" accept="image/*,application/pdf" onchange="previewImage(this)" required>
+                    <img class="image-preview d-none mt-2" alt="Preview" style="max-width: 300px; border-radius: 6px;">
+                </div>
+                <div class="col-md-4">
+                    <label>Insurance Photo</label>
+                    <input type="file" class="form-control" name="insurancePhoto" accept="image/*,application/pdf" onchange="previewImage(this)" required>
+                    <img class="image-preview d-none mt-2" alt="Preview" style="max-width: 300px; border-radius: 6px;">
+                </div>
+            </div>
 
             <h5 class="section-title">Remarks</h5>
             <textarea class="form-control mb-3" name="remarks" rows="3" placeholder="Enter additional remarks or notes..." required></textarea>
 
-            <h5 class="section-title">Projected Recon Price</h5>
+            <h5 class="section-title">Acquired Price</h5>
             <div class="input-group mb-3">
                 <span class="input-group-text">₱</span>
-                <input type="number" step="0.01" class="form-control" name="projectedPrice" placeholder="0.00" required>
+                <input type="number" step="0.01" class="form-control" name="acquiredPrice" placeholder="0.00" required>
             </div>
 
             <div class="mt-3 d-flex justify-content-end gap-2">
@@ -243,33 +255,16 @@ function previewImage(input) {
     }
 }
 
-function previewMultipleImages(input) {
-    const container = document.getElementById('documentPreviewContainer');
-    container.innerHTML = '';
-    if (input.files) {
-        Array.from(input.files).forEach(file => {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = document.createElement('img');
-                img.src = e.target.result;
-                img.className = 'image-preview';
-                container.appendChild(img);
-            }
-            reader.readAsDataURL(file);
-        });
-    }
-}
-
 function addIssueRow() {
     const table = document.getElementById('issuesTable').querySelector('tbody');
     const newRow = document.createElement('tr');
 
     newRow.innerHTML = `
         <td>
-            <input type="text" class="form-control" name="issue_names[]" placeholder="e.g., Dent on door" required>
+            <input type="text" class="form-control" name="issue_names[]" placeholder="e.g., Dent on door">
         </td>
         <td>
-            <input type="file" class="form-control" name="issue_photos[]" accept="image/*" onchange="previewImage(this)" required>
+            <input type="file" class="form-control" name="issue_photos[]" accept="image/*" onchange="previewImage(this)">
             <img class="image-preview d-none mt-2" alt="Preview" style="max-width: 100px; border-radius: 6px;">
         </td>
         <td>
@@ -283,27 +278,13 @@ function addIssueRow() {
 }
 
 function removeIssueRow(btn) {
-    btn.closest('tr').remove();
-}
-
-function previewImage(input) {
-    const file = input.files[0];
-    const preview = input.nextElementSibling;
-
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = e => {
-            preview.src = e.target.result;
-            preview.classList.remove('d-none');
-        };
-        reader.readAsDataURL(file);
+    const tbody = btn.closest('tbody');
+    if (tbody.querySelectorAll('tr').length > 1) {
+        btn.closest('tr').remove();
     } else {
-        preview.src = '';
-        preview.classList.add('d-none');
+        alert('At least one issue row must remain');
     }
 }
-
-
 
 function addPartRow() {
     const table = document.getElementById('partsTable').getElementsByTagName('tbody')[0];
@@ -315,7 +296,12 @@ function addPartRow() {
 }
 
 function removeRow(btn) {
-    btn.closest('tr').remove();
+    const tbody = btn.closest('tbody');
+    if (tbody.querySelectorAll('tr').length > 1) {
+        btn.closest('tr').remove();
+    } else {
+        alert('At least one part row must remain');
+    }
 }
 
 function confirmSaveDraft() {

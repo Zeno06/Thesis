@@ -22,9 +22,6 @@ $result = $conn->query($query);
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../css/acquiPage.css">
-    <style>
-  
-    </style>
 </head>
 <body>
 
@@ -97,7 +94,7 @@ $result = $conn->query($query);
                                 <td><?= htmlspecialchars($row['vehicle_model']) ?></td>
                                 <td><?= htmlspecialchars($row['year_model']) ?></td>
                                 <td><?= htmlspecialchars($row['color']) ?></td>
-                                <td>₱<?= number_format($row['projected_recon_price'], 2) ?></td>
+                                <td>₱<?= number_format($row['acquired_price'], 2) ?></td>
                                 <td><span class="badge bg-warning">Quality Check</span></td>
                                 <td><?= date('M d, Y', strtotime($row['created_at'])) ?></td>
                             </tr>
@@ -112,7 +109,6 @@ $result = $conn->query($query);
 </div>
 
 <?php 
-// 🔹 Reset result pointer to reuse $result for modals
 if ($result && $result->num_rows > 0):
     $result->data_seek(0);
     while ($row = $result->fetch_assoc()):
@@ -127,7 +123,7 @@ if ($result && $result->num_rows > 0):
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
-            <form method="POST" action="saveQualityCheck.php" id="qualityForm<?= $row['acquisition_id'] ?>">
+            <form method="POST" action="saveQualityCheck.php" enctype="multipart/form-data" id="qualityForm<?= $row['acquisition_id'] ?>">
                 <input type="hidden" name="acquisition_id" value="<?= $row['acquisition_id'] ?>">
 
                 <div class="modal-body">
@@ -161,18 +157,27 @@ if ($result && $result->num_rows > 0):
                     </div>
 
                     <!-- Issues Section -->
-                    <?php 
-                    $issuesQuery = $conn->query("SELECT * FROM acquisition_issues WHERE acquisition_id = {$row['acquisition_id']}");
-                    if ($issuesQuery && $issuesQuery->num_rows > 0): ?>
                     <h6 class="text-primary fw-bold mb-3"><i class="fas fa-exclamation-triangle"></i> Issues</h6>
-                    <div class="table-responsive mb-4">
+                    <div class="table-responsive mb-3" id="issuesSection<?= $row['acquisition_id'] ?>">
                         <table class="table table-bordered">
                             <thead>
-                                <tr><th>Issue Name</th><th>Photo</th><th>Repaired</th><th>Repaired By</th></tr>
-                            </thead>
-                            <tbody>
-                                <?php while ($issue = $issuesQuery->fetch_assoc()): ?>
                                 <tr>
+                                    <th>Issue Name</th>
+                                    <th>Photo</th>
+                                    <th>Price</th>
+                                    <th>Remarks</th>
+                                    <th>Repaired</th>
+                                    <th>Repaired By</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="issuesTableBody<?= $row['acquisition_id'] ?>">
+                                <?php 
+                                $issuesQuery = $conn->query("SELECT * FROM acquisition_issues WHERE acquisition_id = {$row['acquisition_id']}");
+                                if ($issuesQuery && $issuesQuery->num_rows > 0):
+                                    while ($issue = $issuesQuery->fetch_assoc()): 
+                                ?>
+                                <tr data-issue-id="<?= $issue['issue_id'] ?>">
                                     <td><?= htmlspecialchars($issue['issue_name']) ?></td>
                                     <td>
                                         <?php if (!empty($issue['issue_photo'])): ?>
@@ -180,11 +185,17 @@ if ($result && $result->num_rows > 0):
                                         <?php endif; ?>
                                     </td>
                                     <td>
+                                        <input type="number" step="0.01" class="form-control" name="issue_price[<?= $issue['issue_id'] ?>]" 
+                                            value="<?= htmlspecialchars($issue['issue_price'] ?? '') ?>" placeholder="0.00">
+                                    </td>
+                                    <td>
+                                        <textarea class="form-control" name="issue_remarks[<?= $issue['issue_id'] ?>]" rows="2" placeholder="Enter remarks"><?= htmlspecialchars($issue['issue_remarks'] ?? '') ?></textarea>
+                                    </td>
+                                    <td>
                                         <input type="checkbox" class="form-check-input issue-checkbox" 
                                             name="issue_repaired[<?= $issue['issue_id'] ?>]" 
                                             value="1" <?= $issue['is_repaired'] ? 'checked' : '' ?>
-                                            onchange="toggleRepairedBy(this, <?= $issue['issue_id'] ?>)">
-                                        <label>Yes</label>
+                                            onchange="toggleRepairedBy(this, <?= $issue['issue_id'] ?>); checkApproveButton(<?= $row['acquisition_id'] ?>)">
                                     </td>
                                     <td>
                                         <input type="text" class="form-control repaired-by-input" 
@@ -194,31 +205,55 @@ if ($result && $result->num_rows > 0):
                                             placeholder="Enter name"
                                             <?= $issue['is_repaired'] ? '' : 'disabled' ?>>
                                     </td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-danger" onclick="deleteIssue(<?= $issue['issue_id'] ?>)">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                        <input type="hidden" name="delete_issue[]" value="" id="deleteIssue<?= $issue['issue_id'] ?>">
+                                    </td>
                                 </tr>
-                                <?php endwhile; ?>
+                                <?php endwhile; endif; ?>
                             </tbody>
                         </table>
                     </div>
-                    <?php endif; ?>
+                    <button type="button" class="btn btn-sm btn-success mb-4" onclick="addIssueRow(<?= $row['acquisition_id'] ?>)">
+                        <i class="fas fa-plus"></i> Add Issue
+                    </button>
 
                     <!-- Parts Needed Section -->
-                    <?php 
-                    $partsQuery = $conn->query("SELECT * FROM acquisition_parts WHERE acquisition_id = {$row['acquisition_id']}");
-                    if ($partsQuery && $partsQuery->num_rows > 0): ?>
                     <h6 class="text-primary fw-bold mb-3"><i class="fas fa-tools"></i> Parts Needed</h6>
-                    <div class="table-responsive mb-4">
+                    <div class="table-responsive mb-3" id="partsSection<?= $row['acquisition_id'] ?>">
                         <table class="table table-bordered">
-                            <thead><tr><th>Part Name</th><th>Ordered</th><th>Ordered By</th></tr></thead>
-                            <tbody>
-                                <?php while ($part = $partsQuery->fetch_assoc()): ?>
+                            <thead>
                                 <tr>
+                                    <th>Part Name</th>
+                                    <th>Price</th>
+                                    <th>Remarks</th>
+                                    <th>Ordered</th>
+                                    <th>Ordered By</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="partsTableBody<?= $row['acquisition_id'] ?>">
+                                <?php 
+                                $partsQuery = $conn->query("SELECT * FROM acquisition_parts WHERE acquisition_id = {$row['acquisition_id']}");
+                                if ($partsQuery && $partsQuery->num_rows > 0):
+                                    while ($part = $partsQuery->fetch_assoc()): 
+                                ?>
+                                <tr data-part-id="<?= $part['part_id'] ?>">
                                     <td><?= htmlspecialchars($part['part_name']) ?></td>
+                                    <td>
+                                        <input type="number" step="0.01" class="form-control" name="part_price[<?= $part['part_id'] ?>]" 
+                                            value="<?= htmlspecialchars($part['part_price'] ?? '') ?>" placeholder="0.00">
+                                    </td>
+                                    <td>
+                                        <textarea class="form-control" name="part_remarks[<?= $part['part_id'] ?>]" rows="2" placeholder="Enter remarks"><?= htmlspecialchars($part['part_remarks'] ?? '') ?></textarea>
+                                    </td>
                                     <td>
                                         <input type="checkbox" class="form-check-input part-checkbox" 
                                             name="part_ordered[<?= $part['part_id'] ?>]" 
                                             value="1" <?= $part['is_ordered'] ? 'checked' : '' ?>
-                                            onchange="toggleOrderedBy(this, <?= $part['part_id'] ?>)">
-                                        <label>Yes</label>
+                                            onchange="toggleOrderedBy(this, <?= $part['part_id'] ?>); checkApproveButton(<?= $row['acquisition_id'] ?>)">
                                     </td>
                                     <td>
                                         <input type="text" class="form-control ordered-by-input" 
@@ -228,12 +263,20 @@ if ($result && $result->num_rows > 0):
                                             placeholder="Enter name"
                                             <?= $part['is_ordered'] ? '' : 'disabled' ?>>
                                     </td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-danger" onclick="deletePart(<?= $part['part_id'] ?>)">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                        <input type="hidden" name="delete_part[]" value="" id="deletePart<?= $part['part_id'] ?>">
+                                    </td>
                                 </tr>
-                                <?php endwhile; ?>
+                                <?php endwhile; endif; ?>
                             </tbody>
                         </table>
                     </div>
-                    <?php endif; ?>
+                    <button type="button" class="btn btn-sm btn-success mb-4" onclick="addPartRow(<?= $row['acquisition_id'] ?>)">
+                        <i class="fas fa-plus"></i> Add Part
+                    </button>
 
                     <!-- Vehicle Condition -->
                     <h6 class="text-primary fw-bold mb-3"><i class="fas fa-clipboard-check"></i> Vehicle Condition</h6>
@@ -245,35 +288,43 @@ if ($result && $result->num_rows > 0):
                     </div>
 
                     <!-- Document Photos -->
-                    <?php 
-                    if (!empty($row['document_photos'])):
-                        $docPhotos = json_decode($row['document_photos'], true);
-                        if (!is_array($docPhotos)) $docPhotos = explode(',', $row['document_photos']);
-                    ?>
                     <h6 class="text-primary fw-bold mb-3"><i class="fas fa-file-contract"></i> Document Photos</h6>
                     <div class="photo-grid mb-4">
-                        <?php foreach ($docPhotos as $photo): $photo = trim($photo); if (!empty($photo)): ?>
-                        <div class="photo-box"><img src="../uploads/<?= htmlspecialchars($photo) ?>" alt="Document"></div>
-                        <?php endif; endforeach; ?>
+                        <?php 
+                        $docPhotos = ['orcr' => 'OR/CR', 'deed_of_sale' => 'Deed of Sale', 'insurance' => 'Insurance'];
+                        foreach ($docPhotos as $key => $label):
+                            $photoField = $key . '_photo';
+                            $photoPath = htmlspecialchars($row[$photoField] ?? '');
+                        ?>
+                        <div class="photo-box">
+                            <label><?= $label ?></label>
+                            <?php if ($photoPath): ?>
+                                <img src="../uploads/<?= $photoPath ?>" alt="<?= $label ?>">
+                            <?php else: ?>
+                                <div class="text-muted">No image</div>
+                            <?php endif; ?>
+                        </div>
+                        <?php endforeach; ?>
                     </div>
-                    <?php endif; ?>
 
                     <!-- Remarks -->
                     <h6 class="text-primary fw-bold mb-3"><i class="fas fa-comment"></i> Remarks</h6>
                     <textarea class="form-control mb-4" rows="3" disabled><?= htmlspecialchars($row['remarks'] ?? '') ?></textarea>
 
                     <!-- Price -->
-                    <h6 class="text-primary fw-bold mb-3"><i class="fas fa-peso-sign"></i> Projected Recon Price</h6>
+                    <h6 class="text-primary fw-bold mb-3"><i class="fas fa-peso-sign"></i> Acquired Price</h6>
                     <div class="input-group mb-3">
                         <span class="input-group-text">₱</span>
-                        <input type="text" class="form-control" value="<?= number_format($row['projected_recon_price'], 2) ?>" disabled>
+                        <input type="text" class="form-control" value="<?= number_format($row['acquired_price'], 2) ?>" disabled>
                     </div>
                 </div>
 
                 <div class="modal-footer d-flex justify-content-end gap-2">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times"></i> Close</button>
                     <button type="button" class="btn btn-primary" onclick="confirmSaveQuality(<?= $row['acquisition_id'] ?>)"><i class="fas fa-save"></i> Save</button>
-                    <button type="button" class="btn btn-success approve-btn" id="approveBtn<?= $row['acquisition_id'] ?>" onclick="confirmApproveQuality(<?= $row['acquisition_id'] ?>)"><i class="fas fa-check"></i> Approve</button>
+                    <button type="button" class="btn btn-success approve-btn" id="approveBtn<?= $row['acquisition_id'] ?>" onclick="confirmApproveQuality(<?= $row['acquisition_id'] ?>)" disabled>
+                        <i class="fas fa-check"></i> Approve
+                    </button>
                 </div>
             </form>
         </div>
@@ -308,6 +359,8 @@ if ($result && $result->num_rows > 0):
 let currentAcquisitionId = null;
 let confirmSaveModal = null;
 let confirmApproveModal = null;
+let newIssueCounter = 0;
+let newPartCounter = 0;
 
 document.addEventListener('DOMContentLoaded', function() {
     confirmSaveModal = new bootstrap.Modal(document.getElementById('confirmSaveModal'));
@@ -327,6 +380,98 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+function addIssueRow(acquisitionId) {
+    const tbody = document.getElementById('issuesTableBody' + acquisitionId);
+    const newId = 'new_issue_' + (++newIssueCounter);
+    const row = document.createElement('tr');
+    row.innerHTML = `
+        <td><input type="text" class="form-control" name="new_issue_name[]" placeholder="Issue name" required></td>
+        <td>
+            <input type="file" class="form-control" name="new_issue_photos[]" accept="image/*" 
+                onchange="previewIssueImage(this, '${newId}')">
+            <div class="mt-2">
+                <img id="preview_${newId}" src="" alt="Preview" style="max-width: 100px; display: none; border-radius: 5px;">
+            </div>
+        </td>
+        <td><input type="number" step="0.01" class="form-control" name="new_issue_price[]" placeholder="0.00"></td>
+        <td><textarea class="form-control" name="new_issue_remarks[]" rows="2" placeholder="Enter remarks"></textarea></td>
+        <td>
+            <input type="checkbox" class="form-check-input issue-checkbox" 
+                name="new_issue_repaired[]" value="1"
+                onchange="toggleRepairedBy(this, '${newId}'); checkApproveButton(${acquisitionId})">
+        </td>
+        <td>
+            <input type="text" class="form-control repaired-by-input" 
+                id="repairedBy${newId}"
+                name="new_issue_repaired_by[]" 
+                placeholder="Enter name" disabled>
+        </td>
+        <td>
+            <button type="button" class="btn btn-sm btn-danger" 
+                onclick="this.closest('tr').remove(); checkApproveButton(${acquisitionId})">
+                <i class="fas fa-trash"></i>
+            </button>
+        </td>
+    `;
+    tbody.appendChild(row);
+    checkApproveButton(acquisitionId);
+}
+
+function previewIssueImage(input, id) {
+    const preview = document.getElementById('preview_' + id);
+    const file = input.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    } else {
+        preview.src = '';
+        preview.style.display = 'none';
+    }
+}
+
+function addPartRow(acquisitionId) {
+    const tbody = document.getElementById('partsTableBody' + acquisitionId);
+    const newId = 'new_part_' + (++newPartCounter);
+    const row = document.createElement('tr');
+    row.innerHTML = `
+        <td><input type="text" class="form-control" name="new_part_name[]" placeholder="Part name" required></td>
+        <td><input type="number" step="0.01" class="form-control" name="new_part_price[]" placeholder="0.00"></td>
+        <td><textarea class="form-control" name="new_part_remarks[]" rows="2" placeholder="Enter remarks"></textarea></td>
+        <td>
+            <input type="checkbox" class="form-check-input part-checkbox" 
+                name="new_part_ordered[]" value="1"
+                onchange="toggleOrderedBy(this, '${newId}'); checkApproveButton(${acquisitionId})">
+        </td>
+        <td>
+            <input type="text" class="form-control ordered-by-input" 
+                id="orderedBy${newId}"
+                name="new_part_ordered_by[]" 
+                placeholder="Enter name" disabled>
+        </td>
+        <td><button type="button" class="btn btn-sm btn-danger" onclick="this.closest('tr').remove(); checkApproveButton(${acquisitionId})"><i class="fas fa-trash"></i></button></td>
+    `;
+    tbody.appendChild(row);
+    checkApproveButton(acquisitionId);
+}
+
+function deleteIssue(issueId) {
+    if (confirm('Are you sure you want to delete this issue?')) {
+        document.getElementById('deleteIssue' + issueId).value = issueId;
+        document.querySelector('[data-issue-id="' + issueId + '"]').style.display = 'none';
+    }
+}
+
+function deletePart(partId) {
+    if (confirm('Are you sure you want to delete this part?')) {
+        document.getElementById('deletePart' + partId).value = partId;
+        document.querySelector('[data-part-id="' + partId + '"]').style.display = 'none';
+    }
+}
 
 function confirmSaveQuality(acquisitionId) {
     currentAcquisitionId = acquisitionId;
@@ -349,10 +494,6 @@ function toggleRepairedBy(checkbox, issueId) {
     if (!checkbox.checked) {
         input.value = '';
     }
-    
-    const form = checkbox.closest('form');
-    const acquisitionId = form.querySelector('input[name="acquisition_id"]').value;
-    checkApproveButton(acquisitionId);
 }
 
 function toggleOrderedBy(checkbox, partId) {
@@ -361,10 +502,6 @@ function toggleOrderedBy(checkbox, partId) {
     if (!checkbox.checked) {
         input.value = '';
     }
-    
-    const form = checkbox.closest('form');
-    const acquisitionId = form.querySelector('input[name="acquisition_id"]').value;
-    checkApproveButton(acquisitionId);
 }
 
 function checkApproveButton(acquisitionId) {
@@ -402,6 +539,7 @@ function saveQuality(acquisitionId) {
     .then(data => {
         if (data.success) {
             alert('✅ Quality check saved successfully!');
+            window.location.reload();
         } else {
             alert('❌ Error: ' + data.message);
         }
