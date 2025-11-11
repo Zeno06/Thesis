@@ -383,7 +383,7 @@ function enableEdit(btn, inventoryId) {
     const isEditing = btn.dataset.editing === "true";
 
     if (!isEditing) {
-        // ✅ Enter edit mode
+        // Enter edit mode
         inputs.forEach(el => el.disabled = false);
         editOnly.forEach(el => el.style.display = '');
         btn.textContent = 'Save Changes';
@@ -397,13 +397,13 @@ function enableEdit(btn, inventoryId) {
             }
         });
     } else {
-        // ✅ Save mode: update and submit
+        // Save mode: update and submit
         updateCostBreakdown(inventoryId);
         form.submit();
     }
 }
 
-// ✅ Add Repair Row
+// Add Repair Row
 function addRepairRow(inventoryId) {
     const tbody = document.querySelector(`#repairsTable_${inventoryId} tbody`);
     const tr = document.createElement('tr');
@@ -417,7 +417,7 @@ function addRepairRow(inventoryId) {
     tbody.appendChild(tr);
 }
 
-// ✅ Add Recondition Row
+// Add Recondition Row
 function addReconditionRow(inventoryId) {
     const tbody = document.querySelector(`#reconditionTable_${inventoryId} tbody`);
     const tr = document.createElement('tr');
@@ -431,7 +431,7 @@ function addReconditionRow(inventoryId) {
     tbody.appendChild(tr);
 }
 
-// ✅ Update cost breakdown dynamically
+// Update cost breakdown 
 function updateCostBreakdown(inventoryId) {
     const modal = document.querySelector(`[data-id="${inventoryId}"]`);
     if (!modal) return;

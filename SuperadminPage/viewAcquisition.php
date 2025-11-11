@@ -17,15 +17,25 @@ $acquisitions = $conn->query("SELECT * FROM vehicle_acquisition ORDER BY created
 
 <body>
 <div class="header">
-  <div class="header-left"><div class="header-title">Acquisition Reports</div>
+  <div class="header-left">
+    <img src="../Pictures/Carmax_logo.jpg" class="logo" alt="CarMax Logo">
+    <div class="header-title h5 mb-0">View Acquistions</div>
+  </div>
+  <div class="user-info">
+    <i class="fas fa-user-circle" style="font-size: 24px;"></i>
+    <span><?php echo htmlspecialchars($_SESSION['user_name']); ?> (Super Admin)</span>
+    <a href="../logout.php" style="margin-left: 15px; color: white; text-decoration: none;">
+      <i class="fas fa-sign-out-alt"></i> Logout
+    </a>
+  </div>
 </div>
-</div>
+
 <div class="sidebar">
-    <a href="viewLogs.php" class="sidebar-item">
+    <a href="superadminPage.php" class="sidebar-item">
         <i class ="fas fa-list"></i> View Logs
     </a>
     <a href="manageUsers.php" class="sidebar-item">
-        <i class="fas fa-list"></i><span>Manage Accounts</span>
+        <i class="fas fa-users"></i><span>Manage Accounts</span>
     </a>
     <a href="viewAcquisition.php" class="sidebar-item active">
         <i class="fas fa-check-square"></i><span>View Acquisition</span>
@@ -37,24 +47,37 @@ $acquisitions = $conn->query("SELECT * FROM vehicle_acquisition ORDER BY created
 
 <main class="main-content">
   <div class="sap-card">
-    <div class="sap-card-header">All Acquisitions</div>
+    <div class="sap-card-header d-flex justify-content-between align-items-center">
+      <span><i class="fas fa-car"></i> Vehicle Acquisitions</span>
+    </div>
     <div class="sap-card-body">
-      <table class="sap-table">
-        <thead><tr><th>ID</th><th>Model</th><th>Plate</th><th>Status</th><th>Created By</th></tr></thead>
-        <tbody>
-        <?php while($row=$acquisitions->fetch_assoc()){ ?>
-          <tr>
-            <td><?= $row['acquisition_id']; ?></td>
-            <td><?= htmlspecialchars($row['vehicle_model']); ?></td>
-            <td><?= htmlspecialchars($row['plate_number']); ?></td>
-            <td><?= htmlspecialchars($row['status']); ?></td>
-            <td><?= htmlspecialchars($row['created_by']); ?></td>
-          </tr>
-        <?php } ?>
-        </tbody>
-      </table>
+      <div class="table-responsive">
+        <table class="sap-table">
+          <thead>
+            <tr>
+              <th><i class="fas fa-hashtag"></i> ID</th>
+              <th><i class="fas fa-car-side"></i> Model</th>
+              <th><i class="fas fa-id-card"></i> Plate</th>
+              <th><i class="fas fa-info-circle"></i> Status</th>
+              <th><i class="fas fa-user"></i> Created By</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php while($row = $acquisitions->fetch_assoc()) { ?>
+              <tr>
+                <td><?= $row['acquisition_id']; ?></td>
+                <td><?= htmlspecialchars($row['vehicle_model']); ?></td>
+                <td><?= htmlspecialchars($row['plate_number']); ?></td>
+                <td><?= htmlspecialchars($row['status']); ?></td>
+                <td><?= htmlspecialchars($row['created_by']); ?></td>
+              </tr>
+            <?php } ?>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </main>
+
 </body>
 </html>

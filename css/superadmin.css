@@ -71,6 +71,7 @@ body {
     border-right: 2px solid var(--sap-border);
     padding: 20px 0;
     overflow-y: auto;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
 }
 
 .sidebar-item {
@@ -82,6 +83,12 @@ body {
     text-decoration: none;
     transition: all 0.3s;
     cursor: pointer;
+    border-left: 4px solid transparent;
+}
+
+.sidebar-item i {
+    font-size: 18px;
+    width: 24px;
 }
 
 .sidebar-item:hover {
@@ -109,13 +116,13 @@ body {
 .sap-card {
     background: #fff;
     border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     margin-bottom: 20px;
     overflow: hidden;
 }
 
 .sap-card-header {
-    background: var(--sap-gray);
+    background: linear-gradient(135deg, var(--sap-gray) 0%, #e5e7eb 100%);
     border-bottom: 2px solid var(--sap-border);
     padding: 15px 20px;
     font-weight: 600;
@@ -123,6 +130,10 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+.sap-card-header i {
+    margin-right: 8px;
 }
 
 .sap-card-body {
@@ -133,7 +144,12 @@ body {
 .form-label {
     font-weight: 600;
     color: var(--carmax-blue);
-    margin-bottom: 5px;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.form-label i {
+    margin-right: 5px;
 }
 
 .form-control,
@@ -143,49 +159,92 @@ body {
     padding: 10px;
     width: 100%;
     transition: all 0.3s;
-    
+    margin-bottom: 15px;
 }
 
 .form-select:focus,
 .form-control:focus {
     border-color: var(--carmax-orange);
     box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+    outline: none;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.form-grid .full-width {
+    grid-column: 1 / -1;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 2px solid var(--sap-border);
+}
+
+.form-text {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 5px;
+    display: block;
 }
 
 /* ---------- Buttons ---------- */
-.btn-carmax-primary {
-    background: var(--carmax-orange);
-    color: white;
+.btn-carmax-primary,
+.btn-carmax-secondary {
     border: none;
     padding: 10px 25px;
     border-radius: 6px;
     font-weight: 600;
     transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.btn-carmax-primary {
+    background: var(--carmax-orange);
+    color: white;
 }
 
 .btn-carmax-primary:hover {
     background: #d97706;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    color: white;
 }
 
 .btn-carmax-secondary {
     background: var(--carmax-blue);
     color: white;
-    border: none;
-    padding: 10px 25px;
-    border-radius: 6px;
-    font-weight: 600;
-    transition: all 0.3s;
 }
 
 .btn-carmax-secondary:hover {
     background: #1e3a8a;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
+    color: white;
+}
+
+.btn-sm {
+    padding: 6px 15px;
+    font-size: 14px;
 }
 
 /* ---------- Tables ---------- */
+.table-responsive {
+    overflow-x: auto;
+}
+
 .sap-table {
     width: 100%;
     border-collapse: collapse;
@@ -200,6 +259,10 @@ body {
     font-weight: 600;
 }
 
+.sap-table th i {
+    margin-right: 5px;
+}
+
 .sap-table td {
     padding: 12px;
     border: 1px solid var(--sap-border);
@@ -210,12 +273,14 @@ body {
     background: #f9fafb;
 }
 
-/* ---------- Status Badges ---------- */
-.status-badge {
+/* ---------- Status & Role Badges ---------- */
+.status-badge,
+.role-badge {
     padding: 5px 15px;
     border-radius: 20px;
     font-size: 12px;
     font-weight: 600;
+    display: inline-block;
 }
 
 .status-draft {
@@ -231,6 +296,121 @@ body {
 .status-sent {
     background: #dbeafe;
     color: #1e40af;
+}
+
+.status-active {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-inactive {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.role-superadmin {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.role-acquisition {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.role-operation {
+    background: #e0e7ff;
+    color: #3730a3;
+}
+
+/* ---------- Filter Form ---------- */
+.filter-form-horizontal {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.filter-form-horizontal .form-control,
+.filter-form-horizontal .form-select {
+    min-width: 180px;
+    margin-bottom: 0;
+    flex: 1;
+}
+
+.filter-form-horizontal .form-control[type="date"] {
+    min-width: 160px;
+}
+
+.filter-form-horizontal button,
+.filter-form-horizontal a {
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.header-title-section {
+    display: flex;
+    align-items: center;
+}
+
+.sap-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.filter-form {
+    flex-wrap: wrap;
+}
+
+.filter-form .form-control,
+.filter-form .form-select {
+    min-width: 150px;
+    margin-bottom: 0;
+}
+
+/* ---------- No Data State ---------- */
+.no-data {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-gray);
+}
+
+.no-data i {
+    color: #d1d5db;
+    margin-bottom: 15px;
+}
+
+.no-data p {
+    margin: 10px 0 0;
+    font-size: 16px;
+}
+
+/* ---------- User Info Box ---------- */
+.user-info-box {
+    background: #f9fafb;
+    border: 2px solid var(--sap-border);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+.user-info-box h5 {
+    color: var(--carmax-blue);
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+.user-info-box p {
+    margin: 8px 0;
+    color: var(--text-dark);
+}
+
+.user-info-box strong {
+    color: var(--carmax-blue);
+    margin-right: 10px;
 }
 
 /* ---------- Modal ---------- */
@@ -359,7 +539,6 @@ body {
     margin-bottom: 10px;
 }
 
-
 .photo-box img {
     width: 100%;
     height: 200px;
@@ -374,11 +553,21 @@ body {
     transform: scale(1.03);
 }
 
+.image-preview {
+    display: block;
+    width: 250px;             
+    height: 200px;
+    object-fit: cover;          
+    border-radius: 8px;
+    border: 2px solid #ddd;
+    margin-top: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    transition: transform 0.2s ease;
+}
 
 .image-preview:hover {
     transform: scale(1.05);
 }
-
 
 td input[type="file"] {
     width: 100%;
@@ -395,14 +584,27 @@ td input[type="file"] {
     overflow-y: auto;
 }
 
-.image-preview {
-    display: block;
-    width: 250px;             
-    height: 200px;
-    object-fit: cover;          
-    border-radius: 8px;
-    border: 2px solid #ddd;
-    margin-top: 8px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-    transition: transform 0.2s ease;
+/* ---------- Responsive Design ---------- */
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-250px);
+        transition: transform 0.3s;
+    }
+    
+    .main-content {
+        margin-left: 0;
+    }
+    
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .filter-form {
+        flex-direction: column;
+    }
+    
+    .filter-form .form-control,
+    .filter-form .form-select {
+        width: 100%;
+    }
 }

@@ -18,16 +18,24 @@ $sales = $conn->query("SELECT * FROM vehicle_sales ORDER BY date_sold DESC");
 <body>
 <div class="header">
   <div class="header-left">
-    <div class="header-title">Sales Reports</div>
+    <img src="../Pictures/Carmax_logo.jpg" class="logo" alt="CarMax Logo">
+    <div class="header-title h5 mb-0">View Sales</div>
+  </div>
+  <div class="user-info">
+    <i class="fas fa-user-circle" style="font-size: 24px;"></i>
+    <span><?php echo htmlspecialchars($_SESSION['user_name']); ?> (Super Admin)</span>
+    <a href="../logout.php" style="margin-left: 15px; color: white; text-decoration: none;">
+      <i class="fas fa-sign-out-alt"></i> Logout
+    </a>
   </div>
 </div>
 
 <div class="sidebar">
-    <a href="viewLogs.php" class="sidebar-item">
+    <a href="superadminPage.php" class="sidebar-item ">
         <i class ="fas fa-list"></i> View Logs
     </a>
     <a href="manageUsers.php" class="sidebar-item">
-        <i class="fas fa-list"></i><span>Manage Accounts</span>
+        <i class="fas fa-users"></i><span>Manage Accounts</span>
     </a>
     <a href="viewAcquisition.php" class="sidebar-item">
         <i class="fas fa-check-square"></i><span>View Acquisition</span>
@@ -39,32 +47,36 @@ $sales = $conn->query("SELECT * FROM vehicle_sales ORDER BY date_sold DESC");
 
 <main class="main-content">
   <div class="sap-card">
-    <div class="sap-card-header">All Sales</div>
+    <div class="sap-card-header d-flex justify-content-between align-items-center">
+      <span><i class="fas fa-warehouse"></i> Sales Reports</span>
+    </div>
     <div class="sap-card-body">
+      <div class="table-responsive">
         <table class="sap-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Plate</th>
-            <th>Customer</th>
-            <th>Price</th>
-            <th>Profit</th>
-            <th>Agent Name</th>
-          </tr>
-        </thead>
-        <tbody>
-        <?php while($row = $sales->fetch_assoc()) { ?>
-          <tr>
-            <td><?= htmlspecialchars($row['sale_id'] ?? '') ?></td>
-            <td><?= htmlspecialchars($row['plate_number'] ?? '') ?></td>
-            <td><?= htmlspecialchars($row['customer_name'] ?? '') ?></td>
-            <td>₱<?= number_format($row['selling_price'] ?? 0, 2) ?></td>
-            <td><?= number_format($row['gross_profit'] ?? 0, 2) ?></td>
-            <td><?= htmlspecialchars($row['agent_name'] ?? '') ?></td>
-          </tr>
-        <?php } ?>
-        </tbody>
-      </table>
+          <thead>
+            <tr>
+              <th><i class="fas fa-hashtag"></i> ID</th>
+              <th><i class="fas fa-id-card"></i> Plate</th>
+              <th><i class="fas fa-user"></i> Customer</th>
+              <th><i class="fas fa-tag"></i> Price</th>
+              <th><i class="fas fa-coins"></i> Profit</th>
+              <th><i class="fas fa-user-tie"></i> Agent</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php while($row = $sales->fetch_assoc()) { ?>
+              <tr>
+                <td><?= htmlspecialchars($row['sale_id'] ?? '') ?></td>
+                <td><?= htmlspecialchars($row['plate_number'] ?? '') ?></td>
+                <td><?= htmlspecialchars($row['customer_name'] ?? '') ?></td>
+                <td>₱<?= number_format($row['selling_price'] ?? 0, 2) ?></td>
+                <td>₱<?= number_format($row['gross_profit'] ?? 0, 2) ?></td>
+                <td><?= htmlspecialchars($row['agent_name'] ?? '') ?></td>
+              </tr>
+            <?php } ?>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </main>

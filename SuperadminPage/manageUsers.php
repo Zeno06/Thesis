@@ -6,12 +6,13 @@ if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'superadmin') {
     exit();
 }
 
-$users = $conn->query("SELECT * FROM users ORDER BY role");
+$users = $conn->query("SELECT * FROM users ORDER BY role, lastname, firstname");
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Manage Accounts</title>
 <link rel="stylesheet" href="../css/superadmin.css">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
@@ -33,11 +34,11 @@ $users = $conn->query("SELECT * FROM users ORDER BY role");
 </div>
 
 <div class="sidebar">
-    <a href="viewLogs.php" class="sidebar-item">
-        <i class ="fas fa-list"></i> View Logs
+    <a href="superadminPage.php" class="sidebar-item">
+        <i class="fas fa-list"></i> View Logs
     </a>
     <a href="manageUsers.php" class="sidebar-item active">
-        <i class="fas fa-list"></i><span>Manage Accounts</span>
+        <i class="fas fa-users"></i><span>Manage Accounts</span>
     </a>
     <a href="viewAcquisition.php" class="sidebar-item">
         <i class="fas fa-check-square"></i><span>View Acquisition</span>
@@ -50,32 +51,53 @@ $users = $conn->query("SELECT * FROM users ORDER BY role");
 <main class="main-content">
   <div class="sap-card">
     <div class="sap-card-header d-flex justify-content-between align-items-center">
-      <span>User Accounts</span>
-      <a href="addUser.php" class="btn-carmax-primary">+ Add Account</a>
+      <span><i class="fas fa-users"></i> User Accounts</span>
+      <a href="addUser.php" class="btn-carmax-primary">
+        <i class="fas fa-plus"></i> Add Account
+      </a>
     </div>
     <div class="sap-card-body">
-      <table class="sap-table">
-        <thead>
-          <tr>
-            <th>ID</th><th>Email</th><th>Name</th><th>Role</th><th>Status</th><th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php while ($u = $users->fetch_assoc()) { ?>
-          <tr>
-            <td><?= $u['id']; ?></td>
-            <td><?= htmlspecialchars($u['email']); ?></td>
-            <td><?= htmlspecialchars($u['firstname'] . ' ' . $u['lastname']); ?></td>
-            <td><?= ucfirst($u['role']); ?></td>
-            <td><?= ucfirst($u['status']); ?></td>
-            <td>
-              <a href="editUser.php?id=<?= $u['id']; ?>" class="btn-carmax-secondary btn-sm">Edit</a>
-              <a href="changePassword.php?id=<?= $u['id']; ?>" class="btn-carmax-primary btn-sm">Password</a>
-            </td>
-          </tr>
-          <?php } ?>
-        </tbody>
-      </table>
+      <div class="table-responsive">
+        <table class="sap-table">
+          <thead>
+            <tr>
+              <th><i class="fas fa-hashtag"></i> ID</th>
+              <th><i class="fas fa-envelope"></i> Email</th>
+              <th><i class="fas fa-user"></i> Name</th>
+              <th><i class="fas fa-user-tag"></i> Role</th>
+              <th><i class="fas fa-toggle-on"></i> Status</th>
+              <th><i class="fas fa-cogs"></i> Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php while ($u = $users->fetch_assoc()) { ?>
+            <tr>
+              <td><?= $u['id']; ?></td>
+              <td><?= htmlspecialchars($u['email']); ?></td>
+              <td><?= htmlspecialchars($u['firstname'] . ' ' . $u['lastname']); ?></td>
+              <td>
+                <span class="role-badge role-<?= strtolower($u['role']); ?>">
+                  <?= ucfirst($u['role']); ?>
+                </span>
+              </td>
+              <td>
+                <span class="status-badge status-<?= strtolower($u['status']); ?>">
+                  <?= ucfirst($u['status']); ?>
+                </span>
+              </td>
+              <td>
+                <a href="editUser.php?id=<?= $u['id']; ?>" class="btn-carmax-secondary btn-sm">
+                  <i class="fas fa-edit"></i> Edit
+                </a>
+                <a href="changePassword.php?id=<?= $u['id']; ?>" class="btn-carmax-primary btn-sm">
+                  <i class="fas fa-key"></i> Password
+                </a>
+              </td>
+            </tr>
+            <?php } ?>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </main>

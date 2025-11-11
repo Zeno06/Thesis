@@ -296,12 +296,15 @@ $userName = $_SESSION['user_name'];
                 <input type="hidden" name="reconditions_list" id="reconditions_list">
                 <input type="hidden" name="costbreakdown_list" id="costbreakdown_list">
 
-                    <!-- Receipts Upload -->
+                   <!-- Receipts Upload -->
                     <div class="mb-4">
                         <label class="form-label">Picture of Receipts</label>
                         <input type="file" class="form-control" name="receipts[]" accept="image/*" multiple onchange="previewReceipts(this)">
-                        <div class="image-preview-container" id="receiptsPreview"></div>
+                        
+                        <!-- Preview container -->
+                        <div id="receiptsPreview" class="d-flex flex-wrap gap-3 mt-2"></div>
                     </div>
+
 
                     <!-- Remarks -->
                     <div class="mb-4">
@@ -322,23 +325,23 @@ $userName = $_SESSION['user_name'];
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script>
-        function previewReceipts(input) {
-            const previewContainer = document.getElementById('receiptsPreview');
-            previewContainer.innerHTML = '';
-            
-            if (input.files && input.files.length > 0) {
-                Array.from(input.files).forEach((file) => {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const previewDiv = document.createElement('div');
-                        previewDiv.className = 'image-preview';
-                        previewDiv.innerHTML = `<img src="${e.target.result}" alt="Receipt">`;
-                        previewContainer.appendChild(previewDiv);
-                    };
-                    reader.readAsDataURL(file);
-                });
-            }
-        }
+       function previewReceipts(input) {
+    const previewContainer = document.getElementById('receiptsPreview');
+    previewContainer.innerHTML = ''; 
+
+    if (input.files && input.files.length > 0) {
+        Array.from(input.files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.className = 'image-preview';
+                previewContainer.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+}
 
         function addRepairRow() {
     const tbody = document.querySelector('#repairsTable tbody');

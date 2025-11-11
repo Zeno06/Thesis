@@ -23,32 +23,95 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Edit Account</title>
 <link rel="stylesheet" href="../css/superadmin.css">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
 
 <body>
-<div class="header"><div class="header-left"><div class="header-title">Edit Account</div></div></div>
+<div class="header">
+  <div class="header-left">
+    <img src="../Pictures/Carmax_logo.jpg" class="logo" alt="CarMax Logo">
+    <div class="header-title h5 mb-0">Edit Account</div>
+  </div>
+  <div class="user-info">
+    <i class="fas fa-user-circle" style="font-size: 24px;"></i>
+    <span><?php echo htmlspecialchars($_SESSION['user_name']); ?> (Super Admin)</span>
+    <a href="../logout.php" style="margin-left: 15px; color: white; text-decoration: none;">
+      <i class="fas fa-sign-out-alt"></i> Logout
+    </a>
+  </div>
+</div>
+
+<div class="sidebar">
+    <a href="superadminPage.php" class="sidebar-item">
+        <i class="fas fa-list"></i> View Logs
+    </a>
+    <a href="manageUsers.php" class="sidebar-item active">
+        <i class="fas fa-users"></i><span>Manage Accounts</span>
+    </a>
+    <a href="viewAcquisition.php" class="sidebar-item">
+        <i class="fas fa-check-square"></i><span>View Acquisition</span>
+    </a>
+    <a href="viewSales.php" class="sidebar-item">
+       <i class="fas fa-warehouse"></i><span>Sales Reports</span>
+    </a>
+</div>
+
 <main class="main-content">
   <div class="sap-card">
+    <div class="sap-card-header">
+      <i class="fas fa-user-edit"></i> Edit User Account
+    </div>
     <div class="sap-card-body">
       <form method="POST">
-        <label class="form-label">First Name</label>
-        <input type="text" name="firstname" value="<?= htmlspecialchars($user['firstname']); ?>" class="form-control">
-        <label class="form-label">Last Name</label>
-        <input type="text" name="lastname" value="<?= htmlspecialchars($user['lastname']); ?>" class="form-control">
-        <label class="form-label">Role</label>
-        <select name="role" class="form-select">
-          <option value="acquisition" <?= $user['role']=='acquisition'?'selected':''; ?>>Acquisition</option>
-          <option value="operation" <?= $user['role']=='operation'?'selected':''; ?>>Operation</option>
-          <option value="superadmin" <?= $user['role']=='superadmin'?'selected':''; ?>>Superadmin</option>
-        </select>
-        <label class="form-label">Status</label>
-        <select name="status" class="form-select">
-          <option value="active" <?= $user['status']=='active'?'selected':''; ?>>Active</option>
-          <option value="inactive" <?= $user['status']=='inactive'?'selected':''; ?>>Inactive</option>
-        </select>
-        <button type="submit" class="btn-carmax-primary mt-3">Save</button>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">
+              <i class="fas fa-user"></i> First Name
+            </label>
+            <input type="text" name="firstname" value="<?= htmlspecialchars($user['firstname']); ?>" class="form-control" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <i class="fas fa-user"></i> Last Name
+            </label>
+            <input type="text" name="lastname" value="<?= htmlspecialchars($user['lastname']); ?>" class="form-control" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <i class="fas fa-user-tag"></i> Role
+            </label>
+            <select name="role" class="form-select" required>
+              <option value="acquisition" <?= $user['role']=='acquisition'?'selected':''; ?>>Acquisition</option>
+              <option value="operation" <?= $user['role']=='operation'?'selected':''; ?>>Operation</option>
+              <option value="superadmin" <?= $user['role']=='superadmin'?'selected':''; ?>>Superadmin</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <i class="fas fa-toggle-on"></i> Status
+            </label>
+            <select name="status" class="form-select" required>
+              <option value="active" <?= $user['status']=='active'?'selected':''; ?>>Active</option>
+              <option value="inactive" <?= $user['status']=='inactive'?'selected':''; ?>>Inactive</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-carmax-primary">
+            <i class="fas fa-save"></i> Save Changes
+          </button>
+          <a href="manageUsers.php" class="btn-carmax-secondary">
+            <i class="fas fa-times"></i> Cancel
+          </a>
+        </div>
       </form>
     </div>
   </div>
