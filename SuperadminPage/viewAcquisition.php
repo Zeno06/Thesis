@@ -40,9 +40,6 @@ $acquisitions = $conn->query("SELECT * FROM vehicle_acquisition ORDER BY created
     <a href="viewAcquisition.php" class="sidebar-item active">
         <i class="fas fa-check-square"></i><span>View Acquisition</span>
     </a>
-    <a href="viewSales.php" class="sidebar-item">
-       <i class="fas fa-warehouse"></i><span>Sales Reports</span>
-    </a>
 </div>
 
 <main class="main-content">

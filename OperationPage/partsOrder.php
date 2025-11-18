@@ -89,17 +89,8 @@ $result = $conn->query($query);
     <a href="reconCost.php" class="sidebar-item">
         <i class="fas fa-wrench"></i><span>Recon Cost</span>
     </a>
-    <a href="paymentRequest.php" class="sidebar-item">
-        <i class="fas fa-money-bill-wave"></i><span>Request for Payment</span>
-    </a>
     <a href="partsOrder.php" class="sidebar-item active">
         <i class="fas fa-tools"></i><span>Parts Needed/Order</span>
-    </a>
-    <a href="salesPage.php" class="sidebar-item">
-        <i class="fas fa-shopping-cart"></i><span>Sales</span>
-    </a>
-    <a href="recentSales.php" class="sidebar-item">
-        <i class="fas fa-history"></i><span>Recent Sales</span>
     </a>
 </div>
 

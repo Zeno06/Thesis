@@ -52,9 +52,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <a href="viewAcquisition.php" class="sidebar-item">
         <i class="fas fa-check-square"></i><span>View Acquisition</span>
     </a>
-    <a href="viewSales.php" class="sidebar-item">
-       <i class="fas fa-warehouse"></i><span>Sales Reports</span>
-    </a>
 </div>
 
 <main class="main-content">
