@@ -1,6 +1,7 @@
 <?php
 session_start();
 include '../db_connect.php';
+include '../log_activity.php'; 
 
 if (!isset($_SESSION['id']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: operationPage.php');
@@ -10,10 +11,11 @@ if (!isset($_SESSION['id']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
 $acquisition_id = intval($_POST['acquisition_id']);
 $markup_percentage = floatval($_POST['markup_percentage'] ?? 0);
 $userName = $_SESSION['user_name'];
+$user_id = $_SESSION['id'];
 $currentTime = date('Y-m-d H:i:s');
 
-// Get acquired price
-$vehicleQuery = $conn->query("SELECT acquired_price FROM vehicle_acquisition WHERE acquisition_id = $acquisition_id");
+// Get vehicle info
+$vehicleQuery = $conn->query("SELECT plate_number, vehicle_model, year_model, acquired_price FROM vehicle_acquisition WHERE acquisition_id = $acquisition_id");
 $vehicle = $vehicleQuery->fetch_assoc();
 $acquiredPrice = $vehicle['acquired_price'] ?? 0;
 
@@ -57,9 +59,12 @@ $stmt->bind_param(
     $acquisition_id
 );
 
-
 if ($stmt->execute()) {
-    echo "<script>alert('✅ Pricing saved successfully! If this vehicle is released, the price will update automatically on the landing page.'); window.location.href='operationPage.php';</script>";
+    
+    $action = "Updated pricing for vehicle: {$vehicle['plate_number']} - {$vehicle['vehicle_model']} {$vehicle['year_model']} (Selling Price: ₱" . number_format($sellingPrice, 2) . ", Markup: {$markup_percentage}%)";
+    logActivity($conn, $user_id, $action, 'Operations');
+    
+    echo "<script>alert('✅ Pricing saved successfully!'); window.location.href='operationPage.php';</script>";
 } else {
     echo "<script>alert('❌ Error saving pricing: " . $conn->error . "'); window.location.href='operationPage.php';</script>";
 }

@@ -1,6 +1,8 @@
 <?php
 session_start();
 include '../db_connect.php';
+include '../log_activity.php'; 
+
 if ($_SESSION['role'] !== 'superadmin') { header('Location: ../loginPage/loginPage.php'); exit; }
 
 $id = $_GET['id'];
@@ -9,6 +11,11 @@ $user = $conn->query("SELECT firstname, lastname, email FROM users WHERE id=$id"
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $new = password_hash($_POST['password'], PASSWORD_BCRYPT);
     $conn->query("UPDATE users SET password='$new' WHERE id=$id");
+    
+    // Log the activity
+    $action = "Changed password for user: " . $user['firstname'] . " " . $user['lastname'];
+    logActivity($conn, $_SESSION['id'], $action, 'Manage Users');
+    
     header("Location: manageUsers.php");
     exit;
 }

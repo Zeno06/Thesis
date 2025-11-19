@@ -1,6 +1,7 @@
 <?php
 session_start();
 include '../db_connect.php';
+include '../log_activity.php'; 
 
 if (!isset($_SESSION['id'])) {
     header('Location: ../LoginPage/loginPage.php');
@@ -122,6 +123,9 @@ if ($stmt->execute()) {
         }
         $partStmt->close();
     }
+    
+    $action = "Created new vehicle acquisition: $plate - $model $year (Status: Quality Check)";
+    logActivity($conn, $user_id, $action, 'Vehicle Acquisition');
     
     echo "<script>alert('✅ Vehicle acquisition saved and sent to Quality Check!'); window.location.href='qualityPage.php';</script>";
 } else {

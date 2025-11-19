@@ -1,6 +1,8 @@
 <?php
 session_start();
 include '../db_connect.php';
+include '../log_activity.php'; 
+
 if ($_SESSION['role'] !== 'superadmin') { header('Location: ../loginPage/loginPage.php'); exit; }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -13,6 +15,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt = $conn->prepare("INSERT INTO users (email, password, role, firstname, lastname, status) VALUES (?, ?, ?, ?, ?, 'active')");
     $stmt->bind_param("sssss", $email, $pass, $role, $fname, $lname);
     $stmt->execute();
+    
+    // Log the activity
+    $action = "Created new user account: $fname $lname ($email) with role: $role";
+    logActivity($conn, $_SESSION['id'], $action, 'Manage Users');
+    
     header("Location: manageUsers.php");
     exit;
 }

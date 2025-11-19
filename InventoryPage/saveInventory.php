@@ -1,6 +1,7 @@
 <?php
 session_start();
 include '../db_connect.php';
+include '../log_activity.php'; 
 
 if (!isset($_SESSION['id']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: recentInventory.php');
@@ -61,6 +62,10 @@ $sql = "UPDATE vehicle_inventory SET
         WHERE inventory_id=$inventory_id";
 
 if ($conn->query($sql)) {
+  
+    $action = "Updated inventory record: $plate_number - $make $model $year_model";
+    logActivity($conn, $_SESSION['id'], $action, 'Inventory Management');
+    
     echo "<script>alert('✅ Inventory updated successfully!'); window.location.href='recentInventory.php';</script>";
 } else {
     echo "<script>alert('❌ Error: " . $conn->error . "'); window.location.href='recentInventory.php';</script>";

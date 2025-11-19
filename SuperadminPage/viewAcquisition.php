@@ -32,13 +32,19 @@ $acquisitions = $conn->query("SELECT * FROM vehicle_acquisition ORDER BY created
 
 <div class="sidebar">
     <a href="superadminPage.php" class="sidebar-item">
-        <i class ="fas fa-list"></i> View Logs
+        <i class="fas fa-list"></i> View Logs
     </a>
     <a href="manageUsers.php" class="sidebar-item">
         <i class="fas fa-users"></i><span>Manage Accounts</span>
     </a>
     <a href="viewAcquisition.php" class="sidebar-item active">
-        <i class="fas fa-check-square"></i><span>View Acquisition</span>
+        <i class="fas fa-car"></i><span>View Acquisition</span>
+    </a>
+    <a href="viewOperation.php" class="sidebar-item">
+        <i class="fas fa-cogs"></i><span>View Operations</span>
+    </a>
+    <a href="viewInventory.php" class="sidebar-item">
+        <i class="fas fa-warehouse"></i><span>View Inventory</span>
     </a>
 </div>
 
@@ -66,7 +72,7 @@ $acquisitions = $conn->query("SELECT * FROM vehicle_acquisition ORDER BY created
                 <td><?= htmlspecialchars($row['vehicle_model']); ?></td>
                 <td><?= htmlspecialchars($row['plate_number']); ?></td>
                 <td><?= htmlspecialchars($row['status']); ?></td>
-                <td><?= htmlspecialchars($row['created_by']); ?></td>
+                <td><?= htmlspecialchars($row['approved_by']); ?></td>
               </tr>
             <?php } ?>
           </tbody>

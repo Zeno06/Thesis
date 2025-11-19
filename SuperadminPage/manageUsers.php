@@ -6,7 +6,8 @@ if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'superadmin') {
     exit();
 }
 
-$users = $conn->query("SELECT * FROM users ORDER BY role, lastname, firstname");
+
+$users = $conn->query("SELECT * FROM users WHERE id != {$_SESSION['id']} ORDER BY role, lastname, firstname");
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -41,7 +42,13 @@ $users = $conn->query("SELECT * FROM users ORDER BY role, lastname, firstname");
         <i class="fas fa-users"></i><span>Manage Accounts</span>
     </a>
     <a href="viewAcquisition.php" class="sidebar-item">
-        <i class="fas fa-check-square"></i><span>View Acquisition</span>
+        <i class="fas fa-car"></i><span>View Acquisition</span>
+    </a>
+    <a href="viewOperation.php" class="sidebar-item">
+        <i class="fas fa-cogs"></i><span>View Operations</span>
+    </a>
+    <a href="viewInventory.php" class="sidebar-item">
+        <i class="fas fa-warehouse"></i><span>View Inventory</span>
     </a>
 </div>
 

@@ -4,7 +4,7 @@ header('Access-Control-Allow-Origin: *');
 
 include '../db_connect.php';
 
-// Get all released vehicles directly from vehicle_acquisition
+// Get all released vehicles (is_released = 1), exclude archived (is_released = 2)
 $query = "SELECT 
     acquisition_id,
     plate_number,

@@ -4,6 +4,12 @@ const passwordInput = document.getElementById('password');
 const emailError = document.getElementById('emailError');
 const passwordError = document.getElementById('passwordError');
 const captchaError = document.getElementById('captchaError');
+const loginButton = document.getElementById('loginButton');
+
+// Disable button by default
+loginButton.disabled = true;
+loginButton.style.opacity = '0.5';
+loginButton.style.cursor = 'not-allowed';
 
 // Email validation for role-based format
 function validateEmail(email) {
@@ -24,6 +30,39 @@ function validatePassword(password) {
     }
     return true;
 }
+
+// Function to check if form is valid and enable/disable button
+function checkFormValidity() {
+    const emailFilled = emailInput.value.trim().length > 0;
+    const passwordFilled = passwordInput.value.trim().length > 0;
+    let captchaValid = false;
+    
+    // Check if reCAPTCHA is completed
+    if (typeof grecaptcha !== 'undefined') {
+        try {
+            const captchaResponse = grecaptcha.getResponse();
+            captchaValid = captchaResponse.length > 0;
+        } catch (e) {
+            captchaValid = false;
+        }
+    }
+    
+    // Enable button only if all fields are filled and captcha is checked
+    if (emailFilled && passwordFilled && captchaValid) {
+        loginButton.disabled = false;
+        loginButton.style.opacity = '1';
+        loginButton.style.cursor = 'pointer';
+    } else {
+        loginButton.disabled = true;
+        loginButton.style.opacity = '0.5';
+        loginButton.style.cursor = 'not-allowed';
+    }
+}
+
+// Global callback for reCAPTCHA success
+window.onCaptchaSuccess = function() {
+    checkFormValidity();
+};
 
 // Real-time email validation
 emailInput.addEventListener('blur', function() {
@@ -52,16 +91,21 @@ passwordInput.addEventListener('blur', function() {
     }
 });
 
-// Clear errors on input
+// Clear errors on input and check form validity
 emailInput.addEventListener('input', function() {
     emailError.classList.remove('show');
     this.style.borderColor = '#e5e7eb';
+    checkFormValidity();
 });
 
 passwordInput.addEventListener('input', function() {
     passwordError.classList.remove('show');
     this.style.borderColor = '#e5e7eb';
+    checkFormValidity();
 });
+
+// Check validity periodically (for reCAPTCHA detection)
+setInterval(checkFormValidity, 500);
 
 // Form validation before submit
 form.addEventListener('submit', function(e) {
@@ -104,7 +148,6 @@ form.addEventListener('submit', function(e) {
         return false;
     }
 
-    const loginButton = document.getElementById('loginButton');
     loginButton.textContent = 'Signing In...';
     loginButton.disabled = true;
 });

@@ -8,6 +8,7 @@ if (!isset($_SESSION['id'])) {
 }
 
 require_once '../db_connect.php';
+require_once '../log_activity.php'; 
 
 // Get the logged-in user's full name for approved_checked_by
 $userQuery = $conn->query("SELECT firstname, lastname FROM users WHERE id = " . $_SESSION['id']);
@@ -96,7 +97,7 @@ $userName = $_SESSION['user_name'];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inventory Management - CarMax</title>
+    <title>Inventory Management</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="../css/inventory.css" rel="stylesheet">

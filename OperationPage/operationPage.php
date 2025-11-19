@@ -11,7 +11,7 @@ if (!isset($_SESSION['id']) || ($_SESSION['role'] !== 'operation' && $_SESSION['
 $userName = $_SESSION['user_name'];
 $userRole = $_SESSION['role'];
 
-// Fetch all acquisitions sent to operations
+// Fetch all acquisitions sent to operations (including archived for viewing)
 $query = "SELECT * FROM vehicle_acquisition WHERE status = 'Sent to Operations' ORDER BY sent_to_operations_at DESC";
 $result = $conn->query($query);
 ?>
@@ -163,7 +163,9 @@ $result = $conn->query($query);
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <?php if ($row['is_released']): ?>
+                                    <?php if ($row['is_released'] == 2): ?>
+                                        <span class="badge bg-secondary"><i class="fas fa-archive"></i> Archived</span>
+                                    <?php elseif ($row['is_released'] == 1): ?>
                                         <span class="badge bg-primary"><i class="fas fa-globe"></i> Released</span>
                                     <?php else: ?>
                                         <span class="badge bg-warning">Pending Release</span>
@@ -379,23 +381,45 @@ $result = $conn->query($query);
                                     <div class="info-row"><div class="info-label">Approved At:</div><div class="info-value"><?= $row['approved_at'] ? date('M d, Y h:i A', strtotime($row['approved_at'])) : 'N/A' ?></div></div>
                                     <div class="info-row"><div class="info-label">Sent to Operations By:</div><div class="info-value"><?= htmlspecialchars($row['sent_to_operations_by'] ?? 'N/A') ?></div></div>
                                     <div class="info-row"><div class="info-label">Sent to Operations At:</div><div class="info-value"><?= $row['sent_to_operations_at'] ? date('M d, Y h:i A', strtotime($row['sent_to_operations_at'])) : 'N/A' ?></div></div>
+                                    
+                                    <?php if ($row['is_released'] == 2): ?>
+                                    <div class="info-row"><div class="info-label">Archived By:</div><div class="info-value"><?= htmlspecialchars($row['archived_by'] ?? 'N/A') ?></div></div>
+                                    <div class="info-row"><div class="info-label">Archived At:</div><div class="info-value"><?= $row['archived_at'] ? date('M d, Y h:i A', strtotime($row['archived_at'])) : 'N/A' ?></div></div>
+                                    <?php endif; ?>
                                 </div>
                             </div>
 
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i class="fas fa-times"></i> Close
+                                </button>
+                                
                                 <button type="submit" class="btn btn-success">
                                     <i class="fas fa-save"></i> Save Pricing
                                 </button>
-                                <?php if (!$row['is_released']): ?>
-                                <button type="button" class="btn btn-info" 
-                                    onclick="confirmRelease(<?= $row['acquisition_id'] ?>)">
-                                    <i class="fas fa-rocket"></i> Release to Public
-                                </button>
-                                <?php else: ?>
-                                <span class="badge bg-success p-2">
-                                    <i class="fas fa-check-circle"></i> Released to Public
-                                </span>
+                                
+                                <?php if ($row['is_released'] == 0): ?>
+                                    <!-- Not Released Yet -->
+                                    <button type="button" class="btn btn-primary" 
+                                        onclick="confirmRelease(<?= $row['acquisition_id'] ?>)">
+                                        <i class="fas fa-rocket"></i> Release to Public
+                                    </button>
+                                    
+                                <?php elseif ($row['is_released'] == 1): ?>
+                                    <!-- Released - Show Archive Button -->
+                                    <span class="badge bg-success p-2 me-2">
+                                        <i class="fas fa-check-circle"></i> Released to Public
+                                    </span>
+                                    <button type="button" class="btn btn-danger" 
+                                        onclick="confirmArchive(<?= $row['acquisition_id'] ?>)">
+                                        <i class="fas fa-archive"></i> Archive Vehicle
+                                    </button>
+                                    
+                                <?php elseif ($row['is_released'] == 2): ?>
+                                    <!-- Archived -->
+                                    <span class="badge bg-secondary p-2">
+                                        <i class="fas fa-archive"></i> Archived (Removed from Public)
+                                    </span>
                                 <?php endif; ?>
                             </div>
                         </form>
@@ -434,6 +458,23 @@ function confirmRelease(acquisitionId) {
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = 'releaseVehicle.php';
+        
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'acquisition_id';
+        input.value = acquisitionId;
+        
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+function confirmArchive(acquisitionId) {
+    if (confirm('⚠️ Are you sure you want to ARCHIVE this vehicle?\n\nThis will REMOVE it from the public landing page\nUse this when the vehicle is SOLD or no longer available\nYou can still view it here, but customers won\'t see it\n\nProceed with archiving?')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = 'archiveVehicle.php';
         
         const input = document.createElement('input');
         input.type = 'hidden';

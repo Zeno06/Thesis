@@ -1,19 +1,24 @@
 <?php
 session_start();
 include '../db_connect.php';
+include '../log_activity.php'; 
+
 if ($_SESSION['role'] !== 'superadmin') { header('Location: ../loginPage/loginPage.php'); exit; }
 
 $id = $_GET['id'];
 $user = $conn->query("SELECT * FROM users WHERE id=$id")->fetch_assoc();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $fname = $_POST['firstname'];
-    $lname = $_POST['lastname'];
     $role  = $_POST['role'];
     $status = $_POST['status'];
-    $stmt = $conn->prepare("UPDATE users SET firstname=?, lastname=?, role=?, status=? WHERE id=?");
-    $stmt->bind_param("ssssi", $fname, $lname, $role, $status, $id);
+    $stmt = $conn->prepare("UPDATE users SET role=?, status=? WHERE id=?");
+    $stmt->bind_param("ssi", $role, $status, $id);
     $stmt->execute();
+    
+    // Log the activity
+    $action = "Updated user account: " . $user['firstname'] . " " . $user['lastname'] . " (Role: $role, Status: $status)";
+    logActivity($conn, $_SESSION['id'], $action, 'Manage Users');
+    
     header("Location: manageUsers.php");
     exit;
 }
@@ -69,14 +74,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <label class="form-label">
               <i class="fas fa-user"></i> First Name
             </label>
-            <input type="text" name="firstname" value="<?= htmlspecialchars($user['firstname']); ?>" class="form-control" required>
+            <input type="text" value="<?= htmlspecialchars($user['firstname']); ?>" class="form-control" disabled style="background-color: #f5f5f5; cursor: not-allowed;">
+            <small class="form-text text-muted">
+              <i class="fas fa-lock"></i> Name cannot be edited
+            </small>
           </div>
 
           <div class="form-group">
             <label class="form-label">
               <i class="fas fa-user"></i> Last Name
             </label>
-            <input type="text" name="lastname" value="<?= htmlspecialchars($user['lastname']); ?>" class="form-control" required>
+            <input type="text" value="<?= htmlspecialchars($user['lastname']); ?>" class="form-control" disabled style="background-color: #f5f5f5; cursor: not-allowed;">
+            <small class="form-text text-muted">
+              <i class="fas fa-lock"></i> Name cannot be edited
+            </small>
           </div>
 
           <div class="form-group">

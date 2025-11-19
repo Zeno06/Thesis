@@ -91,7 +91,13 @@ $logs = $stmt->get_result();
         <i class="fas fa-users"></i><span>Manage Accounts</span>
     </a>
     <a href="viewAcquisition.php" class="sidebar-item">
-        <i class="fas fa-check-square"></i><span>View Acquisition</span>
+        <i class="fas fa-car"></i><span>View Acquisition</span>
+    </a>
+    <a href="viewOperation.php" class="sidebar-item ">
+        <i class="fas fa-cogs"></i><span>View Operations</span>
+    </a>
+    <a href="viewInventory.php" class="sidebar-item">
+        <i class="fas fa-warehouse"></i><span>View Inventory</span>
     </a>
 </div>
 
