@@ -1,17 +1,22 @@
 <?php
-session_start();
+require_once '../session_helper.php';
+startRoleSession('acquisition');
+
 include '../db_connect.php';
 
-header('Content-Type: application/json');
-
-if (!isset($_SESSION['id']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'acquisition' || $_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Location: ../LoginPage/loginPage.php');
     exit();
 }
 
+header('Content-Type: application/json');
+
+$userName = $_SESSION['user_name'];
+$userRole = $_SESSION['role'];
+$user_id = $_SESSION['id'];
+
 $acquisition_id = intval($_POST['acquisition_id']);
 $action = $_POST['action'] ?? 'save';
-$userName = $_SESSION['user_name'];
 $currentTime = date('Y-m-d H:i:s');
 
 // Get vehicle folder for uploads
@@ -205,9 +210,17 @@ try {
             approved_by = '$userName', 
             approved_at = '$currentTime' 
             WHERE acquisition_id = $acquisition_id");
+        
+        echo json_encode([
+            'success' => true, 
+            'message' => 'Vehicle approved and moved to Approved page successfully!'
+        ]);
+    } else {
+        echo json_encode([
+            'success' => true, 
+            'message' => 'Quality check progress saved successfully!'
+        ]);
     }
-    
-    echo json_encode(['success' => true, 'message' => 'Quality check updated successfully']);
     
 } catch (Exception $e) {
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);

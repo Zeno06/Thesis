@@ -1,17 +1,20 @@
 <?php
-session_start();
+require_once '../session_helper.php';
+startRoleSession('operation');
 include '../db_connect.php';
 include '../log_activity.php'; 
 
-if (!isset($_SESSION['id']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
+if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'operation' || $_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: operationPage.php');
     exit();
 }
+
 
 $acquisition_id = intval($_POST['acquisition_id']);
 $markup_percentage = floatval($_POST['markup_percentage'] ?? 0);
 $userName = $_SESSION['user_name'];
 $user_id = $_SESSION['id'];
+$userRole = $_SESSION['role'];
 $currentTime = date('Y-m-d H:i:s');
 
 // Get vehicle info

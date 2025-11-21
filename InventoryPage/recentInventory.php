@@ -1,38 +1,73 @@
 <?php
-session_start();
-if (!isset($_SESSION['id'])) {
+require_once '../session_helper.php';
+startRoleSession('acquisition');  
+
+include '../db_connect.php';
+
+if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'acquisition') {
     header('Location: ../LoginPage/loginPage.php');
     exit();
 }
-require_once '../db_connect.php';
 
 $userName = $_SESSION['user_name'];
 $userRole = $_SESSION['role'];
-$canEdit = ($userRole === 'acquisition' || $userRole === 'superadmin');
+$user_id = $_SESSION['id'];
+$canEdit = $userRole === 'acquisition';
 
+// Check for success/error messages
+$successMessage = $_SESSION['success_message'] ?? null;
+$errorMessage = $_SESSION['error_message'] ?? null;
+unset($_SESSION['success_message'], $_SESSION['error_message']);
+
+// Get filter parameters
 $search = isset($_GET['search']) ? $conn->real_escape_string($_GET['search']) : '';
+$makeFilter = isset($_GET['make']) ? $conn->real_escape_string($_GET['make']) : '';
+$supplierFilter = isset($_GET['supplier']) ? $conn->real_escape_string($_GET['supplier']) : '';
+
+// Build query with filters
 $searchQuery = '';
+$conditions = [];
+
 if (!empty($search)) {
-    $searchQuery = " WHERE plate_number LIKE '%$search%' 
+    $conditions[] = "(plate_number LIKE '%$search%' 
                      OR make LIKE '%$search%' 
                      OR model LIKE '%$search%' 
                      OR supplier LIKE '%$search%' 
-                     OR color LIKE '%$search%'";
+                     OR color LIKE '%$search%')";
 }
 
-$sql = "SELECT * FROM vehicle_inventory $searchQuery ORDER BY created_at DESC";
+if (!empty($makeFilter)) {
+    $conditions[] = "make = '$makeFilter'";
+}
+
+if (!empty($supplierFilter)) {
+    $conditions[] = "supplier = '$supplierFilter'";
+}
+
+if (!empty($conditions)) {
+    $searchQuery = " WHERE " . implode(' AND ', $conditions);
+}
+
+$sql = "SELECT * FROM vehicle_inventory $searchQuery ORDER BY inventory_id ASC";
 $result = $conn->query($sql);
+
+// Get unique makes for filter
+$makesQuery = "SELECT DISTINCT make FROM vehicle_inventory ORDER BY make";
+$makes = $conn->query($makesQuery);
+
+// Get unique suppliers for filter
+$suppliersQuery = "SELECT DISTINCT supplier FROM vehicle_inventory ORDER BY supplier";
+$suppliers = $conn->query($suppliersQuery);
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recent Inventory - CarMax</title>
+    <title>Recent Inventory</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="../css/inventory.css" rel="stylesheet">
- 
 </head>
 
 <body>
@@ -73,7 +108,7 @@ $result = $conn->query($sql);
     <a href="/InventoryPage/inventoryPage.php" class="sidebar-item">
        <i class="fas fa-warehouse"></i><span>Inventory</span>
     </a>
-        <a href="/InventoryPage/recentInventory.php" class="sidebar-item active">
+    <a href="/InventoryPage/recentInventory.php" class="sidebar-item active">
        <i class="fas fa-history"></i><span>Recent Inventory</span>
     </a>
 </div>
@@ -85,12 +120,45 @@ $result = $conn->query($sql);
             <div>
                 <form method="GET" class="d-flex gap-2">
                     <input type="text" name="search" class="form-control" placeholder="Search..." 
-                        value="<?php echo htmlspecialchars($search); ?>" style="width: 300px;">
+                        value="<?php echo htmlspecialchars($search); ?>" style="width: 220px;">
+                    
+                    <select name="make" class="form-select" style="width: 200px;">
+                        <option value="">All Makes</option>
+                        <?php 
+                            if ($makes) {
+                                $makes->data_seek(0);
+                                while($make = $makes->fetch_assoc()):
+                        ?>
+                            <option value="<?= htmlspecialchars($make['make']) ?>" <?= $makeFilter === $make['make'] ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($make['make']) ?>
+                            </option>
+                        <?php 
+                                endwhile;
+                            }
+                        ?>
+                    </select>
+
+                    <select name="supplier" class="form-select" style="width: 200px;">
+                        <option value="">All Suppliers</option>
+                        <?php 
+                            if ($suppliers) {
+                                $suppliers->data_seek(0);
+                                while($supplier = $suppliers->fetch_assoc()):
+                        ?>
+                            <option value="<?= htmlspecialchars($supplier['supplier']) ?>" <?= $supplierFilter === $supplier['supplier'] ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($supplier['supplier']) ?>
+                            </option>
+                        <?php 
+                                endwhile;
+                            }
+                        ?>
+                    </select>
+                    
                     <button type="submit" class="btn-carmax-secondary">
-                        <i class="fas fa-search"></i> Search
+                        <i class="fas fa-filter"></i> Filter
                     </button>
-                    <?php if (!empty($search)): ?>
-                        <a href="recentInventory.php" class="btn btn-secondary">
+                    <?php if (!empty($search) || !empty($makeFilter) || !empty($supplierFilter)): ?>
+                        <a href="recentInventory.php" class="btn btn-carmax-primary">
                             <i class="fas fa-times"></i> Clear
                         </a>
                     <?php endif; ?>
@@ -132,9 +200,10 @@ $result = $conn->query($sql);
         </tbody>
     </table>
 </div>
+</div>
+</div>
 
 <?php 
-
 if ($result && $result->num_rows > 0):
     $result->data_seek(0); 
     while ($row = $result->fetch_assoc()):
@@ -355,9 +424,8 @@ if ($result && $result->num_rows > 0):
                     <!-- Remarks -->
                     <h6 class="text-primary fw-bold mb-3 mt-4"><i class="fas fa-comment"></i> Remarks</h6>
                     <textarea class="form-control mb-4" name="remarks" rows="3" disabled><?= htmlspecialchars($row['remarks']) ?></textarea>
+                </div>
                     
-                    
-
                 <!-- Modal Footer -->
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -371,10 +439,53 @@ if ($result && $result->num_rows > 0):
 </div>
 <?php endwhile; endif; ?>
 
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="fas fa-check-circle"></i> Success</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="successMessageText"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
 
+<!-- Error Modal -->
+<div class="modal fade" id="errorModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="fas fa-exclamation-triangle"></i> Error</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="errorMessageText"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Show success or error modal if message exists
+    <?php if ($successMessage): ?>
+        document.getElementById('successMessageText').textContent = '<?= addslashes($successMessage) ?>';
+        new bootstrap.Modal(document.getElementById('successModal')).show();
+    <?php endif; ?>
+
+    <?php if ($errorMessage): ?>
+        document.getElementById('errorMessageText').textContent = '<?= addslashes($errorMessage) ?>';
+        new bootstrap.Modal(document.getElementById('errorModal')).show();
+    <?php endif; ?>
+});
+
 function enableEdit(btn, inventoryId) {
     const modal = btn.closest('.modal-content');
     const form = modal.querySelector('form');

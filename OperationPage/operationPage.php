@@ -1,18 +1,25 @@
 <?php
-session_start();
+require_once '../session_helper.php';
+startRoleSession('operation'); 
+
 include '../db_connect.php';
 
-// Check login session and role
-if (!isset($_SESSION['id']) || ($_SESSION['role'] !== 'operation' && $_SESSION['role'] !== 'superadmin')) {
+if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'operation') {
     header('Location: ../LoginPage/loginPage.php');
     exit();
 }
 
 $userName = $_SESSION['user_name'];
 $userRole = $_SESSION['role'];
+$user_id = $_SESSION['id'];
+
+// Check for success/error messages
+$successMessage = $_SESSION['success_message'] ?? null;
+$errorMessage = $_SESSION['error_message'] ?? null;
+unset($_SESSION['success_message'], $_SESSION['error_message']);
 
 // Fetch all acquisitions sent to operations (including archived for viewing)
-$query = "SELECT * FROM vehicle_acquisition WHERE status = 'Sent to Operations' ORDER BY sent_to_operations_at DESC";
+$query = "SELECT * FROM vehicle_acquisition WHERE status = 'Sent to Operations' ORDER BY acquisition_id ASC";
 $result = $conn->query($query);
 ?>
 <!DOCTYPE html>
@@ -431,8 +438,53 @@ $result = $conn->query($query);
     </div>
 </div>
 
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="fas fa-check-circle"></i> Success</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="successMessageText"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Error Modal -->
+<div class="modal fade" id="errorModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="fas fa-exclamation-triangle"></i> Error</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="errorMessageText"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Show success or error modal if message exists
+    <?php if ($successMessage): ?>
+        document.getElementById('successMessageText').textContent = '<?= addslashes($successMessage) ?>';
+        new bootstrap.Modal(document.getElementById('successModal')).show();
+    <?php endif; ?>
+
+    <?php if ($errorMessage): ?>
+        document.getElementById('errorMessageText').textContent = '<?= addslashes($errorMessage) ?>';
+        new bootstrap.Modal(document.getElementById('errorModal')).show();
+    <?php endif; ?>
+});
+
 function calculateCosts(acquisitionId) {
     const form = document.getElementById('operationsForm' + acquisitionId);
     const markupPercentage = parseFloat(form.querySelector('.markup-input').value) || 0;
@@ -440,6 +492,7 @@ function calculateCosts(acquisitionId) {
     const acquiredPrice = parseFloat(form.closest('.modal-content')
         .querySelector('.cost-summary .cost-row:first-child span:last-child')
         .textContent.replace('₱', '').replace(/,/g, '')) || 0;
+
     const issuesCost = parseFloat(document.getElementById('issuesCost' + acquisitionId).textContent.replace('₱', '').replace(/,/g, '')) || 0;
     const partsCost = parseFloat(document.getElementById('partsCost' + acquisitionId).textContent.replace('₱', '').replace(/,/g, '')) || 0;
 
@@ -447,23 +500,27 @@ function calculateCosts(acquisitionId) {
     const markupValue = (totalReconCost * markupPercentage) / 100;
     const sellingPrice = totalReconCost + markupValue;
 
-    // Update display
-    document.getElementById('totalReconCost' + acquisitionId).textContent = '₱' + totalReconCost.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    document.getElementById('markupValue' + acquisitionId).textContent = '₱' + markupValue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    document.getElementById('sellingPrice' + acquisitionId).textContent = '₱' + sellingPrice.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    document.getElementById('totalReconCost' + acquisitionId).textContent =
+        '₱' + totalReconCost.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+    document.getElementById('markupValue' + acquisitionId).textContent =
+        '₱' + markupValue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+    document.getElementById('sellingPrice' + acquisitionId).textContent =
+        '₱' + sellingPrice.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
 function confirmRelease(acquisitionId) {
-    if (confirm('⚠️ Are you sure you want to release this vehicle to the public landing page?\n\nMake sure you have saved the pricing first!')) {
+    if (confirm('Are you sure you want to release this vehicle to the public landing page?\n\nMake sure you have saved the pricing first!')) {
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = 'releaseVehicle.php';
-        
+
         const input = document.createElement('input');
         input.type = 'hidden';
         input.name = 'acquisition_id';
         input.value = acquisitionId;
-        
+
         form.appendChild(input);
         document.body.appendChild(form);
         form.submit();
@@ -472,15 +529,16 @@ function confirmRelease(acquisitionId) {
 
 function confirmArchive(acquisitionId) {
     if (confirm('⚠️ Are you sure you want to ARCHIVE this vehicle?\n\nThis will REMOVE it from the public landing page\nUse this when the vehicle is SOLD or no longer available\nYou can still view it here, but customers won\'t see it\n\nProceed with archiving?')) {
+        
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = 'archiveVehicle.php';
-        
+
         const input = document.createElement('input');
         input.type = 'hidden';
         input.name = 'acquisition_id';
         input.value = acquisitionId;
-        
+
         form.appendChild(input);
         document.body.appendChild(form);
         form.submit();

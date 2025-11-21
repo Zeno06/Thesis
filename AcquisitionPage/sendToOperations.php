@@ -1,8 +1,14 @@
 <?php
-session_start();
+require_once '../session_helper.php';
+startRoleSession('acquisition');
 include '../db_connect.php';
 
-if (!isset($_SESSION['id']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
+if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'acquisition') {
+    header('Location: approvePage.php');
+    exit();
+}
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: approvePage.php');
     exit();
 }
@@ -16,11 +22,14 @@ $stmt = $conn->prepare("UPDATE vehicle_acquisition SET status = 'Sent to Operati
 $stmt->bind_param("ssi", $userName, $currentTime, $acquisition_id);
 
 if ($stmt->execute()) {
-    echo "<script>alert('Vehicle sent to operations successfully!'); window.location.href='approvePage.php';</script>";
+    $_SESSION['success_message'] = 'Vehicle sent to operations successfully!';
 } else {
-    echo "<script>alert('Error sending to operations: " . $conn->error . "'); window.location.href='approvePage.php';</script>";
+    $_SESSION['error_message'] = 'Error sending to operations: ' . $conn->error;
 }
 
 $stmt->close();
 $conn->close();
+
+header('Location: approvePage.php');
+exit();
 ?>

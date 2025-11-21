@@ -1,17 +1,20 @@
 <?php
-session_start();
+require_once '../session_helper.php';
+startRoleSession('operation');  
+
 include '../db_connect.php';
 
-// ✅ Check login session and role
-if (!isset($_SESSION['id']) || ($_SESSION['role'] !== 'operation' && $_SESSION['role'] !== 'superadmin')) {
+
+if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'operation') {
     header('Location: ../LoginPage/loginPage.php');
     exit();
 }
 
 $userName = $_SESSION['user_name'];
 $userRole = $_SESSION['role'];
+$user_id = $_SESSION['id'];
 
-// ✅ Fetch distinct vehicles that have recon data (issues or parts)
+// Fetch distinct vehicles that have recon data (issues or parts)
 $query = "
     SELECT 
         va.acquisition_id,

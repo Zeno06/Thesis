@@ -1,13 +1,17 @@
 <?php
-session_start();
+require_once '../session_helper.php';
+startRoleSession('acquisition');  
+
 include '../db_connect.php';
 include '../log_activity.php'; 
 
-if (!isset($_SESSION['id'])) {
+if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'acquisition' || $_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ../LoginPage/loginPage.php');
     exit();
 }
 
+$userName = $_SESSION['user_name'];
+$userRole = $_SESSION['role'];
 $user_id = $_SESSION['id'];
 
 // Get form data first to create folder name
@@ -100,7 +104,6 @@ if ($stmt->execute()) {
                     $filename = time() . '_issue_' . $index . '.' . $extension;
                     $targetPath = $issuesDir . $filename;
                     if (move_uploaded_file($_FILES['issue_photos']['tmp_name'][$index], $targetPath)) {
-                        // Store relative path
                         $issuePhoto = $folderName . '/issues/' . $filename;
                     }
                 }
@@ -124,12 +127,18 @@ if ($stmt->execute()) {
         $partStmt->close();
     }
     
-    $action = "Created new vehicle acquisition: $plate - $model $year (Status: Quality Check)";
+    // Log activity
+    $action = "Created new vehicle acquisition: $plate - $model $year (Status: Quality Check, Price: ₱" . number_format($acquiredPrice, 2) . ")";
     logActivity($conn, $user_id, $action, 'Vehicle Acquisition');
     
-    echo "<script>alert('✅ Vehicle acquisition saved and sent to Quality Check!'); window.location.href='qualityPage.php';</script>";
+    // Redirect to acquiPage
+    header("Location: acquiPage.php?success=1");
+    exit();
 } else {
-    echo "❌ SQL Error: " . $stmt->error;
+    // Redirect with error
+    $errorMsg = urlencode($stmt->error);
+    header("Location: acquiPage.php?error={$errorMsg}");
+    exit();
 }
 
 $stmt->close();

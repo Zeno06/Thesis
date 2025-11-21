@@ -1,8 +1,10 @@
 <?php
-session_start();
+require_once '../session_helper.php';
+startRoleSession('superadmin');
 include '../db_connect.php';
+
 if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'superadmin') {
-    header('Location: ../loginPage/loginPage.php');
+    header('Location: ../LoginPage/loginPage.php');
     exit();
 }
 

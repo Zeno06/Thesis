@@ -584,6 +584,7 @@ td input[type="file"] {
     overflow-y: auto;
 }
 
+
 /* ---------- Responsive Design ---------- */
 @media (max-width: 768px) {
     .sidebar {

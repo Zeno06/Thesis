@@ -1,5 +1,6 @@
 <?php
-session_start();
+require_once '../session_helper.php';
+startRoleSession('operation'); 
 include '../db_connect.php';
 include '../log_activity.php'; 
 
@@ -13,17 +14,18 @@ $userName = $_SESSION['user_name'];
 $user_id = $_SESSION['id'];
 $currentTime = date('Y-m-d H:i:s');
 
-
 $vehicleQuery = $conn->query("SELECT plate_number, vehicle_model, year_model, is_released FROM vehicle_acquisition WHERE acquisition_id = $acquisition_id");
 $vehicle = $vehicleQuery->fetch_assoc();
 
 if (!$vehicle) {
-    echo "<script>alert('❌ Vehicle not found!'); window.location.href='operationPage.php';</script>";
+    $_SESSION['error_message'] = 'Vehicle not found!';
+    header('Location: operationPage.php');
     exit();
 }
 
 if ($vehicle['is_released'] != 1) {
-    echo "<script>alert('⚠️ Only released vehicles can be archived!'); window.location.href='operationPage.php';</script>";
+    $_SESSION['error_message'] = 'Only released vehicles can be archived!';
+    header('Location: operationPage.php');
     exit();
 }
 
@@ -32,15 +34,17 @@ $stmt = $conn->prepare("UPDATE vehicle_acquisition SET is_released = 2, archived
 $stmt->bind_param("ssi", $userName, $currentTime, $acquisition_id);
 
 if ($stmt->execute()) {
-    
     $action = "Archived vehicle (sold/removed from public): {$vehicle['plate_number']} - {$vehicle['vehicle_model']} {$vehicle['year_model']}";
     logActivity($conn, $user_id, $action, 'Operations');
     
-    echo "<script>alert('✅ Vehicle archived successfully! It has been removed from the landing page.'); window.location.href='operationPage.php';</script>";
+    $_SESSION['success_message'] = 'Vehicle archived successfully! It has been removed from the landing page.';
 } else {
-    echo "<script>alert('❌ Error archiving vehicle: " . $conn->error . "'); window.location.href='operationPage.php';</script>";
+    $_SESSION['error_message'] = 'Error archiving vehicle: ' . $conn->error;
 }
 
 $stmt->close();
 $conn->close();
+
+header('Location: operationPage.php');
+exit();
 ?>

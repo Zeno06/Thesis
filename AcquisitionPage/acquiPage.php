@@ -1,15 +1,19 @@
 <?php
-session_start();
+require_once '../session_helper.php';
+startRoleSession('acquisition');
+
 include '../db_connect.php';
 
-if (!isset($_SESSION['id'])) {
+if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'acquisition') {
     header('Location: ../LoginPage/loginPage.php');
     exit();
 }
 
 $userName = $_SESSION['user_name'];
+$userRole = $_SESSION['role'];
 $user_id = $_SESSION['id'];
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -229,7 +233,24 @@ $user_id = $_SESSION['id'];
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" onclick="submitForm()">Yes</button>
+                <button type="button" class="btn btn-success" onclick="submitForm()">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="successModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-check-circle"></i> Success</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                Vehicle acquisition saved and sent to Quality Check!
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-bs-dismiss="modal">OK</button>
             </div>
         </div>
     </div>
@@ -317,6 +338,21 @@ function submitForm() {
     confirmModalInstance.hide();
     document.getElementById('vehicleForm').submit();
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('success') === '1') {
+        const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+        successModal.show();
+
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    if (urlParams.get('error')) {
+        alert("Error: " + urlParams.get('error'));
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+});
 </script>
 </body>
 </html>

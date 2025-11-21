@@ -1,5 +1,10 @@
 <?php
-session_start();
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_name('CARMAX_MAIN_SESSION');
+    session_start();
+}
+
 include '../db_connect.php';
 
 $error = '';
@@ -16,16 +21,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = $result->fetch_assoc();
 
         if (password_verify($password, $user['password'])) {
-            // Save session data
+
+            session_unset();
+            session_destroy();
+
+            $sessionName = 'CARMAX_' . strtoupper($user['role']) . '_SESSION';
+            session_name($sessionName);
+            session_start();
+
             $_SESSION['id'] = $user['id'];
             $_SESSION['email'] = $user['email'];
             $_SESSION['role'] = $user['role'];
             $_SESSION['user_name'] = $user['firstname'] . ' ' . $user['lastname'];
 
-            // Update last login time
+            // Update last login
             $conn->query("UPDATE users SET last_login = NOW() WHERE id = {$user['id']}");
 
-            // Redirect based on role 
+            // Redirect by role
             switch ($user['role']) {
                 case 'acquisition':
                     $redirect = "../AcquisitionPage/acquiPage.php";
@@ -44,6 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 window.top.location.href = '$redirect';
             </script>";
             exit;
+
         } else {
             $error = 'Invalid email or password.';
         }
@@ -52,6 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">

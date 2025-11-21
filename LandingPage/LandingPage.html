@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carmax</title>
+    <title>AutoGraph</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="LandingPage.css">
@@ -13,7 +13,7 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg fixed-top">
     <div class="container">
-        <a class="navbar-brand" href="#"><i class="fas fa-car"></i> Carmax</a>
+        <a class="navbar-brand" href="#"><i class="fas fa-car"></i> AutoGraph</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
         </button>
@@ -21,7 +21,7 @@
         <ul class="navbar-nav me-auto">
             <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
             <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
-            <li class="nav-item"><a class="nav-link" href="#cars">Cars</a></li>
+            <li class="nav-item"><a class="nav-link" href="#featured-vehicles">Cars</a></li>
             <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
         </ul>
         <button class="btn btn-auth" data-bs-toggle="modal" data-bs-target="#loginModal">
@@ -152,57 +152,6 @@
         </div>
     </section>
 
-
-    <!-- About Section -->
-    <section id="about" class="section-padding about-section">
-    <div class="container">
-        <h2 class="section-title fade-in text-center mb-5">Carmax</h2>
-
-        <!-- Row 1: History -->
-        <div class="row align-items-center mb-5">
-        <div class="col-md-6 slide-in-left">
-            <div class="about-card p-4 shadow-lg rounded-4 bg-dark text-white">
-            <div class="about-icon mb-3"><i class="fas fa-history"></i></div>
-            <h4 class="mb-3">Our History</h4>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptate distinctio laudantium similique tempora architecto, esse ratione modi a. Odio dolore minus illo dolor, quidem fugiat ipsam dolorem!</p>
-            </div>
-        </div>
-        <div class="col-md-6 slide-in-right">
-            <img src="/Pictures/Carmaxold.jpg" alt="Our History" class="img-fluid rounded-4 shadow-lg">
-        </div>
-        </div>
-
-        <!-- Row 2: Mission -->
-        <div class="row align-items-center flex-md-row-reverse mb-5">
-        <div class="col-md-6 slide-in-right">
-            <div class="about-card p-4 shadow-lg rounded-4 bg-dark text-white">
-            <div class="about-icon mb-3"><i class="fas fa-bullseye"></i></div>
-            <h4 class="mb-3">Our Mission</h4>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Cupiditate laboriosam odit sunt veritatis corporis suscipit. Dolorem deserunt eveniet ex fugiat blanditiis eligendi similique odio? Voluptatum quidem illum ut!</p>
-            </div>
-        </div>
-        <div class="col-md-6 slide-in-left">
-            <img src="/Pictures/Mission.jpg" alt="Our Mission" class="img-fluid rounded-4 shadow-lg">
-        </div>
-        </div>
-
-        <!-- Row 3: Vision -->
-        <div class="row align-items-center mb-5">
-        <div class="col-md-6 slide-in-left">
-            <div class="about-card p-4 shadow-lg rounded-4 bg-dark text-white">
-            <div class="about-icon mb-3"><i class="fas fa-eye"></i></div>
-            <h4 class="mb-3">Our Vision</h4>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Inventore, nihil natus asperiores fuga blanditiis est corporis aliquid explicabo harum nulla dolores impedit modi perspiciatis? Facere dolore repellat ipsam temporibus.</p>
-            </div>
-        </div>
-        <div class="col-md-6 slide-in-right">
-            <img src="/Pictures/Vision.jpg" alt="Our Vision" class="img-fluid rounded-4 shadow-lg">
-        </div>
-        </div>
-
-    </div>
-    </section>
-
    <!-- Featured Vehicles Section -->
    <section id="featured-vehicles" class="section-padding text-center">
       <div class="container">
@@ -252,24 +201,73 @@
       </div>
     </section>
 
+     <!-- About Section -->
+    <section id="about" class="section-padding about-section">
+    <div class="container">
+        <h2 class="section-title fade-in text-center mb-5">Carmax</h2>
+
+        <!-- Row 1: History -->
+        <div class="row align-items-center mb-5">
+        <div class="col-md-6 slide-in-left">
+           
+            <div class="about-icon mb-3"><i class="fas fa-history"></i></div>
+            <h4 class="mb-3">Our History</h4>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptate distinctio laudantium similique tempora architecto, esse ratione modi a. Odio dolore minus illo dolor, quidem fugiat ipsam dolorem!</p>
+            
+        </div>
+        <div class="col-md-6 slide-in-right">
+            <img src="/Pictures/Carmaxold.jpg" alt="Our History" class="img-fluid rounded-4 shadow-lg">
+        </div>
+        </div>
+
+        <!-- Row 2: Mission -->
+        <div class="row align-items-center flex-md-row-reverse mb-5">
+        <div class="col-md-6 slide-in-right">
+          
+            <div class="about-icon mb-3"><i class="fas fa-bullseye"></i></div>
+            <h4 class="mb-3">Our Mission</h4>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Cupiditate laboriosam odit sunt veritatis corporis suscipit. Dolorem deserunt eveniet ex fugiat blanditiis eligendi similique odio? Voluptatum quidem illum ut!</p>
+           
+        </div>
+        <div class="col-md-6 slide-in-left">
+            <img src="/Pictures/Mission.jpg" alt="Our Mission" class="img-fluid rounded-4 shadow-lg">
+        </div>
+        </div>
+
+        <!-- Row 3: Vision -->
+        <div class="row align-items-center mb-5">
+        <div class="col-md-6 slide-in-left">
+
+            <div class="about-icon mb-3"><i class="fas fa-eye"></i></div>
+            <h4 class="mb-3">Our Vision</h4>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Inventore, nihil natus asperiores fuga blanditiis est corporis aliquid explicabo harum nulla dolores impedit modi perspiciatis? Facere dolore repellat ipsam temporibus.</p>
+        </div>
+        <div class="col-md-6 slide-in-right">
+            <img src="/Pictures/Vision.jpg" alt="Our Vision" class="img-fluid rounded-4 shadow-lg">
+        </div>
+        </div>
+
+    </div>
+    </section>
+
     <!-- Footer -->
     <footer class="footer" id="contact">
         <div class="container">
             <div class="row">
                 <div class="col-md-4">
-                    <h5><i class="fas fa-car"></i> Carmax</h5>
+                    <h5><i class="fas fa-car"></i> Autograph</h5>
                     <p>Your trusted partner in finding quality pre-owned vehicles.</p>
                 </div>
                 <div class="col-md-6">
                     <h5>Contact Info</h5>
-                    <p><i class="fas fa-map-marker-alt"></i> 123 Auto Street, Car City</p>
+                    <p><i class="fas fa-map-marker-alt"></i> 83F7+74H, Carmona, 4116 Cavite</p>
                     <p><i class="fas fa-phone"></i> (555) 123-4567</p>
-                    <p><i class="fas fa-envelope"></i> info@carmax.com</p>
+                    <p><i class="fas fa-envelope"></i> info@autograph.com</p>
                 </div>
             </div>
             <hr style="margin: 2rem 0 1rem; border-color: #444;">
             <div class="text-center">
-                <p>&copy; 2025 Carmax. All rights reserved.</p>
+                <p>&copy; 2025 Autograph. All rights reserved.</p>
             </div>
         </div>
     </footer>

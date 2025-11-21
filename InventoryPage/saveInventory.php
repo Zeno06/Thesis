@@ -1,9 +1,11 @@
 <?php
-session_start();
-include '../db_connect.php';
+require_once '../db_connect.php';
+require_once '../session_helper.php';
+startRoleSession('acquisition');
+
 include '../log_activity.php'; 
 
-if (!isset($_SESSION['id']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
+if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'acquisition' || $_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: recentInventory.php');
     exit();
 }
@@ -62,14 +64,15 @@ $sql = "UPDATE vehicle_inventory SET
         WHERE inventory_id=$inventory_id";
 
 if ($conn->query($sql)) {
-  
     $action = "Updated inventory record: $plate_number - $make $model $year_model";
     logActivity($conn, $_SESSION['id'], $action, 'Inventory Management');
     
-    echo "<script>alert('✅ Inventory updated successfully!'); window.location.href='recentInventory.php';</script>";
+    $_SESSION['success_message'] = 'Inventory updated successfully!';
 } else {
-    echo "<script>alert('❌ Error: " . $conn->error . "'); window.location.href='recentInventory.php';</script>";
+    $_SESSION['error_message'] = 'Error: ' . $conn->error;
 }
 
 $conn->close();
+header('Location: recentInventory.php');
+exit();
 ?>

@@ -1,9 +1,13 @@
 <?php
-session_start();
+require_once '../session_helper.php';
+startRoleSession('superadmin');
 include '../db_connect.php';
 include '../log_activity.php'; 
 
-if ($_SESSION['role'] !== 'superadmin') { header('Location: ../loginPage/loginPage.php'); exit; }
+if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'superadmin') {
+    header('Location: ../LoginPage/loginPage.php');
+    exit();
+}
 
 $id = $_GET['id'];
 $user = $conn->query("SELECT * FROM users WHERE id=$id")->fetch_assoc();
@@ -58,7 +62,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <i class="fas fa-users"></i><span>Manage Accounts</span>
     </a>
     <a href="viewAcquisition.php" class="sidebar-item">
-        <i class="fas fa-check-square"></i><span>View Acquisition</span>
+        <i class="fas fa-car"></i><span>View Acquisition</span>
+    </a>
+    <a href="viewOperation.php" class="sidebar-item">
+        <i class="fas fa-cogs"></i><span>View Operations</span>
+    </a>
+    <a href="viewInventory.php" class="sidebar-item">
+        <i class="fas fa-warehouse"></i><span>View Inventory</span>
     </a>
 </div>
 

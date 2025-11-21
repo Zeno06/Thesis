@@ -1,13 +1,14 @@
 <?php
-session_start();
+require_once '../session_helper.php';
+startRoleSession('superadmin'); 
+
 include '../db_connect.php';
 
 // Check if logged in and has correct role
 if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'superadmin') {
-    header('Location: /loginPage/loginPage.php');
+    header('Location: ../LoginPage/loginPage.php');
     exit();
 }
-
 // Handle filters
 $search = $_GET['search'] ?? '';
 $roleFilter = $_GET['role'] ?? '';

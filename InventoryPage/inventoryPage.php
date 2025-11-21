@@ -1,14 +1,20 @@
 <?php
-session_start();
+require_once '../session_helper.php';
+require_once '../log_activity.php'; 
+startRoleSession('acquisition');
 
-// Check if logged in
-if (!isset($_SESSION['id'])) {
+include '../db_connect.php';
+
+if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'acquisition') {
     header('Location: ../LoginPage/loginPage.php');
     exit();
 }
 
-require_once '../db_connect.php';
-require_once '../log_activity.php'; 
+$userName = $_SESSION['user_name'];
+$userRole = $_SESSION['role'];
+$user_id = $_SESSION['id'];
+
+
 
 // Get the logged-in user's full name for approved_checked_by
 $userQuery = $conn->query("SELECT firstname, lastname FROM users WHERE id = " . $_SESSION['id']);

@@ -206,6 +206,9 @@ body {
     background: #fff;
 }
 
+.td {
+    border-color: black !important;
+}
 .sap-table tr:hover {
     background: #f9fafb;
 }
@@ -280,6 +283,35 @@ body {
 
 .modal-body {
     padding: 30px;
+}
+
+.issue-checkbox, .part-checkbox {
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+    border-color: black;
+    align-items: center !important;
+}
+
+.repaired-by-input, .ordered-by-input {
+    width: 100%;
+}
+
+
+.sap-table td, .sap-table th {
+    vertical-align: middle !important;
+    align-items: center !important;
+}
+.filter-form-horizontal {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin: 0;
+}
+        
+.filter-form-horizontal .form-control,
+.filter-form-horizontal .form-select {
+    width: 220px;
 }
 
 /* ---------- Animations ---------- */

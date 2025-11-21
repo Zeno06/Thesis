@@ -1,7 +1,13 @@
 <?php
-session_start();
+require_once '../session_helper.php';
+startRoleSession('superadmin');
+
 include '../db_connect.php';
-if ($_SESSION['role'] !== 'superadmin') { header('Location: ../loginPage/loginPage.php'); exit; }
+
+if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'superadmin') {
+    header('Location: ../LoginPage/loginPage.php');
+    exit();
+}
 
 // Get filter parameters
 $searchQuery = $_GET['search'] ?? '';

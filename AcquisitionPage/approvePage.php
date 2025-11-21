@@ -1,27 +1,67 @@
 <?php
-session_start();
+require_once '../session_helper.php';
+startRoleSession('acquisition');  
+
 include '../db_connect.php';
 
-if (!isset($_SESSION['id'])) {
+if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'acquisition') {
     header('Location: ../LoginPage/loginPage.php');
     exit();
 }
 
 $userName = $_SESSION['user_name'];
+$userRole = $_SESSION['role'];
 $user_id = $_SESSION['id'];
 
-// Get all approved vehicles
-$query = "SELECT * FROM vehicle_acquisition WHERE status = 'Approved' ORDER BY approved_at DESC";
+// Check for success/error messages
+$successMessage = $_SESSION['success_message'] ?? null;
+$errorMessage = $_SESSION['error_message'] ?? null;
+unset($_SESSION['success_message'], $_SESSION['error_message']);
+
+// Get filter parameters
+$searchQuery = $_GET['search'] ?? '';
+$modelFilter = $_GET['model'] ?? '';
+
+// Build query with filters
+$query = "SELECT * FROM vehicle_acquisition WHERE status = 'Approved'";
+
+if (!empty($searchQuery)) {
+    $escSearch = $conn->real_escape_string($searchQuery);
+    $query .= " AND (plate_number LIKE '%$escSearch%' OR vehicle_model LIKE '%$escSearch%')";
+}
+
+if (!empty($modelFilter)) {
+    $escModel = $conn->real_escape_string($modelFilter);
+    $query .= " AND vehicle_model = '$escModel'";
+}
+
+$query .= " ORDER BY approved_at DESC";
 $result = $conn->query($query);
+
+// Get unique models for filter
+$modelsQuery = "SELECT DISTINCT vehicle_model FROM vehicle_acquisition WHERE status = 'Approved' ORDER BY vehicle_model";
+$models = $conn->query($modelsQuery);
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Approved Acquisitions - CarMax</title>
+    <title>Approved Acquisitions</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../css/acquiPage.css">
+    <style>
+        .filter-form-horizontal {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin: 0;
+        }
+        .filter-form-horizontal .form-control,
+        .filter-form-horizontal .form-select {
+            width: 220px;
+        }
+    </style>
 </head>
 <body>
 
@@ -72,7 +112,32 @@ $result = $conn->query($query);
 <div class="main-content">
     <div class="sap-card">
         <div class="sap-card-header">
-            <i class="fas fa-check-circle"></i> Approved Vehicle Acquisitions
+            <span><i class="fas fa-check-circle"></i> Approved Vehicle Acquisitions</span>
+            <form method="GET" class="filter-form-horizontal">
+                <input type="text" name="search" class="form-control" placeholder="Search plate or model..." value="<?= htmlspecialchars($searchQuery) ?>">
+                
+                <select name="model" class="form-select">
+                    <option value="">All Models</option>
+                    <?php 
+                        if ($models) {
+                            $models->data_seek(0);
+                            while($model = $models->fetch_assoc()):
+                    ?>
+                        <option value="<?= htmlspecialchars($model['vehicle_model']) ?>" <?= $modelFilter === $model['vehicle_model'] ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($model['vehicle_model']) ?>
+                        </option>
+                    <?php 
+                            endwhile;
+                        }
+                    ?>
+                </select>
+
+                    <button type="submit" class="btn-carmax-secondary">
+                        <i class="fas fa-filter"></i> Filter
+                    </button>                <?php if (!empty($searchQuery) || !empty($modelFilter)): ?>
+                    <a href="approvePage.php" class="btn btn-secondary btn-sm"><i class="fas fa-times"></i> Clear</a>
+                <?php endif; ?>
+            </form>
         </div>
 
         <div class="sap-card-body">
@@ -272,6 +337,38 @@ if ($result && $result->num_rows > 0):
 </div>
 <?php endwhile; endif; ?>
 
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-check-circle"></i> Success</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="successMessageText"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Error Modal -->
+<div class="modal fade" id="errorModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="fas fa-exclamation-triangle"></i> Error</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="errorMessageText"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Confirm Send to Operations Modal -->
 <div class="modal fade" id="confirmSendModal" tabindex="-1">
     <div class="modal-dialog">
@@ -287,7 +384,7 @@ if ($result && $result->num_rows > 0):
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <form id="confirmSendForm" method="POST" action="sendToOperations.php" style="display:inline;">
                     <input type="hidden" name="acquisition_id" id="confirmSendId">
-                    <button type="submit" class="btn btn-primary">Yes</button>
+                    <button type="submit" class="btn btn-success">Yes</button>
                 </form>
             </div>
         </div>
@@ -305,6 +402,17 @@ document.addEventListener('DOMContentLoaded', function() {
         const acquisitionId = button.getAttribute('data-id');
         confirmSendId.value = acquisitionId;
     });
+
+    // Show success or error modal if message exists
+    <?php if ($successMessage): ?>
+        document.getElementById('successMessageText').textContent = '<?= addslashes($successMessage) ?>';
+        new bootstrap.Modal(document.getElementById('successModal')).show();
+    <?php endif; ?>
+
+    <?php if ($errorMessage): ?>
+        document.getElementById('errorMessageText').textContent = '<?= addslashes($errorMessage) ?>';
+        new bootstrap.Modal(document.getElementById('errorModal')).show();
+    <?php endif; ?>
 });
 </script>
 </body>
