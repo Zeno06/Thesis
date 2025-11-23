@@ -14,12 +14,28 @@ $userName = $_SESSION['user_name'];
 $userRole = $_SESSION['role'];
 $user_id = $_SESSION['id'];
 
-// Get form data first to create folder name
+// Get form data
+$supplier = $_POST['supplier'] ?? '';
+$dateAcquired = $_POST['dateAcquired'] ?? date('Y-m-d');
+$make = $_POST['make'] ?? '';
 $model = $_POST['vehicleModel'] ?? '';
+$variant = $_POST['variant'] ?? '';
 $plate = $_POST['plateNumber'] ?? '';
 $year = $_POST['year'] ?? '';
+$color = $_POST['color'] ?? '';
+$fuelType = $_POST['fuelType'] ?? '';
+$odometer = $_POST['odometer'] ?? 0;
+$bodyType = $_POST['bodyType'] ?? '';
+$transmission = $_POST['transmission'] ?? '';
+$spareKey = $_POST['spareKey'] ?? '';
+$acquiredPrice = $_POST['acquiredPrice'] ?? 0.00;
+$spareTires = $_POST['spareTires'] ?? '';
+$completeTools = $_POST['completeTools'] ?? '';
+$originalPlate = $_POST['originalPlate'] ?? '';
+$completeDocuments = $_POST['completeDocuments'] ?? '';
+$remarks = $_POST['remarks'] ?? '';
 
-// Create organized folder structure: uploads/PLATE_MODEL_YEAR/
+// Create organized folder structure
 $folderName = preg_replace('/[^A-Za-z0-9_\-]/', '_', "{$plate}_{$model}_{$year}");
 $vehicleBaseDir = __DIR__ . "/../uploads/{$folderName}/";
 $vehiclePhotosDir = $vehicleBaseDir . 'vehicle_photos/';
@@ -37,61 +53,51 @@ function uploadFile($field, $uploadDir, $folderName) {
         $filename = time() . '_' . basename($_FILES[$field]['name']);
         $targetPath = $uploadDir . $filename;
         if (move_uploaded_file($_FILES[$field]['tmp_name'], $targetPath)) {
-            // Return path relative to uploads folder
             return $folderName . '/' . basename($uploadDir) . '/' . $filename;
         }
     }
     return null;
 }
 
-// Get form data
-$color = $_POST['color'] ?? '';
-$acquiredPrice = $_POST['acquiredPrice'] ?? 0.00;
-$spareTires = $_POST['spareTires'] ?? '';
-$completeTools = $_POST['completeTools'] ?? '';
-$originalPlate = $_POST['originalPlate'] ?? '';
-$completeDocuments = $_POST['completeDocuments'] ?? '';
-$remarks = $_POST['remarks'] ?? '';
-
-// Upload vehicle photos to vehicle_photos folder
-$wholecar = uploadFile('wholecar', $vehiclePhotosDir, $folderName);
+// Upload vehicle photos
+$exterior = uploadFile('exterior', $vehiclePhotosDir, $folderName);
 $dashboard = uploadFile('dashboard', $vehiclePhotosDir, $folderName);
 $hood = uploadFile('hood', $vehiclePhotosDir, $folderName);
 $interior = uploadFile('interior', $vehiclePhotosDir, $folderName);
-$exterior = uploadFile('exterior', $vehiclePhotosDir, $folderName);
 $trunk = uploadFile('trunk', $vehiclePhotosDir, $folderName);
 
-// Upload document photos to documents folder
+// Upload document photos
 $orcrPhoto = uploadFile('orcrPhoto', $documentsDir, $folderName);
 $deedOfSalePhoto = uploadFile('deedOfSalePhoto', $documentsDir, $folderName);
 $insurancePhoto = uploadFile('insurancePhoto', $documentsDir, $folderName);
 
 $status = 'Quality Check';
 
-// Insert main vehicle acquisition
+// Insert main vehicle acquisition with all new fields
 $stmt = $conn->prepare("
     INSERT INTO vehicle_acquisition (
-        vehicle_model, plate_number, year_model, color,
-        wholecar_photo, dashboard_photo, hood_photo, interior_photo, exterior_photo, trunk_photo,
+        supplier, date_acquired, make, vehicle_model, variant, plate_number, year_model, color,
+        fuel_type, odometer, body_type, transmission, spare_key,
+        exterior_photo, dashboard_photo, hood_photo, interior_photo, trunk_photo,
         orcr_photo, deed_of_sale_photo, insurance_photo,
         spare_tires, complete_tools, original_plate, complete_documents,
         remarks, acquired_price, created_by, status
-    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
 ");
 
 $stmt->bind_param(
-    "ssisssssssssssssssdis",
-    $model, $plate, $year, $color,
-    $wholecar, $dashboard, $hood, $interior, $exterior, $trunk,
-    $orcrPhoto, $deedOfSalePhoto, $insurancePhoto,
-    $spareTires, $completeTools, $originalPlate, $completeDocuments,
-    $remarks, $acquiredPrice, $user_id, $status
+    "ssssssississssssssssssssssdis",
+    $supplier,$dateAcquired,$make,$model,$variant,$plate,              
+    $year,$color,$fuelType,$odometer,$bodyType,$transmission,$spareKey,           
+    $exterior,$dashboard,$hood,$interior,$trunk,$orcrPhoto,$deedOfSalePhoto,
+    $insurancePhoto,$spareTires,$completeTools,$originalPlate,$completeDocuments,
+    $remarks,$acquiredPrice,$user_id,$status             
 );
 
 if ($stmt->execute()) {
-    $acquisition_id = $conn->insert_id;
+   $acquisition_id = $conn->insert_id;
     
-    // Insert issues with photos to issues folder
+    // Insert issues with photos
     if (isset($_POST['issue_names']) && is_array($_POST['issue_names'])) {
         $issueStmt = $conn->prepare("INSERT INTO acquisition_issues (acquisition_id, issue_name, issue_photo) VALUES (?,?,?)");
         
@@ -128,14 +134,12 @@ if ($stmt->execute()) {
     }
     
     // Log activity
-    $action = "Created new vehicle acquisition: $plate - $model $year (Status: Quality Check, Price: ₱" . number_format($acquiredPrice, 2) . ")";
+    $action = "Created new vehicle acquisition: $plate - $make $model $year (Status: Quality Check, Price: ₱" . number_format($acquiredPrice, 2) . ")";
     logActivity($conn, $user_id, $action, 'Vehicle Acquisition');
     
-    // Redirect to acquiPage
     header("Location: acquiPage.php?success=1");
     exit();
 } else {
-    // Redirect with error
     $errorMsg = urlencode($stmt->error);
     header("Location: acquiPage.php?error={$errorMsg}");
     exit();

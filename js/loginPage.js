@@ -11,11 +11,7 @@ loginButton.disabled = true;
 loginButton.style.opacity = '0.5';
 loginButton.style.cursor = 'not-allowed';
 
-// Email validation for role-based format
-function validateEmail(email) {
-    const pattern = /^(aq|op|sa)\.[a-zA-Z]+@carmax\.com$/;
-    return pattern.test(email);
-}
+// Removed validateEmail() — normal email only
 
 // Password validation
 function validatePassword(password) {
@@ -25,19 +21,17 @@ function validatePassword(password) {
     if (!/[A-Z]/.test(password)) {
         return "Password must contain at least one uppercase letter";
     }
-    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+    if (!/[!@#$%^&*(),.?\":{}|<>]/.test(password)) {
         return "Password must contain at least one special character";
     }
     return true;
 }
 
-// Function to check if form is valid and enable/disable button
 function checkFormValidity() {
     const emailFilled = emailInput.value.trim().length > 0;
     const passwordFilled = passwordInput.value.trim().length > 0;
     let captchaValid = false;
-    
-    // Check if reCAPTCHA is completed
+
     if (typeof grecaptcha !== 'undefined') {
         try {
             const captchaResponse = grecaptcha.getResponse();
@@ -46,8 +40,7 @@ function checkFormValidity() {
             captchaValid = false;
         }
     }
-    
-    // Enable button only if all fields are filled and captcha is checked
+
     if (emailFilled && passwordFilled && captchaValid) {
         loginButton.disabled = false;
         loginButton.style.opacity = '1';
@@ -59,31 +52,23 @@ function checkFormValidity() {
     }
 }
 
-// Global callback for reCAPTCHA success
 window.onCaptchaSuccess = function() {
     checkFormValidity();
 };
 
-// Real-time email validation
 emailInput.addEventListener('blur', function() {
-    if (this.value && !validateEmail(this.value)) {
-        emailError.textContent = 'Email must be in format: aq/op/sa.lastname@carmax.com';
-        emailError.classList.add('show');
-        this.style.borderColor = '#dc2626';
-    } else {
-        emailError.classList.remove('show');
-        this.style.borderColor = '#e5e7eb';
-    }
+    emailError.classList.remove('show');
+    this.style.borderColor = '#e5e7eb';
 });
 
-// Real-time password validation
+// Password validation
 passwordInput.addEventListener('blur', function() {
     if (this.value) {
         const validation = validatePassword(this.value);
         if (validation !== true) {
             passwordError.textContent = validation;
             passwordError.classList.add('show');
-            this.style.borderColor = '#dc2626';
+            this.style.borderColor = '#b44040ff';
         } else {
             passwordError.classList.remove('show');
             this.style.borderColor = '#e5e7eb';
@@ -91,7 +76,6 @@ passwordInput.addEventListener('blur', function() {
     }
 });
 
-// Clear errors on input and check form validity
 emailInput.addEventListener('input', function() {
     emailError.classList.remove('show');
     this.style.borderColor = '#e5e7eb';
@@ -104,27 +88,22 @@ passwordInput.addEventListener('input', function() {
     checkFormValidity();
 });
 
-// Check validity periodically (for reCAPTCHA detection)
 setInterval(checkFormValidity, 500);
 
-// Form validation before submit
 form.addEventListener('submit', function(e) {
     let isValid = true;
 
-    // Clear previous errors
     emailError.classList.remove('show');
     passwordError.classList.remove('show');
     captchaError.classList.remove('show');
 
-    
-    if (!emailInput.value || !emailInput.value.includes('@carmax.com')) {
-        emailError.textContent = 'Please enter a valid CarMax email';
+    if (!emailInput.value) {
+        emailError.textContent = 'Please enter your email';
         emailError.classList.add('show');
         emailInput.style.borderColor = '#dc2626';
         isValid = false;
     }
 
-    // Validate password (basic check)
     if (!passwordInput.value || passwordInput.value.length < 6) {
         passwordError.textContent = 'Please enter your password';
         passwordError.classList.add('show');
@@ -132,7 +111,6 @@ form.addEventListener('submit', function(e) {
         isValid = false;
     }
 
-    // Validate reCAPTCHA
     if (typeof grecaptcha !== 'undefined') {
         const captchaResponse = grecaptcha.getResponse();
         if (captchaResponse.length === 0) {
@@ -142,7 +120,6 @@ form.addEventListener('submit', function(e) {
         }
     }
 
-    // If validation fails, prevent form submission
     if (!isValid) {
         e.preventDefault();
         return false;

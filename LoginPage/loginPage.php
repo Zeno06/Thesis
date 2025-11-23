@@ -14,55 +14,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'] ?? '';
 
     $email = $conn->real_escape_string($email);
-    $sql = "SELECT * FROM users WHERE email = '$email' AND status = 'active'";
+    $sql = "SELECT * FROM users WHERE email = '$email'";
     $result = $conn->query($sql);
 
     if ($result->num_rows === 1) {
-        $user = $result->fetch_assoc();
+    $user = $result->fetch_assoc();
 
-        if (password_verify($password, $user['password'])) {
-
-            session_unset();
-            session_destroy();
-
-            $sessionName = 'CARMAX_' . strtoupper($user['role']) . '_SESSION';
-            session_name($sessionName);
-            session_start();
-
-            $_SESSION['id'] = $user['id'];
-            $_SESSION['email'] = $user['email'];
-            $_SESSION['role'] = $user['role'];
-            $_SESSION['user_name'] = $user['firstname'] . ' ' . $user['lastname'];
-
-            // Update last login
-            $conn->query("UPDATE users SET last_login = NOW() WHERE id = {$user['id']}");
-
-            // Redirect by role
-            switch ($user['role']) {
-                case 'acquisition':
-                    $redirect = "../AcquisitionPage/acquiPage.php";
-                    break;
-                case 'operation':
-                    $redirect = "../OperationPage/operationPage.php";
-                    break;
-                case 'superadmin':
-                    $redirect = "../SuperadminPage/superadminPage.php";
-                    break;
-                default:
-                    $redirect = "../LandingPage/LandingPage.php";
-            }
-
-            echo "<script>
-                window.top.location.href = '$redirect';
-            </script>";
-            exit;
-
-        } else {
-            $error = 'Invalid email or password.';
-        }
-    } else {
-        $error = 'Invalid email or password.';
+    // Check if account is inactive
+    if ($user['status'] !== 'active') {
+        $error = 'This account is no longer active.';
     }
+    // Check password
+    elseif (!password_verify($password, $user['password'])) {
+        $error = 'Incorrect password.';
+    }
+    // LOGIN SUCCESS
+    else {
+        session_unset();
+        session_destroy();
+
+        $sessionName = 'CARMAX_' . strtoupper($user['role']) . '_SESSION';
+        session_name($sessionName);
+        session_start();
+
+        $_SESSION['id'] = $user['id'];
+        $_SESSION['email'] = $user['email'];
+        $_SESSION['role'] = $user['role'];
+        $_SESSION['user_name'] = $user['firstname'] . ' ' . $user['lastname'];
+
+        $conn->query("UPDATE users SET last_login = NOW() WHERE id = {$user['id']}");
+
+        switch ($user['role']) {
+            case 'acquisition': $redirect = "../AcquisitionPage/acquiPage.php"; break;
+            case 'operation': $redirect = "../OperationPage/operationPage.php"; break;
+            case 'superadmin': $redirect = "../SuperadminPage/superadminPage.php"; break;
+            default: $redirect = "../LandingPage/LandingPage.php";
+        }
+
+        echo "<script>window.top.location.href = '$redirect';</script>";
+        exit;
+    }
+
+} else {
+    $error = 'Email not found.';
+}
 }
 ?>
 

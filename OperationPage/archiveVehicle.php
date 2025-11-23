@@ -34,7 +34,7 @@ $stmt = $conn->prepare("UPDATE vehicle_acquisition SET is_released = 2, archived
 $stmt->bind_param("ssi", $userName, $currentTime, $acquisition_id);
 
 if ($stmt->execute()) {
-    $action = "Archived vehicle (sold/removed from public): {$vehicle['plate_number']} - {$vehicle['vehicle_model']} {$vehicle['year_model']}";
+    $action = "Archived vehicle: {$vehicle['plate_number']} - {$vehicle['vehicle_model']} {$vehicle['year_model']}";
     logActivity($conn, $user_id, $action, 'Operations');
     
     $_SESSION['success_message'] = 'Vehicle archived successfully! It has been removed from the landing page.';

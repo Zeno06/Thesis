@@ -143,14 +143,22 @@ body {
     padding: 10px;
     width: 100%;
     transition: all 0.3s;
-    
 }
 
+
+.form-control:placeholder-shown,
+.form-select:placeholder-shown {
+    border-color: var(--sap-border) !important;
+    background-color: #fff !important;
+}
+
+/* ⭐ FOCUS STATE (yellow/orange) */
 .form-select:focus,
 .form-control:focus {
-    border-color: var(--carmax-orange);
-    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+    border-color: var(--carmax-orange)!important;
+    box-shadow: 0 0 0 3px rgba(228, 149, 12, 0.397);
 }
+
 
 /* ---------- Buttons ---------- */
 .btn-carmax-primary {
@@ -438,3 +446,75 @@ td input[type="file"] {
     box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     transition: transform 0.2s ease;
 }
+         .photo-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: flex-start;
+        }
+        .photo-box {
+            flex: 1 1 calc(33.333% - 15px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .photo-box img {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .filter-form-horizontal {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin: 0;
+        }
+        .filter-form-horizontal .form-control,
+        .filter-form-horizontal .form-select {
+            width: 220px;
+        }
+        .image-modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
+        }
+        .image-modal-content {
+            margin: auto;
+            display: block;
+            max-width: 90%;
+            max-height: 90%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .image-modal-close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .image-modal-close:hover {
+            color: #bbb;
+        }
+        .clickable-image {
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+        .clickable-image:hover {
+            opacity: 0.8;
+        }
+
+
+

@@ -5,10 +5,10 @@ include '../db_connect.php';
 include '../log_activity.php'; 
 
 if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'operation' || $_SERVER['REQUEST_METHOD'] !== 'POST') {
+    $_SESSION['error_message'] = 'Unauthorized access!';
     header('Location: operationPage.php');
     exit();
 }
-
 
 $acquisition_id = intval($_POST['acquisition_id']);
 $markup_percentage = floatval($_POST['markup_percentage'] ?? 0);
@@ -63,15 +63,17 @@ $stmt->bind_param(
 );
 
 if ($stmt->execute()) {
-    
     $action = "Updated pricing for vehicle: {$vehicle['plate_number']} - {$vehicle['vehicle_model']} {$vehicle['year_model']} (Selling Price: ₱" . number_format($sellingPrice, 2) . ", Markup: {$markup_percentage}%)";
     logActivity($conn, $user_id, $action, 'Operations');
     
-    echo "<script>alert('✅ Pricing saved successfully!'); window.location.href='operationPage.php';</script>";
+    $_SESSION['success_message'] = 'Pricing saved successfully for ' . $vehicle['plate_number'] . ' - ' . $vehicle['vehicle_model'] . ' ' . $vehicle['year_model'] . '!';
 } else {
-    echo "<script>alert('❌ Error saving pricing: " . $conn->error . "'); window.location.href='operationPage.php';</script>";
+    $_SESSION['error_message'] = 'Error saving pricing: ' . $conn->error;
 }
 
 $stmt->close();
 $conn->close();
+
+header('Location: operationPage.php');
+exit();
 ?>

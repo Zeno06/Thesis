@@ -113,9 +113,6 @@ $stats = $conn->query($statsQuery)->fetch_assoc();
     <a href="viewOperation.php" class="sidebar-item">
         <i class="fas fa-cogs"></i><span>View Operations</span>
     </a>
-    <a href="viewInventory.php" class="sidebar-item">
-        <i class="fas fa-warehouse"></i><span>View Inventory</span>
-    </a>
 </div>
 
 <main class="main-content">

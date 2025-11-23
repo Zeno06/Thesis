@@ -45,6 +45,48 @@ $models = $conn->query($modelsQuery);
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../css/acquiPage.css">
+    <style>
+        .image-modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
+        }
+        .image-modal-content {
+            margin: auto;
+            display: block;
+            max-width: 90%;
+            max-height: 90%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .image-modal-close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 10000;
+        }
+        .image-modal-close:hover {
+            color: #bbb;
+        }
+        .clickable-image {
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+        .clickable-image:hover {
+            opacity: 0.8;
+        }
+    </style>
 </head>
 <body>
 
@@ -84,12 +126,6 @@ $models = $conn->query($modelsQuery);
     <a href="/AcquisitionPage/approvePage.php" class="sidebar-item">
         <i class="fas fa-check-square"></i><span>Approved Acquisition</span>
     </a>
-    <a href="/InventoryPage/inventoryPage.php" class="sidebar-item">
-       <i class="fas fa-warehouse"></i><span>Inventory</span>
-    </a>
-    <a href="/InventoryPage/recentInventory.php" class="sidebar-item">
-       <i class="fas fa-history"></i><span>Recent Inventory</span>
-    </a>
 </div>
 
 <div class="main-content">
@@ -115,9 +151,10 @@ $models = $conn->query($modelsQuery);
                     ?>
                 </select>
 
-                    <button type="submit" class="btn-carmax-secondary">
-                        <i class="fas fa-filter"></i> Filter
-                    </button>                <?php if (!empty($searchQuery) || !empty($modelFilter)): ?>
+                <button type="submit" class="btn-carmax-secondary">
+                    <i class="fas fa-filter"></i> Filter
+                </button>
+                <?php if (!empty($searchQuery) || !empty($modelFilter)): ?>
                     <a href="qualityPage.php" class="btn btn-secondary btn-sm"><i class="fas fa-times"></i> Clear</a>
                 <?php endif; ?>
             </form>
@@ -127,6 +164,7 @@ $models = $conn->query($modelsQuery);
                 <thead class="table-primary">
                     <tr>
                         <th>Plate Number</th>
+                        <th>Make</th>
                         <th>Model</th>
                         <th>Year</th>
                         <th>Color</th>
@@ -140,6 +178,7 @@ $models = $conn->query($modelsQuery);
                         <?php while ($row = $result->fetch_assoc()): ?>
                             <tr style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#qualityModal<?= $row['acquisition_id'] ?>">
                                 <td><?= htmlspecialchars($row['plate_number']) ?></td>
+                                <td><?= htmlspecialchars($row['make']) ?></td>
                                 <td><?= htmlspecialchars($row['vehicle_model']) ?></td>
                                 <td><?= htmlspecialchars($row['year_model']) ?></td>
                                 <td><?= htmlspecialchars($row['color']) ?></td>
@@ -149,14 +188,13 @@ $models = $conn->query($modelsQuery);
                             </tr>
                         <?php endwhile; ?>
                     <?php else: ?>
-                        <tr><td colspan="7" class="text-center">No vehicles in quality check.</td></tr>
+                        <tr><td colspan="8" class="text-center">No vehicles in quality check.</td></tr>
                     <?php endif; ?>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
-
 
 <?php 
 if ($result && $result->num_rows > 0):
@@ -180,17 +218,61 @@ if ($result && $result->num_rows > 0):
                     <!-- Basic Information -->
                     <h6 class="text-primary fw-bold mb-3"><i class="fas fa-info-circle"></i> Basic Information</h6>
                     <div class="row g-3 mb-4">
-                        <div class="col-md-3"><label>Plate Number</label><input type="text" class="form-control" value="<?= htmlspecialchars($row['plate_number']) ?>" disabled></div>
-                        <div class="col-md-3"><label>Vehicle Model</label><input type="text" class="form-control" value="<?= htmlspecialchars($row['vehicle_model']) ?>" disabled></div>
-                        <div class="col-md-3"><label>Year Model</label><input type="number" class="form-control" value="<?= htmlspecialchars($row['year_model']) ?>" disabled></div>
-                        <div class="col-md-3"><label>Color</label><input type="text" class="form-control" value="<?= htmlspecialchars($row['color']) ?>" disabled></div>
+                        <div class="col-md-3">
+                            <label>Supplier</label>
+                            <input type="text" class="form-control" value="<?= htmlspecialchars($row['supplier']) ?>" disabled>
+                        </div>
+                        <div class="col-md-3">
+                            <label>Date Acquired</label>
+                            <input type="text" class="form-control" value="<?= $row['date_acquired'] ? date('M d, Y', strtotime($row['date_acquired'])) : 'N/A' ?>" disabled>
+                        </div>
+                        <div class="col-md-3">
+                            <label>Make</label>
+                            <input type="text" class="form-control" value="<?= htmlspecialchars($row['make']) ?>" disabled>
+                        </div>
+                        <div class="col-md-3">
+                            <label>Plate Number</label>
+                            <input type="text" class="form-control" value="<?= htmlspecialchars($row['plate_number']) ?>" disabled>
+                        </div>
+                        <div class="col-md-3">
+                            <label>Vehicle Model</label>
+                            <input type="text" class="form-control" value="<?= htmlspecialchars($row['vehicle_model']) ?>" disabled>
+                        </div>
+                        <div class="col-md-3">
+                            <label>Year Model</label>
+                            <input type="number" class="form-control" value="<?= htmlspecialchars($row['year_model']) ?>" disabled>
+                        </div>
+                        <div class="col-md-3">
+                            <label>Variant</label>
+                            <input type="text" class="form-control" value="<?= htmlspecialchars($row['variant']) ?>" disabled>
+                        </div>
+                        <div class="col-md-3">
+                            <label>Color</label>
+                            <input type="text" class="form-control" value="<?= htmlspecialchars($row['color']) ?>" disabled>
+                        </div>
+                        <div class="col-md-3">
+                            <label>Fuel Type</label>
+                            <input type="text" class="form-control" value="<?= htmlspecialchars($row['fuel_type']) ?>" disabled>
+                        </div>
+                        <div class="col-md-3">
+                            <label>Odometer</label>
+                            <input type="text" class="form-control" value="<?= number_format($row['odometer']) ?> km" disabled>
+                        </div>
+                        <div class="col-md-3">
+                            <label>Body Type</label>
+                            <input type="text" class="form-control" value="<?= htmlspecialchars($row['body_type']) ?>" disabled>
+                        </div>
+                        <div class="col-md-3">
+                            <label>Transmission</label>
+                            <input type="text" class="form-control" value="<?= htmlspecialchars($row['transmission']) ?>" disabled>
+                        </div>
                     </div>
 
                     <!-- Vehicle Photos -->
                     <h6 class="text-primary fw-bold mb-3"><i class="fas fa-images"></i> Vehicle Photos</h6>
                     <div class="photo-grid mb-4">
                         <?php 
-                        $photos = ['wholecar' => 'Whole Car','dashboard' => 'Dashboard','hood' => 'Hood','interior' => 'Interior','exterior' => 'Exterior','trunk' => 'Trunk'];
+                        $photos = ['exterior' => 'Exterior','dashboard' => 'Dashboard','hood' => 'Hood','interior' => 'Interior','trunk' => 'Trunk'];
                         foreach ($photos as $key => $label):
                             $photoField = $key . '_photo';
                             $photoPath = htmlspecialchars($row[$photoField] ?? '');
@@ -198,7 +280,7 @@ if ($result && $result->num_rows > 0):
                         <div class="photo-box">
                             <label><?= $label ?></label>
                             <?php if ($photoPath): ?>
-                                <img src="../uploads/<?= $photoPath ?>" alt="<?= $label ?>">
+                                <img src="../uploads/<?= $photoPath ?>" alt="<?= $label ?>" class="clickable-image">
                             <?php else: ?>
                                 <div class="text-muted">No image</div>
                             <?php endif; ?>
@@ -218,6 +300,7 @@ if ($result && $result->num_rows > 0):
                                     <th>Remarks</th>
                                     <th>Repaired</th>
                                     <th>Repaired By</th>
+                                    <th>Receipt Photo</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -231,7 +314,7 @@ if ($result && $result->num_rows > 0):
                                     <td><?= htmlspecialchars($issue['issue_name']) ?></td>
                                     <td>
                                         <?php if (!empty($issue['issue_photo'])): ?>
-                                            <img src="../uploads/<?= htmlspecialchars($issue['issue_photo']) ?>" style="max-width: 100px; border-radius: 5px;">
+                                            <img src="../uploads/<?= htmlspecialchars($issue['issue_photo']) ?>" style="max-width: 100px; border-radius: 5px;" class="clickable-image">
                                         <?php endif; ?>
                                     </td>
                                     <td>
@@ -259,6 +342,23 @@ if ($result && $result->num_rows > 0):
                                             <?= $issue['is_repaired'] ? '' : 'disabled' ?>>
                                     </td>
                                     <td>
+                                        <?php 
+                                        $receiptPhotos = json_decode($issue['receipt_photos'] ?? '[]', true);
+                                        if (!empty($receiptPhotos) && is_array($receiptPhotos)):
+                                            foreach ($receiptPhotos as $photo):
+                                        ?>
+                                            <img src="../uploads/<?= htmlspecialchars($photo) ?>" style="max-width: 80px; border-radius: 5px; margin: 2px;" class="clickable-image">
+                                        <?php 
+                                            endforeach;
+                                        endif;
+                                        ?>
+                                        <input type="file" class="form-control form-control-sm mt-1 receipt-upload"
+                                        name="issue_receipt_update[<?= $issue['issue_id'] ?>][]"
+                                        accept="image/*" multiple <?= empty($receiptPhotos) ? 'required' : '' ?>
+                                        onchange="previewReceiptImages(this, 'issueReceiptPreview<?= $issue['issue_id'] ?>'); checkApproveButton(<?= $row['acquisition_id'] ?>)">
+                                        <div id="issueReceiptPreview<?= $issue['issue_id'] ?>" class="mt-2"></div>
+                                    </td>
+                                    <td>
                                         <button type="button" class="btn btn-sm btn-danger" onclick="deleteIssue(<?= $issue['issue_id'] ?>, <?= $row['acquisition_id'] ?>)">
                                             <i class="fas fa-trash"></i>
                                         </button>
@@ -284,6 +384,7 @@ if ($result && $result->num_rows > 0):
                                     <th>Remarks</th>
                                     <th>Ordered</th>
                                     <th>Ordered By</th>
+                                    <th>Receipt Photo</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -320,6 +421,23 @@ if ($result && $result->num_rows > 0):
                                             <?= $part['is_ordered'] ? '' : 'disabled' ?>>
                                     </td>
                                     <td>
+                                        <?php 
+                                        $receiptPhotos = json_decode($part['receipt_photos'] ?? '[]', true);
+                                        if (!empty($receiptPhotos) && is_array($receiptPhotos)):
+                                            foreach ($receiptPhotos as $photo):
+                                        ?>
+                                            <img src="../uploads/<?= htmlspecialchars($photo) ?>" style="max-width: 80px; border-radius: 5px; margin: 2px;" class="clickable-image">
+                                        <?php 
+                                            endforeach;
+                                        endif;
+                                        ?>
+                                        <input type="file" class="form-control form-control-sm mt-1"
+                                        name="part_receipt_update[<?= $part['part_id'] ?>][]"
+                                        accept="image/*" multiple
+                                        onchange="previewReceiptImages(this, 'partReceiptPreview<?= $part['part_id'] ?>')">
+                                        <div id="partReceiptPreview<?= $part['part_id'] ?>" class="mt-2"></div> 
+                                    </td>
+                                    <td>
                                         <button type="button" class="btn btn-sm btn-danger" onclick="deletePart(<?= $part['part_id'] ?>, <?= $row['acquisition_id'] ?>)">
                                             <i class="fas fa-trash"></i>
                                         </button>
@@ -341,6 +459,7 @@ if ($result && $result->num_rows > 0):
                         <div class="col-md-3"><label>Complete Tools</label><input type="text" class="form-control" value="<?= htmlspecialchars($row['complete_tools']) ?>" disabled></div>
                         <div class="col-md-3"><label>Original Plate</label><input type="text" class="form-control" value="<?= htmlspecialchars($row['original_plate']) ?>" disabled></div>
                         <div class="col-md-3"><label>Complete Documents</label><input type="text" class="form-control" value="<?= htmlspecialchars($row['complete_documents']) ?>" disabled></div>
+                        <div class="col-md-3"><label>Spare Key</label><input type="text" class="form-control" value="<?= htmlspecialchars($row['spare_key']) ?>" disabled></div>
                     </div>
 
                     <!-- Document Photos -->
@@ -355,9 +474,9 @@ if ($result && $result->num_rows > 0):
                         <div class="photo-box">
                             <label><?= $label ?></label>
                             <?php if ($photoPath): ?>
-                                <img src="../uploads/<?= $photoPath ?>" alt="<?= $label ?>">
+                                <img src="../uploads/<?= $photoPath ?>" alt="<?= $label ?>" class="clickable-image">
                             <?php else: ?>
-                                <div class="text-muted">No image</div>
+                                <div class="text-muted">Not Available</div>
                             <?php endif; ?>
                         </div>
                         <?php endforeach; ?>
@@ -388,6 +507,12 @@ if ($result && $result->num_rows > 0):
 </div>
 
 <?php endwhile; endif; ?>
+
+<!-- Image Modal -->
+<div id="imageModal" class="image-modal">
+    <span class="image-modal-close" onclick="closeImageModal()">&times;</span>
+    <img class="image-modal-content" id="modalImage">
+</div>
 
 <!-- Success Modal -->
 <div class="modal fade" id="successModal" tabindex="-1">
@@ -452,6 +577,24 @@ let errorModal = null;
 let newIssueCounter = 0;
 let newPartCounter = 0;
 
+function openImageModal(imgSrc) {
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    modal.style.display = 'block';
+    modalImg.src = imgSrc;
+}
+
+function closeImageModal() {
+    document.getElementById('imageModal').style.display = 'none';
+}
+
+// Close modal when clicking outside the image
+document.getElementById('imageModal').onclick = function(event) {
+    if (event.target === this) {
+        closeImageModal();
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     confirmSaveModal = new bootstrap.Modal(document.getElementById('confirmSaveModal'));
     confirmApproveModal = new bootstrap.Modal(document.getElementById('confirmApproveModal'));
@@ -470,6 +613,14 @@ document.addEventListener('DOMContentLoaded', function() {
             approveQuality(currentAcquisitionId);
             confirmApproveModal.hide();
         }
+    });
+
+    // Add onclick to all clickable images
+    const clickableImages = document.querySelectorAll('.clickable-image');
+    clickableImages.forEach(img => {
+        img.onclick = function() {
+            openImageModal(this.src);
+        };
     });
 });
 
@@ -510,6 +661,13 @@ function addIssueRow(acquisitionId) {
                 placeholder="Enter name" disabled onchange="checkApproveButton(${acquisitionId})">
         </td>
         <td>
+            <input type="file" class="form-control form-control-sm"
+            name="new_issue_receipts[]"
+            accept="image/*" multiple
+            onchange="previewReceiptImages(this, 'newIssueReceiptPreview_${newId}')">
+            <div id="newIssueReceiptPreview_${newId}" class="mt-2"></div>
+        </td>
+        <td>
             <button type="button" class="btn btn-sm btn-danger" 
                 onclick="this.closest('tr').remove(); checkApproveButton(${acquisitionId})">
                 <i class="fas fa-trash"></i>
@@ -536,6 +694,28 @@ function previewIssueImage(input, id) {
     }
 }
 
+function previewReceiptImages(input, previewContainerId) {
+    const container = document.getElementById(previewContainerId);
+    container.innerHTML = ""; 
+
+    if (!input.files || input.files.length === 0) return;
+
+    Array.from(input.files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = document.createElement("img");
+            img.src = e.target.result;
+            img.style.maxWidth = "80px";
+            img.style.borderRadius = "5px";
+            img.style.margin = "2px";
+            img.className = "clickable-image";
+            img.onclick = function() { openImageModal(this.src); };
+            container.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
 function addPartRow(acquisitionId) {
     const tbody = document.getElementById('partsTableBody' + acquisitionId);
     const newId = 'new_part_' + (++newPartCounter);
@@ -554,6 +734,14 @@ function addPartRow(acquisitionId) {
                 id="orderedBy${newId}"
                 name="new_part_ordered_by[]" 
                 placeholder="Enter name" disabled onchange="checkApproveButton(${acquisitionId})">
+        </td>
+        <td>
+            <input type="file" class="form-control form-control-sm"
+            name="new_part_receipts[]"
+            accept="image/*" multiple
+            onchange="previewReceiptImages(this, 'newPartReceiptPreview_${newId}')">
+            <div id="newPartReceiptPreview_${newId}" class="mt-2"></div>
+
         </td>
         <td><button type="button" class="btn btn-sm btn-danger" onclick="this.closest('tr').remove(); checkApproveButton(${acquisitionId})"><i class="fas fa-trash"></i></button></td>
     `;
@@ -616,10 +804,9 @@ function checkApproveButton(acquisitionId) {
 
     let canApprove = true;
 
-    // --- Check EXISTING Issues ---
+    // Check EXISTING Issues
     const existingIssueRows = form.querySelectorAll('tr[data-issue-id]');
     existingIssueRows.forEach(row => {
-        // Skip if row is deleted (hidden)
         if (row.style.display === 'none') return;
 
         const checkbox = row.querySelector('.issue-checkbox');
@@ -627,14 +814,13 @@ function checkApproveButton(acquisitionId) {
         const remarksInput = row.querySelector('.issue-remarks');
         const repairedByInput = row.querySelector('.repaired-by-input');
 
-        // All existing issues must be completed
         if (!priceInput || !priceInput.value.trim()) canApprove = false;
         if (!remarksInput || !remarksInput.value.trim()) canApprove = false;
         if (!checkbox || !checkbox.checked) canApprove = false;
         if (checkbox && checkbox.checked && (!repairedByInput || !repairedByInput.value.trim())) canApprove = false;
     });
 
-    // --- Check NEW Issues ---
+    // Check NEW Issues
     const newIssueNames = form.querySelectorAll('.new-issue-name');
     newIssueNames.forEach((nameInput, index) => {
         const row = nameInput.closest('tr');
@@ -645,7 +831,6 @@ function checkApproveButton(acquisitionId) {
         const checkbox = row.querySelector('.issue-checkbox');
         const repairedByInput = row.querySelector('.repaired-by-input');
 
-        // If name is filled, all fields must be filled
         if (nameInput.value.trim()) {
             if (!priceInput || !priceInput.value.trim()) canApprove = false;
             if (!remarksInput || !remarksInput.value.trim()) canApprove = false;
@@ -654,10 +839,9 @@ function checkApproveButton(acquisitionId) {
         }
     });
 
-    // --- Check EXISTING Parts ---
+    // Check EXISTING Parts
     const existingPartRows = form.querySelectorAll('tr[data-part-id]');
     existingPartRows.forEach(row => {
-        // Skip if row is deleted (hidden)
         if (row.style.display === 'none') return;
 
         const checkbox = row.querySelector('.part-checkbox');
@@ -665,14 +849,13 @@ function checkApproveButton(acquisitionId) {
         const remarksInput = row.querySelector('.part-remarks');
         const orderedByInput = row.querySelector('.ordered-by-input');
 
-        // All existing parts must be completed
         if (!priceInput || !priceInput.value.trim()) canApprove = false;
         if (!remarksInput || !remarksInput.value.trim()) canApprove = false;
         if (!checkbox || !checkbox.checked) canApprove = false;
         if (checkbox && checkbox.checked && (!orderedByInput || !orderedByInput.value.trim())) canApprove = false;
     });
 
-    // --- Check NEW Parts ---
+    // Check NEW Parts
     const newPartNames = form.querySelectorAll('.new-part-name');
     newPartNames.forEach((nameInput, index) => {
         const row = nameInput.closest('tr');
@@ -683,7 +866,6 @@ function checkApproveButton(acquisitionId) {
         const checkbox = row.querySelector('.part-checkbox');
         const orderedByInput = row.querySelector('.ordered-by-input');
 
-        // If name is filled, all fields must be filled
         if (nameInput.value.trim()) {
             if (!priceInput || !priceInput.value.trim()) canApprove = false;
             if (!remarksInput || !remarksInput.value.trim()) canApprove = false;
@@ -708,7 +890,6 @@ function saveQuality(acquisitionId) {
     .then(data => {
         if (data.success) {
             showSuccess('Quality check saved successfully!');
-            // Re-check approve button after save
             setTimeout(() => {
                 checkApproveButton(acquisitionId);
             }, 100);

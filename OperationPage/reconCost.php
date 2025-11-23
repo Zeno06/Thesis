@@ -42,35 +42,12 @@ $result = $conn->query($query);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reconditioning Costs - CarMax</title>
+    <title>Reconditioning Costs</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../css/operationPage.css">
     <style>
-        .info-row { display: flex; padding: 8px 0; border-bottom: 1px solid #eee; }
-        .info-label { font-weight: 600; width: 200px; color: #555; }
-        .info-value { flex: 1; color: #333; }
-        .sap-table tr { cursor: pointer; }
-        .sap-table tr:hover { background-color: #f6fef6; }
-        .cost-breakdown-box {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        .cost-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #dee2e6;
-        }
-        .cost-item.total {
-            font-weight: bold;
-            color: #0d6efd;
-            border-top: 2px solid #0d6efd;
-            margin-top: 10px;
-            padding-top: 15px;
-        }
+
     </style>
 </head>
 <body>

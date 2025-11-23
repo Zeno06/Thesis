@@ -4,8 +4,8 @@ startRoleSession('operation');
 
 include '../db_connect.php';
 
-
 if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'operation') {
+    $_SESSION['error_message'] = 'Unauthorized access!';
     header('Location: operationPage.php');
     exit();
 }
@@ -17,11 +17,12 @@ $acquisition_id = intval($_POST['acquisition_id']);
 $currentTime = date('Y-m-d H:i:s');
 
 // Check if vehicle has selling price set
-$checkQuery = $conn->query("SELECT selling_price FROM vehicle_acquisition WHERE acquisition_id = $acquisition_id");
+$checkQuery = $conn->query("SELECT selling_price, plate_number, vehicle_model, year_model FROM vehicle_acquisition WHERE acquisition_id = $acquisition_id");
 $vehicle = $checkQuery->fetch_assoc();
 
 if (!$vehicle || $vehicle['selling_price'] <= 0) {
-    echo "<script>alert('⚠️ Please set the selling price before releasing this vehicle!'); window.location.href='operationPage.php';</script>";
+    $_SESSION['error_message'] = 'Please set the selling price before releasing this vehicle!';
+    header('Location: operationPage.php');
     exit();
 }
 
@@ -30,11 +31,14 @@ $stmt = $conn->prepare("UPDATE vehicle_acquisition SET is_released = 1, released
 $stmt->bind_param("ssi", $userName, $currentTime, $acquisition_id);
 
 if ($stmt->execute()) {
-    echo "<script>alert('✅ Vehicle released to public successfully! It will now appear on the landing page.'); window.location.href='operationPage.php';</script>";
+    $_SESSION['success_message'] = 'Vehicle ' . $vehicle['plate_number'] . ' - ' . $vehicle['vehicle_model'] . ' ' . $vehicle['year_model'] . ' released to public successfully!';
 } else {
-    echo "<script>alert('❌ Error releasing vehicle: " . $conn->error . "'); window.location.href='operationPage.php';</script>";
+    $_SESSION['error_message'] = 'Error releasing vehicle: ' . $conn->error;
 }
 
 $stmt->close();
 $conn->close();
+
+header('Location: operationPage.php');
+exit();
 ?>

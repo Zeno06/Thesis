@@ -254,22 +254,29 @@
     <footer class="footer" id="contact">
         <div class="container">
             <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-5">
                     <h5><i class="fas fa-car"></i> Autograph</h5>
                     <p>Your trusted partner in finding quality pre-owned vehicles.</p>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <h5>Contact Info</h5>
                     <p><i class="fas fa-map-marker-alt"></i> 83F7+74H, Carmona, 4116 Cavite</p>
                     <p><i class="fas fa-phone"></i> (555) 123-4567</p>
                     <p><i class="fas fa-envelope"></i> info@autograph.com</p>
                 </div>
+                    <div class="col-md-2">
+                    <h5>Operating Hours</h5>
+                    <p><i class="fas fa-clock"></i> 8:30 AM to 6 PM (Monday - Saturday)</p>
+                    <p><i class="fas fa-clock"></i> 9 AM-4 PM (Sunday)</p>
+                </div>
             </div>
+
             <hr style="margin: 2rem 0 1rem; border-color: #444;">
             <div class="text-center">
                 <p>&copy; 2025 Autograph. All rights reserved.</p>
             </div>
         </div>
+
     </footer>
 
     <!-- Car Details Modal -->
@@ -278,7 +285,6 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="carDetailsModalLabel"></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal">X</button>
                 </div>
                 
                 <div class="modal-body">
@@ -301,15 +307,32 @@
                     </div>
 
                     <!-- Vehicle Details -->
+                    <h6 class="fw-bold text-primary mb-3"><i class="fas fa-info-circle"></i> Basic Information</h6>
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <p><strong>Plate Number:</strong> <span id="carPlateNumber"></span></p>
+                            <p><strong>Make:</strong> <span id="carMake"></span></p>
+                            <p><strong>Model:</strong> <span id="carModel"></span></p>
+                            <p><strong>Variant:</strong> <span id="carVariant"></span></p>
                             <p><strong>Year:</strong> <span id="carYear"></span></p>
                             <p><strong>Color:</strong> <span id="carColor"></span></p>
                         </div>
                         <div class="col-md-6">
+                            <p><strong>Body Type:</strong> <span id="carBodyType"></span></p>
+                            <p><strong>Fuel Type:</strong> <span id="carFuelType"></span></p>
+                            <p><strong>Transmission:</strong> <span id="carTransmission"></span></p>
+                            <p><strong>Odometer/Mileage:</strong> <span id="carOdometer"></span></p>
+                            <p><strong>Spare Key:</strong> <span id="carSpareKey"></span></p>
+                        </div>
+                    </div>
+
+                    <h6 class="fw-bold text-primary mb-3"><i class="fas fa-clipboard-check"></i> Vehicle Condition</h6>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
                             <p><strong>Spare Tires:</strong> <span id="carSpareTires"></span></p>
                             <p><strong>Complete Tools:</strong> <span id="carCompleteTools"></span></p>
+                        </div>
+                        <div class="col-md-6">
                             <p><strong>Original Plate:</strong> <span id="carOriginalPlate"></span></p>
                             <p><strong>Complete Documents:</strong> <span id="carCompleteDocuments"></span></p>
                         </div>
@@ -338,9 +361,13 @@
                 const response = await fetch('../AcquisitionPage/getReleasedVehicle.php');
                 const data = await response.json();
                 
+                console.log('API Response:', data); // Debug log
+                
                 if (data.success && data.vehicles.length > 0) {
                     allVehicles = data.vehicles;
                     filteredVehicles = [...allVehicles];
+                    
+                    console.log('Loaded vehicles:', allVehicles); // Debug log
                     
                     // Load spotlight vehicle (first vehicle)
                     loadSpotlight();
@@ -349,7 +376,11 @@
                     displayVehicles();
                 } else {
                     document.getElementById('vehiclesContainer').innerHTML = 
-                        '<div class="col-12 text-center"><p>No vehicles available at the moment. Check back soon!</p></div>';
+                    '<div class="row"><div class="col-12 text-center"><p>No vehicles available at the moment. Check back soon!</p></div></div>';
+
+                    document.getElementById('spotlightContainer').innerHTML = 
+                    '<div class="row"><div class="col-12 text-center"><p>No featured vehicle available at the moment.</p></div></div>';
+
                 }
             } catch (error) {
                 console.error('Error loading vehicles:', error);
@@ -363,22 +394,35 @@
             if (allVehicles.length === 0) return;
             
             const spotlightVehicle = allVehicles[0];
-            const photoPath = spotlightVehicle.wholecar_photo 
-                ? `../uploads/${spotlightVehicle.wholecar_photo}` 
-                : '/Pictures/placeholder-car.jpg';
+            
+            // Handle photo path - check if it's in a folder structure or direct
+            let photoPath = '/Pictures/placeholder-car.jpg';
+            if (spotlightVehicle.exterior_photo) {
+                // If the path already includes a folder structure
+                if (spotlightVehicle.exterior_photo.includes('/')) {
+                    photoPath = `../uploads/${spotlightVehicle.exterior_photo}`;
+                } else {
+                    // Direct file in uploads folder
+                    photoPath = `../uploads/${spotlightVehicle.exterior_photo}`;
+                }
+            }
+            
+            console.log('Spotlight photo path:', photoPath); // Debug log
             
             const sellingPrice = spotlightVehicle.selling_price 
-                ? `₱${parseFloat(spotlightVehicle.selling_price).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}` 
+                ? `₱${parseFloat(spotlightVehicle.selling_price).toLocaleString('en-PH', {minimumFractionDigits: 2, maximumFractionDigits: 2})}` 
                 : 'Price on Request';
             
             const spotlightHTML = `
                 <span class="spotlight-badge"><i class="fas fa-star"></i> Featured</span>
                 <div class="spotlight-content">
                     <div class="spotlight-image">
-                        <img src="${photoPath}" alt="${spotlightVehicle.model}">
+                        <img src="${photoPath}" alt="${spotlightVehicle.model}" 
+                             onerror="this.src='/Pictures/placeholder-car.jpg'">
                     </div>
                     <div class="spotlight-info">
-                        <h3>${spotlightVehicle.model} ${spotlightVehicle.year}</h3>
+                        <h3>${spotlightVehicle.make ? spotlightVehicle.make + ' ' : ''}${spotlightVehicle.model} ${spotlightVehicle.year}</h3>
+                        ${spotlightVehicle.variant ? `<p class="text mb-2">${spotlightVehicle.variant}</p>` : ''}
                         <p class="spotlight-price">${sellingPrice}</p>
                         <div class="spotlight-details">
                             <div class="spotlight-detail-item">
@@ -390,12 +434,20 @@
                                 <span>${spotlightVehicle.color}</span>
                             </div>
                             <div class="spotlight-detail-item">
-                                <i class="fas fa-id-card"></i>
-                                <span>${spotlightVehicle.masked_plate}</span>
+                                <i class="fas fa-tachometer-alt"></i>
+                                <span>${spotlightVehicle.odometer ? spotlightVehicle.odometer.toLocaleString() + ' km' : 'N/A'}</span>
+                            </div>
+                            <div class="spotlight-detail-item">
+                                <i class="fas fa-cog"></i>
+                                <span>${spotlightVehicle.transmission || 'N/A'}</span>
+                            </div>
+                            <div class="spotlight-detail-item">
+                                <i class="fas fa-gas-pump"></i>
+                                <span>${spotlightVehicle.fuel_type || 'N/A'}</span>
                             </div>
                             <div class="spotlight-detail-item">
                                 <i class="fas fa-check-circle"></i>
-                                <span>${spotlightVehicle.complete_documents}</span>
+                                <span>Complete Document: ${spotlightVehicle.complete_documents}</span>
                             </div>
                         </div>
                         <div class="spotlight-actions">
@@ -426,23 +478,31 @@
             container.innerHTML = '';
             
             vehiclesToShow.forEach(vehicle => {
-                const photoPath = vehicle.wholecar_photo 
-                    ? `../uploads/${vehicle.wholecar_photo}` 
-                    : '/Pictures/placeholder-car.jpg';
+                // Handle photo path
+                let photoPath = '/Pictures/placeholder-car.jpg';
+                if (vehicle.exterior_photo) {
+                    if (vehicle.exterior_photo.includes('/')) {
+                        photoPath = `../uploads/${vehicle.exterior_photo}`;
+                    } else {
+                        photoPath = `../uploads/${vehicle.exterior_photo}`;
+                    }
+                }
                 
                 const sellingPrice = vehicle.selling_price 
-                    ? `₱${parseFloat(vehicle.selling_price).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}` 
+                    ? `₱${parseFloat(vehicle.selling_price).toLocaleString('en-PH', {minimumFractionDigits: 2, maximumFractionDigits: 2})}` 
                     : 'Price on Request';
                 
                 const cardHTML = `
                     <div class="car-card fade-in">
                         <div class="car-image">
-                            <img src="${photoPath}" alt="${vehicle.model}" class="img-fluid">
+                            <img src="${photoPath}" alt="${vehicle.model}" class="img-fluid" 
+                                 onerror="this.src='/Pictures/placeholder-car.jpg'">
                         </div>
                         <div class="car-info">
-                            <h5>${vehicle.model} ${vehicle.year}</h5>
-                            <p class="text-muted">${vehicle.color}</p>
-                            <p class="text-muted"><small>Plate: ${vehicle.masked_plate}</small></p>
+                            <h5>${vehicle.make ? vehicle.make + ' ' : ''}${vehicle.model} ${vehicle.year}</h5>
+                            ${vehicle.variant ? `<p class="text-muted mb-1"><small>${vehicle.variant}</small></p>` : ''}
+                            <p class="text-muted mb-1">${vehicle.color} | ${vehicle.transmission || 'N/A'}</p>
+                            <p class="text-muted mb-2"><small><i class="fas fa-tachometer-alt"></i> ${vehicle.odometer ? vehicle.odometer.toLocaleString() + ' km' : 'N/A'}</small></p>
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="car-price">${sellingPrice}</span>
                                 <button class="btn btn-sm btn-view-details"
@@ -538,18 +598,26 @@
         function showVehicleDetails(vehicle) {
             // Set modal title
             document.getElementById('carDetailsModalLabel').textContent = 
-                `${vehicle.model} ${vehicle.year}`;
+                `${vehicle.make ? vehicle.make + ' ' : ''}${vehicle.model} ${vehicle.year}${vehicle.variant ? ' ' + vehicle.variant : ''}`;
             
             // Set selling price
             const sellingPrice = vehicle.selling_price 
-                ? `₱${parseFloat(vehicle.selling_price).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}` 
+                ? `₱${parseFloat(vehicle.selling_price).toLocaleString('en-PH', {minimumFractionDigits: 2, maximumFractionDigits: 2})}` 
                 : 'Contact us for pricing';
             document.getElementById('carSellingPrice').textContent = sellingPrice;
             
             // Set basic details
             document.getElementById('carPlateNumber').textContent = vehicle.masked_plate;
+            document.getElementById('carMake').textContent = vehicle.make || 'N/A';
+            document.getElementById('carModel').textContent = vehicle.model || 'N/A';
+            document.getElementById('carVariant').textContent = vehicle.variant || 'N/A';
             document.getElementById('carYear').textContent = vehicle.year;
             document.getElementById('carColor').textContent = vehicle.color;
+            document.getElementById('carBodyType').textContent = vehicle.body_type || 'N/A';
+            document.getElementById('carFuelType').textContent = vehicle.fuel_type || 'N/A';
+            document.getElementById('carTransmission').textContent = vehicle.transmission || 'N/A';
+            document.getElementById('carOdometer').textContent = vehicle.odometer ? vehicle.odometer.toLocaleString() + ' km' : 'N/A';
+            document.getElementById('carSpareKey').textContent = vehicle.spare_key || 'N/A';
             document.getElementById('carSpareTires').textContent = vehicle.spare_tires;
             document.getElementById('carCompleteTools').textContent = vehicle.complete_tools;
             document.getElementById('carOriginalPlate').textContent = vehicle.original_plate;
@@ -560,19 +628,25 @@
             carouselInner.innerHTML = '';
             
             const photos = [
-                { path: vehicle.wholecar_photo, label: 'Whole Car' },
+                { path: vehicle.exterior_photo, label: 'Exterior Car' },
                 { path: vehicle.dashboard_photo, label: 'Dashboard' },
                 { path: vehicle.hood_photo, label: 'Hood' },
                 { path: vehicle.interior_photo, label: 'Interior' },
-                { path: vehicle.exterior_photo, label: 'Exterior' },
                 { path: vehicle.trunk_photo, label: 'Trunk' }
             ].filter(p => p.path);
             
             photos.forEach((photo, index) => {
+                // Handle photo path
+                let photoPath = photo.path;
+                if (photoPath && !photoPath.startsWith('../uploads/')) {
+                    photoPath = `../uploads/${photoPath}`;
+                }
+                
                 const item = document.createElement('div');
                 item.className = `carousel-item ${index === 0 ? 'active' : ''}`;
                 item.innerHTML = `
-                    <img src="../uploads/${photo.path}" class="d-block w-100 rounded" alt="${photo.label}">
+                    <img src="${photoPath}" class="d-block w-100 rounded" alt="${photo.label}"
+                         onerror="this.src='/Pictures/placeholder-car.jpg'">
                     <div class="carousel-caption d-none d-md-block">
                         <h5>${photo.label}</h5>
                     </div>

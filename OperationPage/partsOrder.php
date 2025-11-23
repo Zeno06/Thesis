@@ -34,32 +34,10 @@ $result = $conn->query($query);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parts Needed/Order - CarMax</title>
+    <title>Parts Needed/Order</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../css/operationPage.css">
-    <style>
-        .info-row {
-            display: flex;
-            padding: 8px 0;
-            border-bottom: 1px solid #eee;
-        }
-        .info-label {
-            font-weight: 600;
-            width: 200px;
-            color: #555;
-        }
-        .info-value {
-            flex: 1;
-            color: #333;
-        }
-        .sap-table tr {
-            cursor: pointer;
-        }
-        .sap-table tr:hover {
-            background-color: #f6fef6;
-        }
-    </style>
 </head>
 <body>
 

@@ -32,69 +32,7 @@ $result = $conn->query($query);
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../css/operationPage.css">
     <style>
-        .photo-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            justify-content: flex-start;
-        }
-        .photo-box {
-            flex: 1 1 calc(33.333% - 15px);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .photo-box img {
-            width: 100%;
-            max-height: 200px;
-            object-fit: cover;
-            border-radius: 10px;
-            border: 1px solid #ddd;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        .info-row {
-            display: flex;
-            padding: 8px 0;
-            border-bottom: 1px solid #eee;
-        }
-        .info-label {
-            font-weight: 600;
-            width: 200px;
-            color: #555;
-        }
-        .info-value {
-            flex: 1;
-            color: #333;
-        }
-        .cost-summary {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        .cost-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #dee2e6;
-        }
-        .cost-row.total {
-            font-weight: bold;
-            font-size: 1.2em;
-            color: #0d6efd;
-            border-bottom: none;
-            margin-top: 10px;
-        }
-        .cost-row.selling {
-            font-weight: bold;
-            font-size: 1.3em;
-            color: #198754;
-            border-bottom: none;
-            background: #d1e7dd;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 10px;
-        }
+
     </style>
 </head>
 <body>
@@ -143,6 +81,7 @@ $result = $conn->query($query);
                 <thead class="table-success">
                     <tr>
                         <th>Plate Number</th>
+                        <th>Make</th>
                         <th>Model</th>
                         <th>Year</th>
                         <th>Color</th>
@@ -158,6 +97,7 @@ $result = $conn->query($query);
                         <?php while ($row = $result->fetch_assoc()): ?>
                             <tr data-bs-toggle="modal" data-bs-target="#viewModal<?= $row['acquisition_id'] ?>" style="cursor:pointer;">
                                 <td><?= htmlspecialchars($row['plate_number']) ?></td>
+                                <td><?= htmlspecialchars($row['make']) ?></td>
                                 <td><?= htmlspecialchars($row['vehicle_model']) ?></td>
                                 <td><?= htmlspecialchars($row['year_model']) ?></td>
                                 <td><?= htmlspecialchars($row['color']) ?></td>
@@ -183,7 +123,7 @@ $result = $conn->query($query);
                             </tr>
                         <?php endwhile; ?>
                     <?php else: ?>
-                        <tr><td colspan="9" class="text-center">No vehicles received from acquisition team yet.</td></tr>
+                        <tr><td colspan="10" class="text-center">No vehicles received from acquisition team yet.</td></tr>
                     <?php endif; ?>
                 </tbody>
             </table>
@@ -222,10 +162,18 @@ $result = $conn->query($query);
                                 <!-- Basic Info -->
                                 <h6 class="text-primary fw-bold mb-3"><i class="fas fa-info-circle"></i> Basic Information</h6>
                                 <div class="mb-4">
+                                    <div class="info-row"><div class="info-label">Supplier:</div><div class="info-value"><?= htmlspecialchars($row['supplier']) ?></div></div>
+                                    <div class="info-row"><div class="info-label">Date Acquired:</div><div class="info-value"><?= $row['date_acquired'] ? date('M d, Y', strtotime($row['date_acquired'])) : 'N/A' ?></div></div>
+                                    <div class="info-row"><div class="info-label">Make:</div><div class="info-value"><?= htmlspecialchars($row['make']) ?></div></div>
                                     <div class="info-row"><div class="info-label">Plate Number:</div><div class="info-value"><?= htmlspecialchars($row['plate_number']) ?></div></div>
                                     <div class="info-row"><div class="info-label">Vehicle Model:</div><div class="info-value"><?= htmlspecialchars($row['vehicle_model']) ?></div></div>
                                     <div class="info-row"><div class="info-label">Year Model:</div><div class="info-value"><?= htmlspecialchars($row['year_model']) ?></div></div>
+                                    <div class="info-row"><div class="info-label">Variant:</div><div class="info-value"><?= htmlspecialchars($row['variant']) ?></div></div>
                                     <div class="info-row"><div class="info-label">Color:</div><div class="info-value"><?= htmlspecialchars($row['color']) ?></div></div>
+                                    <div class="info-row"><div class="info-label">Fuel Type:</div><div class="info-value"><?= htmlspecialchars($row['fuel_type']) ?></div></div>
+                                    <div class="info-row"><div class="info-label">Odometer:</div><div class="info-value"><?= number_format($row['odometer']) ?> km</div></div>
+                                    <div class="info-row"><div class="info-label">Body Type:</div><div class="info-value"><?= htmlspecialchars($row['body_type']) ?></div></div>
+                                    <div class="info-row"><div class="info-label">Transmission:</div><div class="info-value"><?= htmlspecialchars($row['transmission']) ?></div></div>
                                 </div>
 
                                 <!-- Cost Breakdown & Markup -->
@@ -277,14 +225,14 @@ $result = $conn->query($query);
                                 <h6 class="text-primary fw-bold mb-3"><i class="fas fa-images"></i> Vehicle Photos</h6>
                                 <div class="photo-grid mb-4">
                                     <?php 
-                                    $photos = ['wholecar'=>'Whole Car','dashboard'=>'Dashboard','hood'=>'Hood','interior'=>'Interior','exterior'=>'Exterior','trunk'=>'Trunk'];
+                                    $photos = ['exterior'=>'Exterior','dashboard'=>'Dashboard','hood'=>'Hood','interior'=>'Interior','trunk'=>'Trunk'];
                                     foreach ($photos as $key => $label):
                                         $photoPath = htmlspecialchars($row[$key.'_photo'] ?? '');
                                     ?>
                                     <div class="photo-box">
                                         <label><?= $label ?></label>
                                         <?php if (!empty($photoPath)): ?>
-                                            <img src="../uploads/<?= $photoPath ?>" alt="<?= $label ?>">
+                                            <img src="../uploads/<?= $photoPath ?>" alt="<?= $label ?>" class="clickable-image">
                                         <?php else: ?>
                                             <div class="text-muted">No image</div>
                                         <?php endif; ?>
@@ -300,7 +248,7 @@ $result = $conn->query($query);
                                 <div class="table-responsive mb-4">
                                     <table class="table table-bordered">
                                         <thead>
-                                            <tr><th>Issue Name</th><th>Photo</th><th>Price</th><th>Remarks</th><th>Status</th><th>Repaired By</th></tr>
+                                            <tr><th>Issue Name</th><th>Photo</th><th>Price</th><th>Remarks</th><th>Status</th><th>Repaired By</th><th>Receipts</th></tr>
                                         </thead>
                                         <tbody>
                                             <?php while ($issue = $issuesQuery->fetch_assoc()): ?>
@@ -308,13 +256,27 @@ $result = $conn->query($query);
                                                 <td><?= htmlspecialchars($issue['issue_name']) ?></td>
                                                 <td>
                                                     <?php if (!empty($issue['issue_photo'])): ?>
-                                                        <img src="../uploads/<?= htmlspecialchars($issue['issue_photo']) ?>" style="max-width: 100px; border-radius: 5px;">
+                                                        <img src="../uploads/<?= htmlspecialchars($issue['issue_photo']) ?>" style="max-width: 100px; border-radius: 5px;" class="clickable-image">
                                                     <?php endif; ?>
                                                 </td>
                                                 <td>₱<?= $issue['issue_price'] ? number_format($issue['issue_price'], 2) : 'N/A' ?></td>
                                                 <td><?= htmlspecialchars($issue['issue_remarks'] ?? 'N/A') ?></td>
                                                 <td><span class="badge bg-success"><i class="fas fa-check"></i> Repaired</span></td>
                                                 <td><?= htmlspecialchars($issue['repaired_by'] ?? 'N/A') ?></td>
+                                                <td>
+                                                    <?php 
+                                                    $receipts = json_decode($issue['receipt_photos'] ?? '[]', true);
+                                                    if (!empty($receipts) && is_array($receipts)):
+                                                        foreach ($receipts as $receipt):
+                                                    ?>
+                                                        <img src="../uploads/<?= htmlspecialchars($receipt) ?>" style="max-width: 60px; border-radius: 5px; margin: 2px;" class="clickable-image">
+                                                    <?php 
+                                                        endforeach;
+                                                    else:
+                                                        echo '<span class="text-muted">No receipts</span>';
+                                                    endif;
+                                                    ?>
+                                                </td>
                                             </tr>
                                             <?php endwhile; ?>
                                         </tbody>
@@ -330,7 +292,7 @@ $result = $conn->query($query);
                                 <h6 class="text-primary fw-bold mb-3"><i class="fas fa-tools"></i> Parts (Ordered)</h6>
                                 <div class="table-responsive mb-4">
                                     <table class="table table-bordered">
-                                        <thead><tr><th>Part Name</th><th>Price</th><th>Remarks</th><th>Status</th><th>Ordered By</th></tr></thead>
+                                        <thead><tr><th>Part Name</th><th>Price</th><th>Remarks</th><th>Status</th><th>Ordered By</th><th>Receipts</th></tr></thead>
                                         <tbody>
                                             <?php while ($part = $partsQuery2->fetch_assoc()): ?>
                                             <tr>
@@ -339,6 +301,20 @@ $result = $conn->query($query);
                                                 <td><?= htmlspecialchars($part['part_remarks'] ?? 'N/A') ?></td>
                                                 <td><span class="badge bg-success"><i class="fas fa-check"></i> Ordered</span></td>
                                                 <td><?= htmlspecialchars($part['ordered_by'] ?? 'N/A') ?></td>
+                                                <td>
+                                                    <?php 
+                                                    $receipts = json_decode($part['receipt_photos'] ?? '[]', true);
+                                                    if (!empty($receipts) && is_array($receipts)):
+                                                        foreach ($receipts as $receipt):
+                                                    ?>
+                                                        <img src="../uploads/<?= htmlspecialchars($receipt) ?>" style="max-width: 60px; border-radius: 5px; margin: 2px;" class="clickable-image">
+                                                    <?php 
+                                                        endforeach;
+                                                    else:
+                                                        echo '<span class="text-muted">No receipts</span>';
+                                                    endif;
+                                                    ?>
+                                                </td>
                                             </tr>
                                             <?php endwhile; ?>
                                         </tbody>
@@ -353,6 +329,7 @@ $result = $conn->query($query);
                                     <div class="info-row"><div class="info-label">Complete Tools:</div><div class="info-value"><?= htmlspecialchars($row['complete_tools']) ?></div></div>
                                     <div class="info-row"><div class="info-label">Original Plate:</div><div class="info-value"><?= htmlspecialchars($row['original_plate']) ?></div></div>
                                     <div class="info-row"><div class="info-label">Complete Documents:</div><div class="info-value"><?= htmlspecialchars($row['complete_documents']) ?></div></div>
+                                    <div class="info-row"><div class="info-label">Spare Key:</div><div class="info-value"><?= htmlspecialchars($row['spare_key']) ?></div></div>
                                 </div>
 
                                 <!-- Document Photos -->
@@ -367,7 +344,7 @@ $result = $conn->query($query);
                                     <div class="photo-box">
                                         <label><?= $label ?></label>
                                         <?php if ($photoPath): ?>
-                                            <img src="../uploads/<?= $photoPath ?>" alt="<?= $label ?>">
+                                            <img src="../uploads/<?= $photoPath ?>" alt="<?= $label ?>" class="clickable-image">
                                         <?php else: ?>
                                             <div class="text-muted">No image</div>
                                         <?php endif; ?>
@@ -438,11 +415,17 @@ $result = $conn->query($query);
     </div>
 </div>
 
+<!-- Image Modal -->
+<div id="imageModal" class="image-modal">
+    <span class="image-modal-close" onclick="closeImageModal()">&times;</span>
+    <img class="image-modal-content" id="modalImage">
+</div>
+
 <!-- Success Modal -->
 <div class="modal fade" id="successModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header bg-success text-white">
+            <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title"><i class="fas fa-check-circle"></i> Success</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
@@ -470,9 +453,87 @@ $result = $conn->query($query);
     </div>
 </div>
 
+<!-- Confirm Release Modal -->
+<div class="modal fade" id="confirmReleaseModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-rocket"></i> Confirm Release</h5>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to release this vehicle for viewing?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="releaseForm" method="POST" action="releaseVehicle.php" style="display:inline;">
+                    <input type="hidden" name="acquisition_id" id="releaseAcquisitionId">
+                    <button type="submit" class="btn btn-success">Yes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Confirm Archive Modal -->
+<div class="modal fade" id="confirmArchiveModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="fas fa-archive"></i> Confirm Archive</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <strong>⚠️ Are you sure you want to ARCHIVE this vehicle?</strong><br><br>
+                This will <strong>REMOVE</strong> it from the public landing page.<br><br>
+                Use this when the vehicle is <strong>SOLD</strong> or no longer available.<br><br>
+                You can still view it here, but customers won't see it.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="archiveForm" method="POST" action="archiveVehicle.php" style="display:inline;">
+                    <input type="hidden" name="acquisition_id" id="archiveAcquisitionId">
+                    <button type="submit" class="btn btn-danger">Yes, Archive</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 <script>
+let confirmReleaseModal;
+let confirmArchiveModal;
+
+function openImageModal(imgSrc) {
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    modal.style.display = 'block';
+    modalImg.src = imgSrc;
+}
+
+function closeImageModal() {
+    document.getElementById('imageModal').style.display = 'none';
+}
+
+// Close modal when clicking outside the image
+document.getElementById('imageModal').onclick = function(event) {
+    if (event.target === this) {
+        closeImageModal();
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
+    confirmReleaseModal = new bootstrap.Modal(document.getElementById('confirmReleaseModal'));
+    confirmArchiveModal = new bootstrap.Modal(document.getElementById('confirmArchiveModal'));
+
+    // Add onclick to all clickable images
+    const clickableImages = document.querySelectorAll('.clickable-image');
+    clickableImages.forEach(img => {
+        img.onclick = function() {
+            openImageModal(this.src);
+        };
+    });
+
     // Show success or error modal if message exists
     <?php if ($successMessage): ?>
         document.getElementById('successMessageText').textContent = '<?= addslashes($successMessage) ?>';
@@ -511,38 +572,13 @@ function calculateCosts(acquisitionId) {
 }
 
 function confirmRelease(acquisitionId) {
-    if (confirm('Are you sure you want to release this vehicle to the public landing page?\n\nMake sure you have saved the pricing first!')) {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = 'releaseVehicle.php';
-
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'acquisition_id';
-        input.value = acquisitionId;
-
-        form.appendChild(input);
-        document.body.appendChild(form);
-        form.submit();
-    }
+    document.getElementById('releaseAcquisitionId').value = acquisitionId;
+    confirmReleaseModal.show();
 }
 
 function confirmArchive(acquisitionId) {
-    if (confirm('⚠️ Are you sure you want to ARCHIVE this vehicle?\n\nThis will REMOVE it from the public landing page\nUse this when the vehicle is SOLD or no longer available\nYou can still view it here, but customers won\'t see it\n\nProceed with archiving?')) {
-        
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = 'archiveVehicle.php';
-
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'acquisition_id';
-        input.value = acquisitionId;
-
-        form.appendChild(input);
-        document.body.appendChild(form);
-        form.submit();
-    }
+    document.getElementById('archiveAcquisitionId').value = acquisitionId;
+    confirmArchiveModal.show();
 }
 </script>
 </body>

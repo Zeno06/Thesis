@@ -14,7 +14,6 @@ $userRole = $_SESSION['role'];
 $user_id = $_SESSION['id'];
 ?>
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -23,6 +22,7 @@ $user_id = $_SESSION['id'];
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../css/acquiPage.css">
+
 </head>
 <body>
 
@@ -62,12 +62,6 @@ $user_id = $_SESSION['id'];
     <a href="/AcquisitionPage/approvePage.php" class="sidebar-item">
         <i class="fas fa-check-square"></i><span>Approved Acquisition</span>
     </a>
-    <a href="/InventoryPage/inventoryPage.php" class="sidebar-item">
-       <i class="fas fa-warehouse"></i><span>Inventory</span>
-    </a>
-    <a href="/InventoryPage/recentInventory.php" class="sidebar-item">
-       <i class="fas fa-history"></i><span>Recent Inventory</span>
-    </a>
 </div>
 
 <div class="main-content">
@@ -76,30 +70,82 @@ $user_id = $_SESSION['id'];
         <div class="sap-card-header"><i class="fas fa-car"></i> Vehicle Information</div>
         <div class="sap-card-body">
             
-            <div class="row g-3 mb-4 align-items-end">
+            <!-- Basic Information -->
+            <h5 class="section-title">Basic Information</h5>
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label>Supplier</label>
+                    <input type="text" class="form-control" name="supplier" placeholder="Enter supplier name" required>
+                </div>
+                <div class="col-md-6">
+                    <label>Date Acquired</label>
+                    <input type="date" class="form-control" name="dateAcquired" value="<?php echo date('Y-m-d'); ?>" required>
+                </div>
+            </div>
+
+            <!-- Vehicle Details -->
+            <h5 class="section-title">Vehicle Details</h5>
+            <div class="row g-3 mb-4">
                 <div class="col-md-3">
-                    <label>Vehicle Model</label>
-                    <input type="text" class="form-control" name="vehicleModel" placeholder="e.g., Honda BR-V" required>
+                    <label>Year Model</label>
+                    <input type="number" class="form-control" name="year" placeholder="e.g., 2021" required>
+                </div>
+                <div class="col-md-3">
+                    <label>Make</label>
+                    <input type="text" class="form-control" name="make" placeholder="e.g., Honda, Toyota" required>
+                </div>
+                <div class="col-md-3">
+                    <label>Model</label>
+                    <input type="text" class="form-control" name="vehicleModel" placeholder="e.g., Civic, BR-V" required>
+                </div>
+                <div class="col-md-3">
+                    <label>Variant</label>
+                    <input type="text" class="form-control" name="variant" placeholder="e.g., 1.8 EL">
+                </div>
+                <div class="col-md-3">
+                    <label>Color</label>
+                    <input type="text" class="form-control" name="color" placeholder="e.g., White Pearl" required>
                 </div>
                 <div class="col-md-3">
                     <label>Plate Number</label>
                     <input type="text" class="form-control" name="plateNumber" placeholder="e.g., NEM1034" required>
                 </div>
                 <div class="col-md-3">
-                    <label>Year Model</label>
-                    <input type="number" class="form-control" name="year" placeholder="e.g., 2021" required>
+                    <label>Fuel Type</label>
+                    <select class="form-select" name="fuelType" required>
+                        <option value="">Select Fuel Type</option>
+                        <option value="Gasoline">Gasoline</option>
+                        <option value="Diesel">Diesel</option>
+                        <option value="Hybrid">Hybrid</option>
+                        <option value="Electric">Electric</option>
+                    </select>
                 </div>
                 <div class="col-md-3">
-                    <label>Color</label>
-                    <input type="text" class="form-control" name="color" placeholder="e.g., White Pearl" required>
+                    <label>Odometer (km)</label>
+                    <input type="number" class="form-control" name="odometer" placeholder="e.g., 50000" min="0" required>
+                </div>
+                <div class="col-md-4">
+                    <label>Body Type</label>
+                    <input type="text" class="form-control" name="bodyType" placeholder="e.g., Sedan, SUV" required>
+                </div>
+                <div class="col-md-4">
+                    <label>Transmission</label>
+                    <div class="d-flex gap-3 mt-2">
+                        <label class="d-flex align-items-center">
+                            <input type="radio" name="transmission" value="Manual" required class="me-2"> Manual
+                        </label>
+                        <label class="d-flex align-items-center">
+                            <input type="radio" name="transmission" value="Automatic" class="me-2"> Automatic
+                        </label>
+                    </div>
                 </div>
             </div>
 
             <h5 class="section-title">Pictures of Car</h5>
             <div class="row g-3 mb-3">
                 <div class="col-md-4">
-                    <label>Whole Car</label>
-                    <input type="file" class="form-control" name="wholecar" accept="image/*" onchange="previewImage(this)" required>
+                    <label>Exterior</label>
+                    <input type="file" class="form-control" name="exterior" accept="image/*" onchange="previewImage(this)" required>
                     <img class="image-preview d-none" alt="Preview">
                 </div>
                 <div class="col-md-4">
@@ -113,18 +159,13 @@ $user_id = $_SESSION['id'];
                     <img class="image-preview d-none" alt="Preview">
                 </div>
                 <div class="col-md-4">
-                    <label>Interior</label>
-                    <input type="file" class="form-control" name="interior" accept="image/*" onchange="previewImage(this)" required>
-                    <img class="image-preview d-none" alt="Preview">
-                </div>
-                <div class="col-md-4">
-                    <label>Exterior</label>
-                    <input type="file" class="form-control" name="exterior" accept="image/*" onchange="previewImage(this)" required>
-                    <img class="image-preview d-none" alt="Preview">
-                </div>
-                <div class="col-md-4">
                     <label>Trunk</label>
                     <input type="file" class="form-control" name="trunk" accept="image/*" onchange="previewImage(this)" required>
+                    <img class="image-preview d-none" alt="Preview">
+                </div>
+                <div class="col-md-4">
+                    <label>Interior</label>
+                    <input type="file" class="form-control" name="interior" accept="image/*" onchange="previewImage(this)" required>
                     <img class="image-preview d-none" alt="Preview">
                 </div>
             </div>
@@ -176,39 +217,70 @@ $user_id = $_SESSION['id'];
 
             <h5 class="section-title">Vehicle Condition</h5>
             <div class="row g-3 mb-4">
-                <div class="col-md-3"><label>Spare Tires</label><select class="form-select" name="spareTires" required><option>Yes</option><option>No</option></select></div>
-                <div class="col-md-3"><label>Complete Tools</label><select class="form-select" name="completeTools" required><option>Yes</option><option>No</option></select></div>
-                <div class="col-md-3"><label>Original Plate</label><select class="form-select" name="originalPlate" required><option>Yes</option><option>No</option></select></div>
-                <div class="col-md-3"><label>Complete Documents</label><select class="form-select" name="completeDocuments" required><option>Yes</option><option>No</option></select></div>
+                <div class="col-md-3">
+                    <label>Spare Tires</label>
+                    <select class="form-select" name="spareTires" required>
+                        <option>Yes</option>
+                        <option>No</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label>Complete Tools</label>
+                    <select class="form-select" name="completeTools" required>
+                        <option>Yes</option>
+                        <option>No</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label>Original Plate</label>
+                    <select class="form-select" name="originalPlate" required>
+                        <option>Yes</option>
+                        <option>No</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label>Complete Documents</label>
+                    <select class="form-select" name="completeDocuments" required>
+                        <option>Yes</option>
+                        <option>No</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label>Spare Key</label>
+                    <select class="form-select" name="spareKey" required>
+                        <option>Yes</option>
+                        <option>No</option>
+                    </select>
+                </div>
             </div>
 
             <h5 class="section-title">Document Photos</h5>
             <div class="row g-3 mb-3">
                 <div class="col-md-4">
                     <label>OR/CR Photo</label>
-                    <input type="file" class="form-control" name="orcrPhoto" accept="image/*,application/pdf" onchange="previewImage(this)" required>
+                    <input type="file" class="form-control" name="orcrPhoto" accept="image/*,application/pdf" onchange="previewImage(this)">
                     <img class="image-preview d-none mt-2" alt="Preview" style="max-width: 300px; border-radius: 6px;">
                 </div>
                 <div class="col-md-4">
                     <label>Deed of Sale Photo</label>
-                    <input type="file" class="form-control" name="deedOfSalePhoto" accept="image/*,application/pdf" onchange="previewImage(this)" required>
+                    <input type="file" class="form-control" name="deedOfSalePhoto" accept="image/*,application/pdf" onchange="previewImage(this)">
                     <img class="image-preview d-none mt-2" alt="Preview" style="max-width: 300px; border-radius: 6px;">
                 </div>
                 <div class="col-md-4">
                     <label>Insurance Photo</label>
-                    <input type="file" class="form-control" name="insurancePhoto" accept="image/*,application/pdf" onchange="previewImage(this)" required>
+                    <input type="file" class="form-control" name="insurancePhoto" accept="image/*,application/pdf" onchange="previewImage(this)">
                     <img class="image-preview d-none mt-2" alt="Preview" style="max-width: 300px; border-radius: 6px;">
                 </div>
             </div>
-
-            <h5 class="section-title">Remarks</h5>
-            <textarea class="form-control mb-3" name="remarks" rows="3" placeholder="Enter additional remarks or notes..." required></textarea>
-
+            
             <h5 class="section-title">Acquired Price</h5>
             <div class="input-group mb-3">
                 <span class="input-group-text">₱</span>
                 <input type="number" step="0.01" class="form-control" name="acquiredPrice" placeholder="0.00" required>
             </div>
+
+            <h5 class="section-title">Remarks</h5>
+            <textarea class="form-control mb-3" name="remarks" rows="3" placeholder="Enter additional remarks or notes..." required></textarea>
 
             <div class="mt-3 d-flex justify-content-end gap-2">
                 <button type="button" class="btn btn-carmax-primary" onclick="confirmSaveDraft()">
@@ -218,6 +290,12 @@ $user_id = $_SESSION['id'];
         </div>
     </div>
 </form>
+</div>
+
+<!-- Image Modal -->
+<div id="imageModal" class="image-modal">
+    <span class="image-modal-close" onclick="closeImageModal()">&times;</span>
+    <img class="image-modal-content" id="modalImage">
 </div>
 
 <!-- Confirmation Modal -->
@@ -260,6 +338,24 @@ $user_id = $_SESSION['id'];
 <script>
 let confirmModalInstance;
 
+function openImageModal(imgSrc) {
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    modal.style.display = 'block';
+    modalImg.src = imgSrc;
+}
+
+function closeImageModal() {
+    document.getElementById('imageModal').style.display = 'none';
+}
+
+// Close modal when clicking outside the image
+document.getElementById('imageModal').onclick = function(event) {
+    if (event.target === this) {
+        closeImageModal();
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     confirmModalInstance = new bootstrap.Modal(document.getElementById('confirmModal'));
 });
@@ -271,6 +367,11 @@ function previewImage(input) {
         reader.onload = function(e) {
             preview.src = e.target.result;
             preview.classList.remove('d-none');
+            
+            // Add click event to open modal
+            preview.onclick = function() {
+                openImageModal(this.src);
+            };
         }
         reader.readAsDataURL(input.files[0]);
     }

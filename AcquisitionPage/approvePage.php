@@ -21,9 +21,10 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
 // Get filter parameters
 $searchQuery = $_GET['search'] ?? '';
 $modelFilter = $_GET['model'] ?? '';
+$statusFilter = $_GET['status_filter'] ?? '';
 
 // Build query with filters
-$query = "SELECT * FROM vehicle_acquisition WHERE status = 'Approved'";
+$query = "SELECT * FROM vehicle_acquisition WHERE status IN ('Approved', 'Sent to Operations')";
 
 if (!empty($searchQuery)) {
     $escSearch = $conn->real_escape_string($searchQuery);
@@ -35,11 +36,16 @@ if (!empty($modelFilter)) {
     $query .= " AND vehicle_model = '$escModel'";
 }
 
+if (!empty($statusFilter)) {
+    $escStatus = $conn->real_escape_string($statusFilter);
+    $query .= " AND status = '$escStatus'";
+}
+
 $query .= " ORDER BY approved_at DESC";
 $result = $conn->query($query);
 
 // Get unique models for filter
-$modelsQuery = "SELECT DISTINCT vehicle_model FROM vehicle_acquisition WHERE status = 'Approved' ORDER BY vehicle_model";
+$modelsQuery = "SELECT DISTINCT vehicle_model FROM vehicle_acquisition WHERE status IN ('Approved', 'Sent to Operations') ORDER BY vehicle_model";
 $models = $conn->query($modelsQuery);
 ?>
 <!DOCTYPE html>
@@ -50,18 +56,6 @@ $models = $conn->query($modelsQuery);
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../css/acquiPage.css">
-    <style>
-        .filter-form-horizontal {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            margin: 0;
-        }
-        .filter-form-horizontal .form-control,
-        .filter-form-horizontal .form-select {
-            width: 220px;
-        }
-    </style>
 </head>
 <body>
 
@@ -101,12 +95,6 @@ $models = $conn->query($modelsQuery);
     <a href="/AcquisitionPage/approvePage.php" class="sidebar-item active">
         <i class="fas fa-check-square"></i><span>Approved Acquisition</span>
     </a>
-    <a href="/InventoryPage/inventoryPage.php" class="sidebar-item">
-       <i class="fas fa-warehouse"></i><span>Inventory</span>
-    </a>
-    <a href="/InventoryPage/recentInventory.php" class="sidebar-item">
-       <i class="fas fa-history"></i><span>Recent Inventory</span>
-    </a>
 </div>
 
 <div class="main-content">
@@ -132,9 +120,16 @@ $models = $conn->query($modelsQuery);
                     ?>
                 </select>
 
-                    <button type="submit" class="btn-carmax-secondary">
-                        <i class="fas fa-filter"></i> Filter
-                    </button>                <?php if (!empty($searchQuery) || !empty($modelFilter)): ?>
+                <select name="status_filter" class="form-select">
+                    <option value="">All Status</option>
+                    <option value="Approved" <?= $statusFilter === 'Approved' ? 'selected' : '' ?>>Approved</option>
+                    <option value="Sent to Operations" <?= $statusFilter === 'Sent to Operations' ? 'selected' : '' ?>>Sent to Operations</option>
+                </select>
+
+                <button type="submit" class="btn-carmax-secondary">
+                    <i class="fas fa-filter"></i> Filter
+                </button>
+                <?php if (!empty($searchQuery) || !empty($modelFilter)): ?>
                     <a href="approvePage.php" class="btn btn-secondary btn-sm"><i class="fas fa-times"></i> Clear</a>
                 <?php endif; ?>
             </form>
@@ -145,6 +140,7 @@ $models = $conn->query($modelsQuery);
                 <thead class="table-success">
                     <tr>
                         <th>Plate Number</th>
+                        <th>Make</th>
                         <th>Model</th>
                         <th>Year</th>
                         <th>Color</th>
@@ -159,17 +155,24 @@ $models = $conn->query($modelsQuery);
                         <?php while ($row = $result->fetch_assoc()): ?>
                             <tr style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#approveModal<?= $row['acquisition_id'] ?>">
                                 <td><?= htmlspecialchars($row['plate_number']) ?></td>
+                                <td><?= htmlspecialchars($row['make']) ?></td>
                                 <td><?= htmlspecialchars($row['vehicle_model']) ?></td>
                                 <td><?= htmlspecialchars($row['year_model']) ?></td>
                                 <td><?= htmlspecialchars($row['color']) ?></td>
                                 <td>₱<?= number_format($row['acquired_price'], 2) ?></td>
-                                <td><span class="badge bg-success">Approved</span></td>
+                                <td>
+                                    <?php if ($row['status'] === 'Sent to Operations'): ?>
+                                        <span class="badge bg-primary"><i class="fas fa-paper-plane"></i> Sent to Operations</span>
+                                    <?php else: ?>
+                                        <span class="badge bg-success">Approved</span>
+                                    <?php endif; ?>
+                                </td>
                                 <td><?= htmlspecialchars($row['approved_by'] ?? 'N/A') ?></td>
                                 <td><?= $row['approved_at'] ? date('M d, Y', strtotime($row['approved_at'])) : 'N/A' ?></td>
                             </tr>
                         <?php endwhile; ?>
                     <?php else: ?>
-                        <tr><td colspan="8" class="text-center">No approved vehicles yet.</td></tr>
+                        <tr><td colspan="9" class="text-center">No approved vehicles yet.</td></tr>
                     <?php endif; ?>
                 </tbody>
             </table>
@@ -197,10 +200,18 @@ if ($result && $result->num_rows > 0):
                 <!-- Basic Information -->
                 <h6 class="text-primary fw-bold mb-3"><i class="fas fa-info-circle"></i> Basic Information</h6>
                 <div class="mb-4">
+                    <div class="info-row"><div class="info-label">Supplier:</div><div class="info-value"><?= htmlspecialchars($row['supplier']) ?></div></div>
+                    <div class="info-row"><div class="info-label">Date Acquired:</div><div class="info-value"><?= $row['date_acquired'] ? date('M d, Y', strtotime($row['date_acquired'])) : 'N/A' ?></div></div>
+                    <div class="info-row"><div class="info-label">Make:</div><div class="info-value"><?= htmlspecialchars($row['make']) ?></div></div>
                     <div class="info-row"><div class="info-label">Plate Number:</div><div class="info-value"><?= htmlspecialchars($row['plate_number']) ?></div></div>
                     <div class="info-row"><div class="info-label">Vehicle Model:</div><div class="info-value"><?= htmlspecialchars($row['vehicle_model']) ?></div></div>
                     <div class="info-row"><div class="info-label">Year Model:</div><div class="info-value"><?= htmlspecialchars($row['year_model']) ?></div></div>
+                    <div class="info-row"><div class="info-label">Variant:</div><div class="info-value"><?= htmlspecialchars($row['variant']) ?></div></div>
                     <div class="info-row"><div class="info-label">Color:</div><div class="info-value"><?= htmlspecialchars($row['color']) ?></div></div>
+                    <div class="info-row"><div class="info-label">Fuel Type:</div><div class="info-value"><?= htmlspecialchars($row['fuel_type']) ?></div></div>
+                    <div class="info-row"><div class="info-label">Odometer:</div><div class="info-value"><?= number_format($row['odometer']) ?> km</div></div>
+                    <div class="info-row"><div class="info-label">Body Type:</div><div class="info-value"><?= htmlspecialchars($row['body_type']) ?></div></div>
+                    <div class="info-row"><div class="info-label">Transmission:</div><div class="info-value"><?= htmlspecialchars($row['transmission']) ?></div></div>
                     <div class="info-row"><div class="info-label">Acquired Price:</div><div class="info-value">₱<?= number_format($row['acquired_price'], 2) ?></div></div>
                 </div>
 
@@ -208,14 +219,14 @@ if ($result && $result->num_rows > 0):
                 <h6 class="text-primary fw-bold mb-3"><i class="fas fa-images"></i> Vehicle Photos</h6>
                 <div class="photo-grid mb-4">
                     <?php 
-                    $photos = ['wholecar'=>'Whole Car','dashboard'=>'Dashboard','hood'=>'Hood','interior'=>'Interior','exterior'=>'Exterior','trunk'=>'Trunk'];
+                    $photos = ['exterior'=>'Exterior','dashboard'=>'Dashboard','hood'=>'Hood','interior'=>'Interior','trunk'=>'Trunk'];
                     foreach ($photos as $key => $label):
                         $photoPath = htmlspecialchars($row[$key.'_photo'] ?? '');
                     ?>
                     <div class="photo-box">
                         <label><?= $label ?></label>
                         <?php if ($photoPath): ?>
-                            <img src="../uploads/<?= $photoPath ?>" alt="<?= $label ?>">
+                            <img src="../uploads/<?= $photoPath ?>" alt="<?= $label ?>" class="clickable-image">
                         <?php else: ?>
                             <div class="text-muted">No image</div>
                         <?php endif; ?>
@@ -231,7 +242,7 @@ if ($result && $result->num_rows > 0):
                 <div class="table-responsive mb-4">
                     <table class="table table-bordered">
                         <thead>
-                            <tr><th>Issue Name</th><th>Photo</th><th>Price</th><th>Remarks</th><th>Status</th><th>Repaired By</th></tr>
+                            <tr><th>Issue Name</th><th>Photo</th><th>Price</th><th>Remarks</th><th>Status</th><th>Repaired By</th><th>Receipts</th></tr>
                         </thead>
                         <tbody>
                             <?php while ($issue = $issuesQuery->fetch_assoc()): ?>
@@ -239,13 +250,27 @@ if ($result && $result->num_rows > 0):
                                 <td><?= htmlspecialchars($issue['issue_name']) ?></td>
                                 <td>
                                     <?php if (!empty($issue['issue_photo'])): ?>
-                                        <img src="../uploads/<?= htmlspecialchars($issue['issue_photo']) ?>" style="max-width: 100px; border-radius: 5px;">
+                                        <img src="../uploads/<?= htmlspecialchars($issue['issue_photo']) ?>" style="max-width: 100px; border-radius: 5px;" class="clickable-image">
                                     <?php endif; ?>
                                 </td>
                                 <td>₱<?= $issue['issue_price'] ? number_format($issue['issue_price'], 2) : 'N/A' ?></td>
                                 <td><?= htmlspecialchars($issue['issue_remarks'] ?? 'N/A') ?></td>
                                 <td><span class="badge bg-success"><i class="fas fa-check"></i> Repaired</span></td>
                                 <td><?= htmlspecialchars($issue['repaired_by'] ?? 'N/A') ?></td>
+                                <td>
+                                    <?php 
+                                    $receipts = json_decode($issue['receipt_photos'] ?? '[]', true);
+                                    if (!empty($receipts) && is_array($receipts)):
+                                        foreach ($receipts as $receipt):
+                                    ?>
+                                        <img src="../uploads/<?= htmlspecialchars($receipt) ?>" style="max-width: 60px; border-radius: 5px; margin: 2px;" class="clickable-image">
+                                    <?php 
+                                        endforeach;
+                                    else:
+                                        echo '<span class="text-muted">No receipts</span>';
+                                    endif;
+                                    ?>
+                                </td>
                             </tr>
                             <?php endwhile; ?>
                         </tbody>
@@ -261,7 +286,7 @@ if ($result && $result->num_rows > 0):
                 <div class="table-responsive mb-4">
                     <table class="table table-bordered">
                         <thead>
-                            <tr><th>Part Name</th><th>Price</th><th>Remarks</th><th>Status</th><th>Ordered By</th></tr>
+                            <tr><th>Part Name</th><th>Price</th><th>Remarks</th><th>Status</th><th>Ordered By</th><th>Receipts</th></tr>
                         </thead>
                         <tbody>
                             <?php while ($part = $partsQuery->fetch_assoc()): ?>
@@ -271,6 +296,20 @@ if ($result && $result->num_rows > 0):
                                 <td><?= htmlspecialchars($part['part_remarks'] ?? 'N/A') ?></td>
                                 <td><span class="badge bg-success"><i class="fas fa-check"></i> Ordered</span></td>
                                 <td><?= htmlspecialchars($part['ordered_by'] ?? 'N/A') ?></td>
+                                <td>
+                                    <?php 
+                                    $receipts = json_decode($part['receipt_photos'] ?? '[]', true);
+                                    if (!empty($receipts) && is_array($receipts)):
+                                        foreach ($receipts as $receipt):
+                                    ?>
+                                        <img src="../uploads/<?= htmlspecialchars($receipt) ?>" style="max-width: 60px; border-radius: 5px; margin: 2px;" class="clickable-image">
+                                    <?php 
+                                        endforeach;
+                                    else:
+                                        echo '<span class="text-muted">No receipts</span>';
+                                    endif;
+                                    ?>
+                                </td>
                             </tr>
                             <?php endwhile; ?>
                         </tbody>
@@ -285,6 +324,7 @@ if ($result && $result->num_rows > 0):
                     <div class="info-row"><div class="info-label">Complete Tools:</div><div class="info-value"><?= htmlspecialchars($row['complete_tools']) ?></div></div>
                     <div class="info-row"><div class="info-label">Original Plate:</div><div class="info-value"><?= htmlspecialchars($row['original_plate']) ?></div></div>
                     <div class="info-row"><div class="info-label">Complete Documents:</div><div class="info-value"><?= htmlspecialchars($row['complete_documents']) ?></div></div>
+                    <div class="info-row"><div class="info-label">Spare Key:</div><div class="info-value"><?= htmlspecialchars($row['spare_key']) ?></div></div>
                 </div>
 
                 <!-- Document Photos -->
@@ -299,9 +339,9 @@ if ($result && $result->num_rows > 0):
                     <div class="photo-box">
                         <label><?= $label ?></label>
                         <?php if ($photoPath): ?>
-                            <img src="../uploads/<?= $photoPath ?>" alt="<?= $label ?>">
+                            <img src="../uploads/<?= $photoPath ?>" alt="<?= $label ?>" class="clickable-image">
                         <?php else: ?>
-                            <div class="text-muted">No image</div>
+                            <div class="text-muted">Not Available</div>
                         <?php endif; ?>
                     </div>
                     <?php endforeach; ?>
@@ -318,24 +358,36 @@ if ($result && $result->num_rows > 0):
                     <div class="info-row"><div class="info-label">Quality Checked At:</div><div class="info-value"><?= $row['quality_checked_at'] ? date('M d, Y h:i A', strtotime($row['quality_checked_at'])) : 'N/A' ?></div></div>
                     <div class="info-row"><div class="info-label">Approved By:</div><div class="info-value"><?= htmlspecialchars($row['approved_by'] ?? 'N/A') ?></div></div>
                     <div class="info-row"><div class="info-label">Approved At:</div><div class="info-value"><?= $row['approved_at'] ? date('M d, Y h:i A', strtotime($row['approved_at'])) : 'N/A' ?></div></div>
+                    <?php if ($row['status'] === 'Sent to Operations'): ?>
+                    <div class="info-row"><div class="info-label">Sent to Operations By:</div><div class="info-value"><?= htmlspecialchars($row['sent_to_operations_by'] ?? 'N/A') ?></div></div>
+                    <div class="info-row"><div class="info-label">Sent to Operations At:</div><div class="info-value"><?= $row['sent_to_operations_at'] ? date('M d, Y h:i A', strtotime($row['sent_to_operations_at'])) : 'N/A' ?></div></div>
+                    <?php endif; ?>
                 </div>
             </div>
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <?php if ($_SESSION['role'] === 'acquisition' || $_SESSION['role'] === 'superadmin'): ?>
+                <?php if ($row['status'] === 'Approved' && ($_SESSION['role'] === 'acquisition' || $_SESSION['role'] === 'superadmin')): ?>
                     <button type="button" class="btn btn-primary" 
                         data-bs-toggle="modal" 
                         data-bs-target="#confirmSendModal" 
                         data-id="<?= $row['acquisition_id'] ?>">
                         <i class="fas fa-paper-plane"></i> Send to Operations
                     </button>
+                <?php elseif ($row['status'] === 'Sent to Operations'): ?>
+                    <span class="badge bg-primary p-2"><i class="fas fa-paper-plane"></i> Already Sent to Operations</span>
                 <?php endif; ?>
             </div>
         </div>
     </div>
 </div>
 <?php endwhile; endif; ?>
+
+<!-- Image Modal -->
+<div id="imageModal" class="image-modal">
+    <span class="image-modal-close" onclick="closeImageModal()">&times;</span>
+    <img class="image-modal-content" id="modalImage">
+</div>
 
 <!-- Success Modal -->
 <div class="modal fade" id="successModal" tabindex="-1">
@@ -393,6 +445,24 @@ if ($result && $result->num_rows > 0):
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 <script>
+function openImageModal(imgSrc) {
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    modal.style.display = 'block';
+    modalImg.src = imgSrc;
+}
+
+function closeImageModal() {
+    document.getElementById('imageModal').style.display = 'none';
+}
+
+// Close modal when clicking outside the image
+document.getElementById('imageModal').onclick = function(event) {
+    if (event.target === this) {
+        closeImageModal();
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const confirmSendModal = document.getElementById('confirmSendModal');
     const confirmSendId = document.getElementById('confirmSendId');
@@ -401,6 +471,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const button = event.relatedTarget;
         const acquisitionId = button.getAttribute('data-id');
         confirmSendId.value = acquisitionId;
+    });
+
+    // Add onclick to all clickable images
+    const clickableImages = document.querySelectorAll('.clickable-image');
+    clickableImages.forEach(img => {
+        img.onclick = function() {
+            openImageModal(this.src);
+        };
     });
 
     // Show success or error modal if message exists
