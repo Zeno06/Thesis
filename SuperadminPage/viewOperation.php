@@ -49,16 +49,10 @@ $stats = $conn->query($statsQuery)->fetch_assoc();
 <meta charset="UTF-8">
 <title>View Operations</title>
 <link rel="stylesheet" href="../css/superadmin.css">
+<link rel="stylesheet" href="../css/acquiPage.css">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <style>
-    .stats-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 20px;
-        border-radius: 10px;
-        margin-bottom: 20px;
-    }
     .stats-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -81,6 +75,14 @@ $stats = $conn->query($statsQuery)->fetch_assoc();
         color: #666;
         font-size: 0.9rem;
         margin-top: 5px;
+    }
+    .sap-table tbody tr {
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .sap-table tbody tr:hover {
+        background: #f0f7ff !important;
+        transform: scale(1.01);
     }
 </style>
 </head>
@@ -178,7 +180,7 @@ $stats = $conn->query($statsQuery)->fetch_assoc();
           <tbody>
             <?php if ($operations && $operations->num_rows > 0): ?>
               <?php while($row = $operations->fetch_assoc()): ?>
-                <tr>
+                <tr data-bs-toggle="modal" data-bs-target="#operationModal<?= $row['acquisition_id'] ?>">
                   <td><?= $row['acquisition_id']; ?></td>
                   <td><?= htmlspecialchars($row['vehicle_model']); ?></td>
                   <td><?= htmlspecialchars($row['plate_number']); ?></td>
@@ -221,5 +223,179 @@ $stats = $conn->query($statsQuery)->fetch_assoc();
   </div>
 </main>
 
+<?php 
+if ($operations && $operations->num_rows > 0):
+    $operations->data_seek(0);
+    while ($row = $operations->fetch_assoc()):
+?>
+<!-- Operations Details Modal -->
+<div class="modal fade" id="operationModal<?= $row['acquisition_id'] ?>" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-cogs"></i> Operations Vehicle Details - <?= htmlspecialchars($row['vehicle_model']) ?>
+                    <?php if ($row['is_released'] == 2): ?>
+                        <span class="badge bg-secondary ms-2"><i class="fas fa-archive"></i> Archived</span>
+                    <?php elseif ($row['is_released'] == 1): ?>
+                        <span class="badge bg-success ms-2"><i class="fas fa-globe"></i> Released</span>
+                    <?php else: ?>
+                        <span class="badge bg-warning ms-2"><i class="fas fa-clock"></i> Pending</span>
+                    <?php endif; ?>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Basic Information -->
+                <h6 class="text-primary fw-bold mb-3"><i class="fas fa-info-circle"></i> Vehicle Information</h6>
+                <div class="mb-4">
+                    <div class="info-row"><div class="info-label">Supplier:</div><div class="info-value"><?= htmlspecialchars($row['supplier']) ?></div></div>
+                    <div class="info-row"><div class="info-label">Make:</div><div class="info-value"><?= htmlspecialchars($row['make']) ?></div></div>
+                    <div class="info-row"><div class="info-label">Plate Number:</div><div class="info-value"><?= htmlspecialchars($row['plate_number']) ?></div></div>
+                    <div class="info-row"><div class="info-label">Vehicle Model:</div><div class="info-value"><?= htmlspecialchars($row['vehicle_model']) ?></div></div>
+                    <div class="info-row"><div class="info-label">Year Model:</div><div class="info-value"><?= htmlspecialchars($row['year_model']) ?></div></div>
+                    <div class="info-row"><div class="info-label">Variant:</div><div class="info-value"><?= htmlspecialchars($row['variant']) ?></div></div>
+                    <div class="info-row"><div class="info-label">Color:</div><div class="info-value"><?= htmlspecialchars($row['color']) ?></div></div>
+                    <div class="info-row"><div class="info-label">Fuel Type:</div><div class="info-value"><?= htmlspecialchars($row['fuel_type']) ?></div></div>
+                    <div class="info-row"><div class="info-label">Odometer:</div><div class="info-value"><?= number_format($row['odometer']) ?> km</div></div>
+                    <div class="info-row"><div class="info-label">Body Type:</div><div class="info-value"><?= htmlspecialchars($row['body_type']) ?></div></div>
+                    <div class="info-row"><div class="info-label">Transmission:</div><div class="info-value"><?= htmlspecialchars($row['transmission']) ?></div></div>
+                </div>
+
+                <!-- Pricing Information -->
+                <h6 class="text-primary fw-bold mb-3"><i class="fas fa-dollar-sign"></i> Pricing Information</h6>
+                <div class="mb-4">
+                    <div class="info-row"><div class="info-label">Acquired Price:</div><div class="info-value">₱<?= number_format($row['acquired_price'], 2) ?></div></div>
+                    <div class="info-row">
+                        <div class="info-label">Selling Price:</div>
+                        <div class="info-value">
+                            <?php if ($row['selling_price'] > 0): ?>
+                                <span class="badge bg-success">₱<?= number_format($row['selling_price'], 2) ?></span>
+                            <?php else: ?>
+                                <span class="badge bg-secondary">Not Set</span>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <?php if ($row['selling_price'] > 0 && $row['acquired_price'] > 0): ?>
+                        <div class="info-row">
+                            <div class="info-label">Potential Profit:</div>
+                            <div class="info-value">
+                                <span class="badge bg-<?= ($row['selling_price'] - $row['acquired_price']) > 0 ? 'success' : 'danger' ?>">
+                                    ₱<?= number_format($row['selling_price'] - $row['acquired_price'], 2) ?>
+                                </span>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                </div>
+
+                <!-- Vehicle Photos -->
+                <h6 class="text-primary fw-bold mb-3"><i class="fas fa-images"></i> Vehicle Photos</h6>
+                <div class="photo-grid mb-4">
+                    <?php 
+                    $photos = ['exterior'=>'Exterior','dashboard'=>'Dashboard','hood'=>'Hood','interior'=>'Interior','trunk'=>'Trunk'];
+                    foreach ($photos as $key => $label):
+                        $photoPath = htmlspecialchars($row[$key.'_photo'] ?? '');
+                    ?>
+                    <div class="photo-box">
+                        <label><?= $label ?></label>
+                        <?php if ($photoPath): ?>
+                            <img src="../uploads/<?= $photoPath ?>" alt="<?= $label ?>" class="clickable-image">
+                        <?php else: ?>
+                            <div class="text-muted">No image</div>
+                        <?php endif; ?>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+
+                <!-- Operations Status -->
+                <h6 class="text-primary fw-bold mb-3"><i class="fas fa-cogs"></i> Operations Status</h6>
+                <div class="mb-4">
+                    <div class="info-row">
+                        <div class="info-label">Release Status:</div>
+                        <div class="info-value">
+                            <?php if ($row['is_released'] == 2): ?>
+                                <span class="badge bg-secondary"><i class="fas fa-archive"></i> Archived</span>
+                            <?php elseif ($row['is_released'] == 1): ?>
+                                <span class="badge bg-success"><i class="fas fa-globe"></i> Released</span>
+                            <?php else: ?>
+                                <span class="badge bg-warning"><i class="fas fa-clock"></i> Pending Release</span>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <?php if ($row['operations_updated_by']): ?>
+                        <div class="info-row"><div class="info-label">Updated By:</div><div class="info-value"><?= htmlspecialchars($row['operations_updated_by']) ?></div></div>
+                        <div class="info-row"><div class="info-label">Updated At:</div><div class="info-value"><?= $row['operations_updated_at'] ? date('M d, Y h:i A', strtotime($row['operations_updated_at'])) : 'N/A' ?></div></div>
+                    <?php endif; ?>
+                </div>
+
+                <!-- Process History -->
+                <h6 class="text-primary fw-bold mb-3"><i class="fas fa-history"></i> Process History</h6>
+                <div class="mb-4">
+                    <?php if ($row['quality_checked_by']): ?>
+                        <div class="info-row"><div class="info-label">Quality Checked By:</div><div class="info-value"><?= htmlspecialchars($row['quality_checked_by']) ?></div></div>
+                        <div class="info-row"><div class="info-label">Quality Checked At:</div><div class="info-value"><?= $row['quality_checked_at'] ? date('M d, Y h:i A', strtotime($row['quality_checked_at'])) : 'N/A' ?></div></div>
+                    <?php endif; ?>
+                    <?php if ($row['approved_by']): ?>
+                        <div class="info-row"><div class="info-label">Approved By:</div><div class="info-value"><?= htmlspecialchars($row['approved_by']) ?></div></div>
+                        <div class="info-row"><div class="info-label">Approved At:</div><div class="info-value"><?= $row['approved_at'] ? date('M d, Y h:i A', strtotime($row['approved_at'])) : 'N/A' ?></div></div>
+                    <?php endif; ?>
+                    <?php if ($row['sent_to_operations_by']): ?>
+                        <div class="info-row"><div class="info-label">Sent to Operations By:</div><div class="info-value"><?= htmlspecialchars($row['sent_to_operations_by']) ?></div></div>
+                        <div class="info-row"><div class="info-label">Sent At:</div><div class="info-value"><?= $row['sent_to_operations_at'] ? date('M d, Y h:i A', strtotime($row['sent_to_operations_at'])) : 'N/A' ?></div></div>
+                    <?php endif; ?>
+                </div>
+
+                <!-- Remarks -->
+                <?php if (!empty($row['remarks'])): ?>
+                <h6 class="text-primary fw-bold mb-3"><i class="fas fa-comment"></i> Remarks</h6>
+                <div class="alert alert-info"><?= nl2br(htmlspecialchars($row['remarks'])) ?></div>
+                <?php endif; ?>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<?php endwhile; endif; ?>
+
+<!-- Image Modal -->
+<div id="imageModal" class="image-modal">
+    <span class="image-modal-close" onclick="closeImageModal()">&times;</span>
+    <img class="image-modal-content" id="modalImage">
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script>
+function openImageModal(imgSrc) {
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    modal.style.display = 'block';
+    modalImg.src = imgSrc;
+}
+
+function closeImageModal() {
+    document.getElementById('imageModal').style.display = 'none';
+}
+
+document.getElementById('imageModal').onclick = function(event) {
+    if (event.target === this) {
+        closeImageModal();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const clickableImages = document.querySelectorAll('.clickable-image');
+    clickableImages.forEach(img => {
+        img.onclick = function() {
+            openImageModal(this.src);
+        };
+    });
+});
+</script>
 </body>
 </html>

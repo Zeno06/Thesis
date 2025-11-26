@@ -45,48 +45,6 @@ $models = $conn->query($modelsQuery);
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../css/acquiPage.css">
-    <style>
-        .image-modal {
-            display: none;
-            position: fixed;
-            z-index: 9999;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.9);
-        }
-        .image-modal-content {
-            margin: auto;
-            display: block;
-            max-width: 90%;
-            max-height: 90%;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-        .image-modal-close {
-            position: absolute;
-            top: 15px;
-            right: 35px;
-            color: #f1f1f1;
-            font-size: 40px;
-            font-weight: bold;
-            cursor: pointer;
-            z-index: 10000;
-        }
-        .image-modal-close:hover {
-            color: #bbb;
-        }
-        .clickable-image {
-            cursor: pointer;
-            transition: opacity 0.3s;
-        }
-        .clickable-image:hover {
-            opacity: 0.8;
-        }
-    </style>
 </head>
 <body>
 
@@ -155,7 +113,7 @@ $models = $conn->query($modelsQuery);
                     <i class="fas fa-filter"></i> Filter
                 </button>
                 <?php if (!empty($searchQuery) || !empty($modelFilter)): ?>
-                    <a href="qualityPage.php" class="btn btn-secondary btn-sm"><i class="fas fa-times"></i> Clear</a>
+                    <a href="qualityPage.php" class="btn btn-carmax-primary"><i class="fas fa-times"></i> Clear</a>
                 <?php endif; ?>
             </form>
         </div>
@@ -368,7 +326,6 @@ if ($result && $result->num_rows > 0):
                                 <?php endwhile; endif; ?>
                             </tbody>
                         </table>
-                    </div>
                     <button type="button" class="btn btn-sm btn-success mb-4" onclick="addIssueRow(<?= $row['acquisition_id'] ?>)">
                         <i class="fas fa-plus"></i> Add Issue
                     </button>
@@ -426,7 +383,7 @@ if ($result && $result->num_rows > 0):
                                         if (!empty($receiptPhotos) && is_array($receiptPhotos)):
                                             foreach ($receiptPhotos as $photo):
                                         ?>
-                                            <img src="../uploads/<?= htmlspecialchars($photo) ?>" style="max-width: 80px; border-radius: 5px; margin: 2px;" class="clickable-image">
+                                            <img src="../uploads/<?= htmlspecialchars($photo) ?>" class="clickable-image">
                                         <?php 
                                             endforeach;
                                         endif;
@@ -466,17 +423,26 @@ if ($result && $result->num_rows > 0):
                     <h6 class="text-primary fw-bold mb-3"><i class="fas fa-file-contract"></i> Document Photos</h6>
                     <div class="photo-grid mb-4">
                         <?php 
-                        $docPhotos = ['orcr' => 'OR/CR', 'deed_of_sale' => 'Deed of Sale', 'insurance' => 'Insurance'];
-                        foreach ($docPhotos as $key => $label):
-                            $photoField = $key . '_photo';
+                        $docPhotos = [
+                            'orcr' => ['label' => 'OR/CR', 'field' => 'orcr_photo'],
+                            'deed_of_sale' => ['label' => 'Deed of Sale', 'field' => 'deed_of_sale_photo'],
+                            'insurance' => ['label' => 'Insurance', 'field' => 'insurance_photo']
+                        ];
+                        foreach ($docPhotos as $key => $doc):
+                            $photoField = $doc['field'];
                             $photoPath = htmlspecialchars($row[$photoField] ?? '');
                         ?>
                         <div class="photo-box">
-                            <label><?= $label ?></label>
+                            <label><?= $doc['label'] ?></label>
                             <?php if ($photoPath): ?>
-                                <img src="../uploads/<?= $photoPath ?>" alt="<?= $label ?>" class="clickable-image">
+                                <img src="../uploads/<?= $photoPath ?>" alt="<?= $doc['label'] ?>" class="clickable-image vehicle-photo">
                             <?php else: ?>
-                                <div class="text-muted">Not Available</div>
+                                <div class="text-muted mb-2">Not Available</div>
+                                <input type="file" class="form-control form-control-sm" 
+                                    name="<?= $key ?>_photo_update" 
+                                    accept="image/*" 
+                                    onchange="previewDocumentImage(this, '<?= $key ?>Preview')">
+                                <div id="<?= $key ?>Preview" class="mt-2"></div>
                             <?php endif; ?>
                         </div>
                         <?php endforeach; ?>
@@ -484,7 +450,10 @@ if ($result && $result->num_rows > 0):
 
                     <!-- Remarks -->
                     <h6 class="text-primary fw-bold mb-3"><i class="fas fa-comment"></i> Remarks</h6>
-                    <textarea class="form-control mb-4" rows="3" disabled><?= htmlspecialchars($row['remarks'] ?? '') ?></textarea>
+                    <textarea class="form-control mb-4" name="remarks" rows="3" 
+                            placeholder="Enter any important notes, observations, or special instructions..."
+                            onchange="checkApproveButton(<?= $row['acquisition_id'] ?>)"><?= htmlspecialchars($row['remarks'] ?? '') ?>
+                    </textarea>
 
                     <!-- Price -->
                     <h6 class="text-primary fw-bold mb-3"><i class="fas fa-peso-sign"></i> Acquired Price</h6>
@@ -595,6 +564,85 @@ document.getElementById('imageModal').onclick = function(event) {
     }
 }
 
+function initializeModalEvents() {
+    const qualityModals = document.querySelectorAll('[id^="qualityModal"]');
+    qualityModals.forEach(modal => {
+        modal.addEventListener('show.bs.modal', function(event) {
+            const modalId = this.id;
+            const acquisitionId = modalId.replace('qualityModal', '');
+            setTimeout(() => {
+                checkApproveButton(acquisitionId);
+            }, 100);
+        });
+    });
+}
+// Add this function to check approve button when modal opens
+function initializeModalEvents() {
+    const qualityModals = document.querySelectorAll('[id^="qualityModal"]');
+    qualityModals.forEach(modal => {
+        modal.addEventListener('show.bs.modal', function(event) {
+            const modalId = this.id;
+            const acquisitionId = modalId.replace('qualityModal', '');
+            
+            // Wait a bit for the form to render completely
+            setTimeout(() => {
+                checkApproveButton(acquisitionId);
+            }, 100);
+        });
+    });
+}
+
+// Update the saveQuality function to better handle state persistence
+function saveQuality(acquisitionId) {
+    const form = document.getElementById('qualityForm' + acquisitionId);
+    const formData = new FormData(form);
+    formData.append('action', 'save');
+    
+    fetch('saveQualityCheck.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showSuccess('Quality check saved successfully!');
+            // Force re-check of approve button after successful save
+            setTimeout(() => {
+                checkApproveButton(acquisitionId);
+                // Also update the form data to reflect saved state
+                updateFormStateAfterSave(acquisitionId);
+            }, 300);
+        } else {
+            showError('❌ Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        showError('❌ Error saving quality check');
+        console.error(error);
+    });
+}
+
+// New function to update form state after save
+function updateFormStateAfterSave(acquisitionId) {
+    const form = document.getElementById('qualityForm' + acquisitionId);
+    if (!form) return;
+    
+    // Re-validate all fields
+    const inputs = form.querySelectorAll('input, textarea, select');
+    inputs.forEach(input => {
+        if (input.type !== 'file') {
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+    });
+    
+    // Re-check checkboxes
+    const checkboxes = form.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+        checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+}
+
+// DOMContentLoaded event listener
 document.addEventListener('DOMContentLoaded', function() {
     confirmSaveModal = new bootstrap.Modal(document.getElementById('confirmSaveModal'));
     confirmApproveModal = new bootstrap.Modal(document.getElementById('confirmApproveModal'));
@@ -622,6 +670,18 @@ document.addEventListener('DOMContentLoaded', function() {
             openImageModal(this.src);
         };
     });
+    
+    // Initialize modal events for approve button state
+    initializeModalEvents();
+    
+    // Also check approve button state on page load for any open modals
+    setTimeout(() => {
+        const openModal = document.querySelector('.modal.show');
+        if (openModal && openModal.id.startsWith('qualityModal')) {
+            const acquisitionId = openModal.id.replace('qualityModal', '');
+            checkApproveButton(acquisitionId);
+        }
+    }, 500);
 });
 
 function showSuccess(message) {
@@ -705,7 +765,7 @@ function previewReceiptImages(input, previewContainerId) {
         reader.onload = function(e) {
             const img = document.createElement("img");
             img.src = e.target.result;
-            img.style.maxWidth = "80px";
+            img.style.maxWidth = "100px";
             img.style.borderRadius = "5px";
             img.style.margin = "2px";
             img.className = "clickable-image";
@@ -715,7 +775,23 @@ function previewReceiptImages(input, previewContainerId) {
         reader.readAsDataURL(file);
     });
 }
-
+function previewDocumentImage(input, previewId) {
+    const container = document.getElementById(previewId);
+    container.innerHTML = "";
+    
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = document.createElement("img");
+            img.src = e.target.result;
+            img.style.borderRadius = "5px";
+            img.className = "clickable-image";
+            img.onclick = function() { openImageModal(this.src); };
+            container.appendChild(img);
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
 function addPartRow(acquisitionId) {
     const tbody = document.getElementById('partsTableBody' + acquisitionId);
     const newId = 'new_part_' + (++newPartCounter);
@@ -892,7 +968,8 @@ function saveQuality(acquisitionId) {
             showSuccess('Quality check saved successfully!');
             setTimeout(() => {
                 checkApproveButton(acquisitionId);
-            }, 100);
+                updateFormStateAfterSave(acquisitionId);
+            }, 300);
         } else {
             showError('❌ Error: ' + data.message);
         }
@@ -902,6 +979,7 @@ function saveQuality(acquisitionId) {
         console.error(error);
     });
 }
+
 
 function approveQuality(acquisitionId) {
     const form = document.getElementById('qualityForm' + acquisitionId);
@@ -923,6 +1001,26 @@ function approveQuality(acquisitionId) {
     .catch(error => {
         showError('❌ Error approving vehicle');
         console.error(error);
+    });
+}
+
+// Update form state after save
+function updateFormStateAfterSave(acquisitionId) {
+    const form = document.getElementById('qualityForm' + acquisitionId);
+    if (!form) return;
+    
+    // Re-validate all fields
+    const inputs = form.querySelectorAll('input, textarea, select');
+    inputs.forEach(input => {
+        if (input.type !== 'file') {
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+    });
+    
+    // Re-check checkboxes
+    const checkboxes = form.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+        checkbox.dispatchEvent(new Event('change', { bubbles: true }));
     });
 }
 </script>

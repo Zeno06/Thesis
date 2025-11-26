@@ -35,6 +35,26 @@ $originalPlate = $_POST['originalPlate'] ?? '';
 $completeDocuments = $_POST['completeDocuments'] ?? '';
 $remarks = $_POST['remarks'] ?? '';
 
+// Handle missing documents
+$missingDocuments = null;
+if ($completeDocuments === 'No') {
+    $missingDocsArray = [];
+    
+    // Get checked missing documents
+    if (isset($_POST['missing_docs']) && is_array($_POST['missing_docs'])) {
+        $missingDocsArray = $_POST['missing_docs'];
+    }
+    
+    // Get other missing documents
+    if (!empty($_POST['missing_docs_other'])) {
+        $missingDocsArray[] = 'Other: ' . $_POST['missing_docs_other'];
+    }
+    
+    if (!empty($missingDocsArray)) {
+        $missingDocuments = implode(', ', $missingDocsArray);
+    }
+}
+
 // Create organized folder structure
 $folderName = preg_replace('/[^A-Za-z0-9_\-]/', '_', "{$plate}_{$model}_{$year}");
 $vehicleBaseDir = __DIR__ . "/../uploads/{$folderName}/";
@@ -73,29 +93,29 @@ $insurancePhoto = uploadFile('insurancePhoto', $documentsDir, $folderName);
 
 $status = 'Quality Check';
 
-// Insert main vehicle acquisition with all new fields
+// Insert main vehicle acquisition with missing_documents field
 $stmt = $conn->prepare("
     INSERT INTO vehicle_acquisition (
         supplier, date_acquired, make, vehicle_model, variant, plate_number, year_model, color,
         fuel_type, odometer, body_type, transmission, spare_key,
         exterior_photo, dashboard_photo, hood_photo, interior_photo, trunk_photo,
         orcr_photo, deed_of_sale_photo, insurance_photo,
-        spare_tires, complete_tools, original_plate, complete_documents,
+        spare_tires, complete_tools, original_plate, complete_documents, missing_documents,
         remarks, acquired_price, created_by, status
-    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
 ");
 
 $stmt->bind_param(
-    "ssssssississssssssssssssssdis",
+    "ssssssississsssssssssssssssdis",
     $supplier,$dateAcquired,$make,$model,$variant,$plate,              
     $year,$color,$fuelType,$odometer,$bodyType,$transmission,$spareKey,           
     $exterior,$dashboard,$hood,$interior,$trunk,$orcrPhoto,$deedOfSalePhoto,
     $insurancePhoto,$spareTires,$completeTools,$originalPlate,$completeDocuments,
-    $remarks,$acquiredPrice,$user_id,$status             
+    $missingDocuments,$remarks,$acquiredPrice,$user_id,$status             
 );
 
 if ($stmt->execute()) {
-   $acquisition_id = $conn->insert_id;
+    $acquisition_id = $conn->insert_id;
     
     // Insert issues with photos
     if (isset($_POST['issue_names']) && is_array($_POST['issue_names'])) {
@@ -133,8 +153,9 @@ if ($stmt->execute()) {
         $partStmt->close();
     }
     
-    // Log activity
-    $action = "Created new vehicle acquisition: $plate - $make $model $year (Status: Quality Check, Price: ₱" . number_format($acquiredPrice, 2) . ")";
+    // Log activity with missing documents info
+    $missingDocsInfo = $missingDocuments ? " (Missing Documents: $missingDocuments)" : "";
+    $action = "Created new vehicle acquisition: $plate - $make $model $year (Status: Quality Check, Price: ₱" . number_format($acquiredPrice, 2) . ")$missingDocsInfo";
     logActivity($conn, $user_id, $action, 'Vehicle Acquisition');
     
     header("Location: acquiPage.php?success=1");

@@ -534,6 +534,14 @@ padding: 20px;
     grid-template-columns: 1fr;
 }
 
+#vehiclesContainer .empty-message {
+    grid-column: 1 / -1;          /* span full width of the grid */
+    text-align: center;           /* center text */
+    padding: 20px 0;              /* spacing */
+    font-size: 1.1rem;            /* optional */
+}
+
+
 /* Vehicle Card */
 .car-card {
     background: #fff;

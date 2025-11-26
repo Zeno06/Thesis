@@ -333,7 +333,7 @@ body {
 
 .filter-form-horizontal .form-control,
 .filter-form-horizontal .form-select {
-    min-width: 180px;
+    min-width: 80px;
     margin-bottom: 0;
     flex: 1;
 }

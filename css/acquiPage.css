@@ -123,10 +123,26 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: nowrap;
+    gap: 15px;
 }
 
-.sap-card-body {
-    padding: 20px;
+.sap-card-header .filter-form-horizontal {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+}
+
+.sap-card-header .form-control,
+.sap-card-header .form-select {
+    min-width: 160px;
+    max-width: 200px;
+}
+
+.sap-card-header button {
+    white-space: nowrap;
 }
 
 /* ---------- Form Controls ---------- */
@@ -152,7 +168,7 @@ body {
     background-color: #fff !important;
 }
 
-/* ⭐ FOCUS STATE (yellow/orange) */
+/* FOCUS STATE (yellow/orange) */
 .form-select:focus,
 .form-control:focus {
     border-color: var(--carmax-orange)!important;
@@ -466,16 +482,6 @@ td input[type="file"] {
             border: 1px solid #ddd;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
-        .filter-form-horizontal {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            margin: 0;
-        }
-        .filter-form-horizontal .form-control,
-        .filter-form-horizontal .form-select {
-            width: 220px;
-        }
         .image-modal {
             display: none;
             position: fixed;
@@ -515,6 +521,3 @@ td input[type="file"] {
         .clickable-image:hover {
             opacity: 0.8;
         }
-
-
-

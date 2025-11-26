@@ -478,21 +478,18 @@ $result = $conn->query($query);
 <div class="modal fade" id="confirmArchiveModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
+            <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title"><i class="fas fa-archive"></i> Confirm Archive</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <strong>⚠️ Are you sure you want to ARCHIVE this vehicle?</strong><br><br>
-                This will <strong>REMOVE</strong> it from the public landing page.<br><br>
-                Use this when the vehicle is <strong>SOLD</strong> or no longer available.<br><br>
-                You can still view it here, but customers won't see it.
+                <strong>Are you sure you want to archive this vehicle?</strong>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <form id="archiveForm" method="POST" action="archiveVehicle.php" style="display:inline;">
                     <input type="hidden" name="acquisition_id" id="archiveAcquisitionId">
-                    <button type="submit" class="btn btn-danger">Yes, Archive</button>
+                    <button type="submit" class="btn btn-success">Yes</button>
                 </form>
             </div>
         </div>

@@ -126,11 +126,11 @@ $models = $conn->query($modelsQuery);
                     <option value="Sent to Operations" <?= $statusFilter === 'Sent to Operations' ? 'selected' : '' ?>>Sent to Operations</option>
                 </select>
 
-                <button type="submit" class="btn-carmax-secondary">
+                 <button type="submit" class="btn-carmax-secondary">
                     <i class="fas fa-filter"></i> Filter
                 </button>
                 <?php if (!empty($searchQuery) || !empty($modelFilter)): ?>
-                    <a href="approvePage.php" class="btn btn-secondary btn-sm"><i class="fas fa-times"></i> Clear</a>
+                    <a href="approvePage.php" class="btn btn-carmax-primary"><i class="fas fa-times"></i> Clear</a>
                 <?php endif; ?>
             </form>
         </div>

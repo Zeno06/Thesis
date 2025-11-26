@@ -22,7 +22,40 @@ $user_id = $_SESSION['id'];
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../css/acquiPage.css">
-
+    <style>
+        .missing-docs-section {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #fff3cd;
+            border-radius: 8px;
+            border: 1px solid #ffc107;
+        }
+        .missing-docs-section.show {
+            display: block;
+        }
+        .doc-upload-wrapper {
+            position: relative;
+        }
+        .doc-upload-wrapper.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        .doc-upload-wrapper.disabled::after {
+            content: "Missing";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(220, 53, 69, 0.9);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 10;
+        }
+    </style>
 </head>
 <body>
 
@@ -240,11 +273,42 @@ $user_id = $_SESSION['id'];
                 </div>
                 <div class="col-md-3">
                     <label>Complete Documents</label>
-                    <select class="form-select" name="completeDocuments" required>
-                        <option>Yes</option>
-                        <option>No</option>
+                    <select class="form-select" name="completeDocuments" id="completeDocuments" onchange="toggleMissingDocs()" required>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
                     </select>
                 </div>
+                
+                <!-- Missing Documents Section -->
+                <div class="col-md-12">
+                    <div id="missingDocsSection" class="missing-docs-section">
+                        <h6 class="text-danger fw-bold mb-3">
+                            <i class="fas fa-exclamation-triangle"></i> Specify Missing Documents
+                        </h6>
+                        <p class="text-muted small mb-3">Please check all documents that are MISSING (checked documents will have upload disabled):</p>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-check-label">
+                                    <input type="checkbox" class="form-check-input missing-doc-checkbox" name="missing_docs[]" value="OR/CR" onchange="toggleDocumentUpload()">
+                                    <i class="fas fa-file-alt ms-2"></i> OR/CR
+                                </label>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-check-label">
+                                    <input type="checkbox" class="form-check-input missing-doc-checkbox" name="missing_docs[]" value="Deed of Sale" onchange="toggleDocumentUpload()">
+                                    <i class="fas fa-file-contract ms-2"></i> Deed of Sale
+                                </label>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-check-label">
+                                    <input type="checkbox" class="form-check-input missing-doc-checkbox" name="missing_docs[]" value="Insurance" onchange="toggleDocumentUpload()">
+                                    <i class="fas fa-shield-alt ms-2"></i> Insurance
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="col-md-3">
                     <label>Spare Key</label>
                     <select class="form-select" name="spareKey" required>
@@ -258,18 +322,24 @@ $user_id = $_SESSION['id'];
             <div class="row g-3 mb-3">
                 <div class="col-md-4">
                     <label>OR/CR Photo</label>
-                    <input type="file" class="form-control" name="orcrPhoto" accept="image/*,application/pdf" onchange="previewImage(this)">
-                    <img class="image-preview d-none mt-2" alt="Preview" style="max-width: 300px; border-radius: 6px;">
+                    <div class="doc-upload-wrapper" id="orcrWrapper">
+                        <input type="file" class="form-control doc-upload" id="orcrPhoto" name="orcrPhoto" accept="image/*,application/pdf" onchange="previewImage(this)">
+                        <img class="image-preview d-none mt-2" alt="Preview" style="max-width: 300px; border-radius: 6px;">
+                    </div>
                 </div>
                 <div class="col-md-4">
                     <label>Deed of Sale Photo</label>
-                    <input type="file" class="form-control" name="deedOfSalePhoto" accept="image/*,application/pdf" onchange="previewImage(this)">
-                    <img class="image-preview d-none mt-2" alt="Preview" style="max-width: 300px; border-radius: 6px;">
+                    <div class="doc-upload-wrapper" id="deedWrapper">
+                        <input type="file" class="form-control doc-upload" id="deedOfSalePhoto" name="deedOfSalePhoto" accept="image/*,application/pdf" onchange="previewImage(this)">
+                        <img class="image-preview d-none mt-2" alt="Preview" style="max-width: 300px; border-radius: 6px;">
+                    </div>
                 </div>
                 <div class="col-md-4">
                     <label>Insurance Photo</label>
-                    <input type="file" class="form-control" name="insurancePhoto" accept="image/*,application/pdf" onchange="previewImage(this)">
-                    <img class="image-preview d-none mt-2" alt="Preview" style="max-width: 300px; border-radius: 6px;">
+                    <div class="doc-upload-wrapper" id="insuranceWrapper">
+                        <input type="file" class="form-control doc-upload" id="insurancePhoto" name="insurancePhoto" accept="image/*,application/pdf" onchange="previewImage(this)">
+                        <img class="image-preview d-none mt-2" alt="Preview" style="max-width: 300px; border-radius: 6px;">
+                    </div>
                 </div>
             </div>
             
@@ -338,6 +408,55 @@ $user_id = $_SESSION['id'];
 <script>
 let confirmModalInstance;
 
+function toggleMissingDocs() {
+    const completeDocsSelect = document.getElementById('completeDocuments');
+    const missingDocsSection = document.getElementById('missingDocsSection');
+    const checkboxes = document.querySelectorAll('.missing-doc-checkbox');
+    
+    if (completeDocsSelect.value === 'No') {
+        missingDocsSection.classList.add('show');
+    } else {
+        missingDocsSection.classList.remove('show');
+        // Clear all checkboxes and re-enable all uploads
+        checkboxes.forEach(cb => {
+            cb.checked = false;
+        });
+        toggleDocumentUpload();
+    }
+}
+
+function toggleDocumentUpload() {
+    const checkboxes = document.querySelectorAll('.missing-doc-checkbox');
+    const docMap = {
+        'OR/CR': { wrapper: 'orcrWrapper', input: 'orcrPhoto' },
+        'Deed of Sale': { wrapper: 'deedWrapper', input: 'deedOfSalePhoto' },
+        'Insurance': { wrapper: 'insuranceWrapper', input: 'insurancePhoto' }
+    };
+    
+    checkboxes.forEach(cb => {
+        const docType = cb.value;
+        const doc = docMap[docType];
+        
+        if (doc) {
+            const wrapper = document.getElementById(doc.wrapper);
+            const input = document.getElementById(doc.input);
+            
+            if (cb.checked) {
+                // Document is MISSING - disable upload
+                wrapper.classList.add('disabled');
+                input.disabled = true;
+                input.required = false;
+                input.value = '';
+            } else {
+                // Document is available - enable upload
+                wrapper.classList.remove('disabled');
+                input.disabled = false;
+                input.required = false; // Keep optional since complete docs might be "Yes"
+            }
+        }
+    });
+}
+
 function openImageModal(imgSrc) {
     const modal = document.getElementById('imageModal');
     const modalImg = document.getElementById('modalImage');
@@ -349,7 +468,6 @@ function closeImageModal() {
     document.getElementById('imageModal').style.display = 'none';
 }
 
-// Close modal when clicking outside the image
 document.getElementById('imageModal').onclick = function(event) {
     if (event.target === this) {
         closeImageModal();
@@ -362,13 +480,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function previewImage(input) {
     const preview = input.parentElement.querySelector('.image-preview');
-    if (input.files && input.files[0]) {
+    if (preview && input.files && input.files[0]) {
         const reader = new FileReader();
         reader.onload = function(e) {
             preview.src = e.target.result;
             preview.classList.remove('d-none');
             
-            // Add click event to open modal
             preview.onclick = function() {
                 openImageModal(this.src);
             };
@@ -428,6 +545,17 @@ function removeRow(btn) {
 
 function confirmSaveDraft() {
     const form = document.getElementById('vehicleForm');
+    const completeDocsSelect = document.getElementById('completeDocuments');
+    const checkboxes = document.querySelectorAll('.missing-doc-checkbox:checked');
+    
+    // Validate missing documents if "No" is selected
+    if (completeDocsSelect.value === 'No') {
+        if (checkboxes.length === 0) {
+            alert('Please specify which documents are missing by checking at least one option.');
+            return;
+        }
+    }
+    
     if (form.checkValidity()) {
         confirmModalInstance.show();
     } else {

@@ -52,7 +52,6 @@
   </div>
 </div>
 
-
     <!-- Hero Section -->
     <section id="home" class="hero">
         <div class="hero-slideshow">
@@ -201,54 +200,61 @@
       </div>
     </section>
 
-     <!-- About Section -->
-    <section id="about" class="section-padding about-section">
+<section id="about" class="section-padding about-section">
     <div class="container">
         <h2 class="section-title fade-in text-center mb-5">Carmax</h2>
 
-        <!-- Row 1: History -->
+        <!-- Row 1 -->
         <div class="row align-items-center mb-5">
-        <div class="col-md-6 slide-in-left">
-           
-            <div class="about-icon mb-3"><i class="fas fa-history"></i></div>
-            <h4 class="mb-3">Our History</h4>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptate distinctio laudantium similique tempora architecto, esse ratione modi a. Odio dolore minus illo dolor, quidem fugiat ipsam dolorem!</p>
-            
-        </div>
-        <div class="col-md-6 slide-in-right">
-            <img src="/Pictures/Carmaxold.jpg" alt="Our History" class="img-fluid rounded-4 shadow-lg">
-        </div>
+            <div class="col-md-6 slide-in-left text-center">
+                <div class="about-icon mb-3 align-items-center"><i class="fas fa-history"></i></div>
+                <h4 class="mb-3">TENACITY</h4>
+                <p>Exhibit determination in reaching goals and consistently meeting or exceeding expectations.
+                    <br> DON'T GIVE UP — Focus on continuous improvement; don't consider failure an option.
+                </p>
+            </div>
+
+            <div class="col-md-6 slide-in-right">
+                <img src="/Pictures/Carmaxold.jpg" alt="Our History" class="img-fluid rounded-4 shadow-lg">
+            </div>
         </div>
 
-        <!-- Row 2: Mission -->
+        <!-- Row 2 -->
         <div class="row align-items-center flex-md-row-reverse mb-5">
-        <div class="col-md-6 slide-in-right">
-          
-            <div class="about-icon mb-3"><i class="fas fa-bullseye"></i></div>
-            <h4 class="mb-3">Our Mission</h4>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Cupiditate laboriosam odit sunt veritatis corporis suscipit. Dolorem deserunt eveniet ex fugiat blanditiis eligendi similique odio? Voluptatum quidem illum ut!</p>
-           
-        </div>
-        <div class="col-md-6 slide-in-left">
-            <img src="/Pictures/Mission.jpg" alt="Our Mission" class="img-fluid rounded-4 shadow-lg">
-        </div>
+            <div class="col-md-6 slide-in-right text-center">
+                <div class="about-icon mb-3"><i class="fas fa-bullseye"></i></div>
+                <h4 class="mb-3">TRUSTWORTHY</h4>
+                <p>
+                    Behave ethically, safely, honestly and lawfully. Take pride in being fair and knowledgeable,
+                    and build integrity in every situation.
+                </p>
+            </div>
+
+            <div class="col-md-6 slide-in-left">
+                <img src="/Pictures/Mission.jpg" alt="Our Mission" class="img-fluid rounded-4 shadow-lg">
+            </div>
         </div>
 
-        <!-- Row 3: Vision -->
+        <!-- Row 3 -->
         <div class="row align-items-center mb-5">
-        <div class="col-md-6 slide-in-left">
+            <div class="col-md-6 slide-in-left text-center">
+                <div class="about-icon mb-3"><i class="fas fa-eye"></i></div>
+                <h4 class="mb-3">TEAMWORK</h4>
+                <p>
+                    Work collaboratively and harmoniously with every member of the company toward common goals.
+                    Treat people with respect and dignity. Commit to the company where personal wants and needs
+                    become secondary.
+                </p>
+            </div>
 
-            <div class="about-icon mb-3"><i class="fas fa-eye"></i></div>
-            <h4 class="mb-3">Our Vision</h4>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Inventore, nihil natus asperiores fuga blanditiis est corporis aliquid explicabo harum nulla dolores impedit modi perspiciatis? Facere dolore repellat ipsam temporibus.</p>
-        </div>
-        <div class="col-md-6 slide-in-right">
-            <img src="/Pictures/Vision.jpg" alt="Our Vision" class="img-fluid rounded-4 shadow-lg">
-        </div>
+            <div class="col-md-6 slide-in-right">
+                <img src="/Pictures/Vision.jpg" alt="Our Vision" class="img-fluid rounded-4 shadow-lg">
+            </div>
         </div>
 
     </div>
-    </section>
+</section>
+
 
     <!-- Footer -->
     <footer class="footer" id="contact">
@@ -375,17 +381,17 @@
                     // Display vehicles
                     displayVehicles();
                 } else {
-                    document.getElementById('vehiclesContainer').innerHTML = 
-                    '<div class="row"><div class="col-12 text-center"><p>No vehicles available at the moment. Check back soon!</p></div></div>';
+document.getElementById('vehiclesContainer').innerHTML = 
+    '<div class="empty-message">No vehicles available at the moment. Check back soon!</div>';
 
-                    document.getElementById('spotlightContainer').innerHTML = 
-                    '<div class="row"><div class="col-12 text-center"><p>No featured vehicle available at the moment.</p></div></div>';
+document.getElementById('spotlightContainer').innerHTML = 
+    '<div class="empty-message">No featured vehicle available at the moment.</div>';
 
                 }
             } catch (error) {
                 console.error('Error loading vehicles:', error);
                 document.getElementById('vehiclesContainer').innerHTML = 
-                    '<div class="col-12 text-center"><p class="text-danger">Error loading vehicles. Please try again later.</p></div>';
+                    '<div class="empty-message"><p>Error loading vehicles. Please try again later.</p></div>';
             }
         }
 
@@ -470,7 +476,7 @@
             const vehiclesToShow = filteredVehicles.slice(start, end);
             
             if (vehiclesToShow.length === 0) {
-                container.innerHTML = '<div class="col-12 text-center"><p>No vehicles found matching your criteria.</p></div>';
+                container.innerHTML = '<div class="empty-message"><p>No vehicles found matching your criteria.</p></div>';
                 updatePagination();
                 return;
             }
