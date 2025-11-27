@@ -20,6 +20,17 @@ $users = $conn->query("SELECT * FROM users WHERE id != {$_SESSION['id']} ORDER B
 <link rel="stylesheet" href="../css/superadmin.css">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+<style>
+      .sap-table tbody tr {
+        cursor: default;
+    }
+    .sap-table tbody tr:hover {
+        background: inherit !important;
+        transform: none;
+    }
+    
+</style>
 </head>
 <body>
 <div class="header">

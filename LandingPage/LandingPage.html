@@ -13,7 +13,7 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg fixed-top">
     <div class="container">
-        <a class="navbar-brand" href="#"><i class="fas fa-car"></i> AutoGraph</a>
+        <a class="navbar-brand" href="#home"><i class="fas fa-car"></i> AutoGraph</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
         </button>
@@ -207,7 +207,9 @@
         <!-- Row 1 -->
         <div class="row align-items-center mb-5">
             <div class="col-md-6 slide-in-left text-center">
-                <div class="about-icon mb-3 align-items-center"><i class="fas fa-history"></i></div>
+                <div class="about-icon mb-3 mx-auto d-flex align-items-center justify-content-center">
+                    <i class="fas fa-fist-raised"></i>
+                </div>
                 <h4 class="mb-3">TENACITY</h4>
                 <p>Exhibit determination in reaching goals and consistently meeting or exceeding expectations.
                     <br> DON'T GIVE UP — Focus on continuous improvement; don't consider failure an option.
@@ -215,14 +217,16 @@
             </div>
 
             <div class="col-md-6 slide-in-right">
-                <img src="/Pictures/Carmaxold.jpg" alt="Our History" class="img-fluid rounded-4 shadow-lg">
+                <img src="/Pictures/tenacity.jpg" alt="Our History" class="img-fluid rounded-4 shadow-lg">
             </div>
         </div>
 
         <!-- Row 2 -->
         <div class="row align-items-center flex-md-row-reverse mb-5">
             <div class="col-md-6 slide-in-right text-center">
-                <div class="about-icon mb-3"><i class="fas fa-bullseye"></i></div>
+                <div class="about-icon mb-3 mx-auto d-flex align-items-center justify-content-center">
+                    <i class="fas fa-handshake"></i>
+                </div>
                 <h4 class="mb-3">TRUSTWORTHY</h4>
                 <p>
                     Behave ethically, safely, honestly and lawfully. Take pride in being fair and knowledgeable,
@@ -231,14 +235,16 @@
             </div>
 
             <div class="col-md-6 slide-in-left">
-                <img src="/Pictures/Mission.jpg" alt="Our Mission" class="img-fluid rounded-4 shadow-lg">
+                <img src="/Pictures/trustworthy.jpg" alt="Our Mission" class="img-fluid rounded-4 shadow-lg">
             </div>
         </div>
 
         <!-- Row 3 -->
         <div class="row align-items-center mb-5">
             <div class="col-md-6 slide-in-left text-center">
-                <div class="about-icon mb-3"><i class="fas fa-eye"></i></div>
+                <div class="about-icon mb-3 mx-auto d-flex align-items-center justify-content-center">
+                    <i class="fas fa-users"></i>
+                </div>
                 <h4 class="mb-3">TEAMWORK</h4>
                 <p>
                     Work collaboratively and harmoniously with every member of the company toward common goals.
@@ -248,10 +254,9 @@
             </div>
 
             <div class="col-md-6 slide-in-right">
-                <img src="/Pictures/Vision.jpg" alt="Our Vision" class="img-fluid rounded-4 shadow-lg">
+                <img src="/Pictures/teamwork.jpeg" alt="Our Vision" class="img-fluid rounded-4 shadow-lg">
             </div>
         </div>
-
     </div>
 </section>
 
@@ -262,7 +267,9 @@
             <div class="row">
                 <div class="col-md-5">
                     <h5><i class="fas fa-car"></i> Autograph</h5>
-                    <p>Your trusted partner in finding quality pre-owned vehicles.</p>
+                    <p>We carefully source, inspect, and recondition all our vehicles to maintain the high quality pre-owned cars we offer you. 
+                        Our 30-day engine and transmission warranty is the proof of our confidence in your purchase. We save you money, time, 
+                        and the hassle associated with buying or selling a used car.</p>
                 </div>
                 <div class="col-md-4">
                     <h5>Contact Info</h5>
@@ -367,13 +374,13 @@
                 const response = await fetch('../AcquisitionPage/getReleasedVehicle.php');
                 const data = await response.json();
                 
-                console.log('API Response:', data); // Debug log
+                console.log('API Response:', data); 
                 
                 if (data.success && data.vehicles.length > 0) {
                     allVehicles = data.vehicles;
                     filteredVehicles = [...allVehicles];
                     
-                    console.log('Loaded vehicles:', allVehicles); // Debug log
+                    console.log('Loaded vehicles:', allVehicles); 
                     
                     // Load spotlight vehicle (first vehicle)
                     loadSpotlight();
@@ -397,11 +404,13 @@ document.getElementById('spotlightContainer').innerHTML =
 
         // Load Spotlight Vehicle
         function loadSpotlight() {
+            setTimeout(setupSpotlightGallery, 100);
+
             if (allVehicles.length === 0) return;
             
             const spotlightVehicle = allVehicles[0];
             
-            // Handle photo path - check if it's in a folder structure or direct
+            // Handle photo path
             let photoPath = '/Pictures/placeholder-car.jpg';
             if (spotlightVehicle.exterior_photo) {
                 // If the path already includes a folder structure
@@ -413,7 +422,7 @@ document.getElementById('spotlightContainer').innerHTML =
                 }
             }
             
-            console.log('Spotlight photo path:', photoPath); // Debug log
+            console.log('Spotlight photo path:', photoPath); 
             
             const sellingPrice = spotlightVehicle.selling_price 
                 ? `₱${parseFloat(spotlightVehicle.selling_price).toLocaleString('en-PH', {minimumFractionDigits: 2, maximumFractionDigits: 2})}` 
@@ -441,7 +450,7 @@ document.getElementById('spotlightContainer').innerHTML =
                             </div>
                             <div class="spotlight-detail-item">
                                 <i class="fas fa-tachometer-alt"></i>
-                                <span>${spotlightVehicle.odometer ? spotlightVehicle.odometer.toLocaleString() + ' km' : 'N/A'}</span>
+                                <span id="spotlightOdometer"><?= $vehicle['odometer'] ? formatOdometer($vehicle['odometer']) : 'N/A' ?></span>
                             </div>
                             <div class="spotlight-detail-item">
                                 <i class="fas fa-cog"></i>
@@ -499,22 +508,21 @@ document.getElementById('spotlightContainer').innerHTML =
                     : 'Price on Request';
                 
                 const cardHTML = `
-                    <div class="car-card fade-in">
+                    <div class="car-card fade-in" onclick='showVehicleDetails(${JSON.stringify(vehicle).replace(/'/g, "&apos;")})' style="cursor: pointer;">
                         <div class="car-image">
                             <img src="${photoPath}" alt="${vehicle.model}" class="img-fluid" 
-                                 onerror="this.src='/Pictures/placeholder-car.jpg'">
+                                onerror="this.src='/Pictures/placeholder-car.jpg'">
                         </div>
                         <div class="car-info">
                             <h5>${vehicle.make ? vehicle.make + ' ' : ''}${vehicle.model} ${vehicle.year}</h5>
                             ${vehicle.variant ? `<p class="text-muted mb-1"><small>${vehicle.variant}</small></p>` : ''}
                             <p class="text-muted mb-1">${vehicle.color} | ${vehicle.transmission || 'N/A'}</p>
-                            <p class="text-muted mb-2"><small><i class="fas fa-tachometer-alt"></i> ${vehicle.odometer ? vehicle.odometer.toLocaleString() + ' km' : 'N/A'}</small></p>
+                            <p class="text-muted mb-2"><small><i class="fas fa-tachometer-alt"></i> ${vehicle.odometer ? formatOdometer(vehicle.odometer) : 'N/A'}</small></p>
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="car-price">${sellingPrice}</span>
-                                <button class="btn btn-sm btn-view-details"
-                                    onclick='showVehicleDetails(${JSON.stringify(vehicle).replace(/'/g, "&apos;")})'>
+                                <span class="btn btn-sm btn-view-details">
                                     View Details
-                                </button>
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -622,7 +630,7 @@ document.getElementById('spotlightContainer').innerHTML =
             document.getElementById('carBodyType').textContent = vehicle.body_type || 'N/A';
             document.getElementById('carFuelType').textContent = vehicle.fuel_type || 'N/A';
             document.getElementById('carTransmission').textContent = vehicle.transmission || 'N/A';
-            document.getElementById('carOdometer').textContent = vehicle.odometer ? vehicle.odometer.toLocaleString() + ' km' : 'N/A';
+            document.getElementById('carOdometer').textContent = vehicle.odometer ? formatOdometer(vehicle.odometer) : 'N/A';
             document.getElementById('carSpareKey').textContent = vehicle.spare_key || 'N/A';
             document.getElementById('carSpareTires').textContent = vehicle.spare_tires;
             document.getElementById('carCompleteTools').textContent = vehicle.complete_tools;
@@ -630,19 +638,30 @@ document.getElementById('spotlightContainer').innerHTML =
             document.getElementById('carCompleteDocuments').textContent = vehicle.complete_documents;
             
             // Build image carousel
-            const carouselInner = document.getElementById('carouselInner');
+           const carouselInner = document.getElementById('carouselInner');
             carouselInner.innerHTML = '';
             
             const photos = [
-                { path: vehicle.exterior_photo, label: 'Exterior Car' },
+                { path: vehicle.exterior_photo, label: 'Exterior' },
                 { path: vehicle.dashboard_photo, label: 'Dashboard' },
-                { path: vehicle.hood_photo, label: 'Hood' },
+                { path: vehicle.hood_photo, label: 'Hood/Engine' },
                 { path: vehicle.interior_photo, label: 'Interior' },
                 { path: vehicle.trunk_photo, label: 'Trunk' }
-            ].filter(p => p.path);
+            ].filter(p => p.path && p.path.trim() !== '');
+            
+            // Add issue photos if available
+            if (vehicle.issue_photos) {
+                vehicle.issue_photos.forEach((issue, index) => {
+                    if (issue.photo) {
+                        photos.push({ 
+                            path: issue.photo, 
+                            label: `Issue: ${issue.name || 'Issue ' + (index + 1)}` 
+                        });
+                    }
+                });
+            }
             
             photos.forEach((photo, index) => {
-                // Handle photo path
                 let photoPath = photo.path;
                 if (photoPath && !photoPath.startsWith('../uploads/')) {
                     photoPath = `../uploads/${photoPath}`;
@@ -652,14 +671,13 @@ document.getElementById('spotlightContainer').innerHTML =
                 item.className = `carousel-item ${index === 0 ? 'active' : ''}`;
                 item.innerHTML = `
                     <img src="${photoPath}" class="d-block w-100 rounded" alt="${photo.label}"
-                         onerror="this.src='/Pictures/placeholder-car.jpg'">
+                        onerror="this.src='/Pictures/placeholder-car.jpg'">
                     <div class="carousel-caption d-none d-md-block">
                         <h5>${photo.label}</h5>
                     </div>
                 `;
                 carouselInner.appendChild(item);
             });
-            
             // Show modal
             const modal = new bootstrap.Modal(document.getElementById('carDetailsModal'));
             modal.show();
@@ -730,6 +748,29 @@ document.getElementById('spotlightContainer').innerHTML =
             // Auto-slide every 5 seconds
             setInterval(() => changeSlide(1), 5000);
         });
+
+        function formatOdometer(odometer) {
+        if (!odometer) return 'N/A';
+        const odometerStr = odometer.toString();
+        if (odometerStr.length <= 2) {
+            return odometerStr + ' km';
+        } else {
+            return odometerStr.substring(0, 3) + '* km';
+        }
+}
+function setupSpotlightGallery() {
+    const spotlightImage = document.querySelector('.spotlight-image img');
+    if (spotlightImage) {
+        spotlightImage.style.cursor = 'pointer';
+        spotlightImage.addEventListener('click', function() {
+            const spotlightVehicle = allVehicles[0];
+            if (spotlightVehicle) {
+                showVehicleDetails(spotlightVehicle);
+            }
+        });
+    }
+}
+
     </script>
 </body>
 </html>

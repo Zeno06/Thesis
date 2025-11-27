@@ -28,7 +28,7 @@ body {
 
 /* ---------- Navbar ---------- */
 .navbar {
-    background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%) !important;
+    background:#1e40af !important;
     backdrop-filter: blur(10px);
     box-shadow: 0 2px 20px rgba(0,0,0,0.1);
     transition: all 0.3s ease;
@@ -159,6 +159,13 @@ body {
     transform: scale(1.1);
 }
 
+.about-icon {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
 /* ---------- Slide Indicators ---------- */
 .slide-indicators {
     position: absolute;

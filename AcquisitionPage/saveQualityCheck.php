@@ -33,6 +33,30 @@ if (!file_exists($issuesDir)) mkdir($issuesDir, 0777, true);
 if (!file_exists($receiptsDir)) mkdir($receiptsDir, 0777, true);
 
 try {
+    // ===== DOCUMENT PHOTO REMOVAL HANDLING =====
+    // Handle document photo removal
+    if (isset($_POST['remove_doc_photos']) && is_array($_POST['remove_doc_photos'])) {
+        foreach ($_POST['remove_doc_photos'] as $docType) {
+            if (!empty($docType)) {
+                $docField = $docType . '_photo';
+                
+                // First get the current photo path to delete the file
+                $getPhotoQuery = $conn->query("SELECT $docField FROM vehicle_acquisition WHERE acquisition_id = $acquisition_id");
+                if ($getPhotoQuery && $getPhotoRow = $getPhotoQuery->fetch_assoc()) {
+                    $currentPhotoPath = $getPhotoRow[$docField];
+                    
+                    // Delete the physical file if it exists
+                    if (!empty($currentPhotoPath) && file_exists("../uploads/" . $currentPhotoPath)) {
+                        unlink("../uploads/" . $currentPhotoPath);
+                    }
+                    
+                    // Clear the document photo from database
+                    $updateStmt = $conn->query("UPDATE vehicle_acquisition SET $docField = NULL WHERE acquisition_id = $acquisition_id");
+                }
+            }
+        }
+    }
+
     // Handle issue deletions
     if (isset($_POST['delete_issue']) && is_array($_POST['delete_issue'])) {
         foreach ($_POST['delete_issue'] as $issueId) {
@@ -274,27 +298,38 @@ try {
         }
     }
 
+    // ===== IMPROVED DOCUMENT PHOTO UPLOADS =====
     $docPhotos = [
-    'orcr_photo_update' => 'orcr_photo',
-    'deed_of_sale_photo_update' => 'deed_of_sale_photo', 
-    'insurance_photo_update' => 'insurance_photo'
-];
+        'orcr_photo_update' => 'orcr_photo',
+        'deed_of_sale_photo_update' => 'deed_of_sale_photo', 
+        'insurance_photo_update' => 'insurance_photo'
+    ];
 
-foreach ($docPhotos as $fileKey => $dbField) {
-    if (isset($_FILES[$fileKey]) && $_FILES[$fileKey]['error'] === UPLOAD_ERR_OK) {
-        $documentsDir = __DIR__ . "/../uploads/{$folderName}/documents/";
-        if (!file_exists($documentsDir)) mkdir($documentsDir, 0777, true);
-        
-        $extension = pathinfo($_FILES[$fileKey]['name'], PATHINFO_EXTENSION);
-        $filename = time() . '_' . $dbField . '.' . $extension;
-        $targetPath = $documentsDir . $filename;
-        
-        if (move_uploaded_file($_FILES[$fileKey]['tmp_name'], $targetPath)) {
-            $docPhotoPath = $folderName . '/documents/' . $filename;
-            $conn->query("UPDATE vehicle_acquisition SET $dbField = '$docPhotoPath' WHERE acquisition_id = $acquisition_id");
+    foreach ($docPhotos as $fileKey => $dbField) {
+        // Only process if file was actually uploaded (not just empty file input)
+        if (isset($_FILES[$fileKey]) && $_FILES[$fileKey]['error'] === UPLOAD_ERR_OK && $_FILES[$fileKey]['size'] > 0) {
+            $documentsDir = __DIR__ . "/../uploads/{$folderName}/documents/";
+            if (!file_exists($documentsDir)) mkdir($documentsDir, 0777, true);
+            
+            // First, check if there's an existing photo and delete it
+            $getExistingQuery = $conn->query("SELECT $dbField FROM vehicle_acquisition WHERE acquisition_id = $acquisition_id");
+            if ($getExistingQuery && $existingRow = $getExistingQuery->fetch_assoc()) {
+                $existingPhoto = $existingRow[$dbField];
+                if (!empty($existingPhoto) && file_exists("../uploads/" . $existingPhoto)) {
+                    unlink("../uploads/" . $existingPhoto);
+                }
+            }
+            
+            $extension = pathinfo($_FILES[$fileKey]['name'], PATHINFO_EXTENSION);
+            $filename = time() . '_' . $dbField . '.' . $extension;
+            $targetPath = $documentsDir . $filename;
+            
+            if (move_uploaded_file($_FILES[$fileKey]['tmp_name'], $targetPath)) {
+                $docPhotoPath = $folderName . '/documents/' . $filename;
+                $conn->query("UPDATE vehicle_acquisition SET $dbField = '$docPhotoPath' WHERE acquisition_id = $acquisition_id");
+            }
         }
     }
-}
     
     // Update editable remarks in vehicle_acquisition
     if ($remarks !== null) {

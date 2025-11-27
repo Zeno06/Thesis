@@ -94,7 +94,7 @@ if ($vehicleResult && $vehicleResult->num_rows > 0) {
     }
 }
 
-// Get Quality Check Remarks
+// Get Quality Check Remarks - FIXED: Treat as acquisition role
 $qualityQuery = "
     SELECT 
         NULL as log_id,
@@ -119,6 +119,17 @@ if (!empty($search)) {
     $qualityQuery .= " AND (va.quality_checked_by LIKE '%$search%' OR va.plate_number LIKE '%$search%' OR va.remarks LIKE '%$search%')";
 }
 
+// FIXED: Only apply role filter for quality checks when acquisition is selected or no filter
+if (!empty($roleFilter)) {
+    if ($roleFilter === 'acquisition') {
+        // Include quality checks when acquisition role is selected
+        // No additional WHERE clause needed
+    } else {
+        // Exclude quality checks for superadmin and operation roles
+        $qualityQuery .= " AND 1=0";
+    }
+}
+
 if (!empty($dateFilter)) {
     $qualityQuery .= " AND DATE(va.quality_checked_at) = '$dateFilter'";
 }
@@ -138,6 +149,20 @@ usort($filteredResults, function($a, $b) {
     $timeB = !empty($b['timestamp']) ? strtotime($b['timestamp']) : 0;
     return $timeB - $timeA;
 });
+
+// Count remarks by source
+$remarksBySource = [
+    'activity_log' => 0,
+    'vehicle_acquisition' => 0, 
+    'quality_check' => 0,
+    'total' => count($filteredResults)
+];
+
+foreach ($filteredResults as $result) {
+    if (isset($remarksBySource[$result['remark_source']])) {
+        $remarksBySource[$result['remark_source']]++;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -149,65 +174,73 @@ usort($filteredResults, function($a, $b) {
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        .remarks-cell {
-            max-width: 250px;
-            cursor: pointer;
-            position: relative;
-        }
-        .remarks-preview {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: block;
-        }
-        .remarks-cell:hover .remarks-preview {
-            text-decoration: underline;
-        }
-        .modal-remarks {
-            margin-top: 10px;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            max-height: 500px;
-            overflow-y: auto;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border: 1px solid #dee2e6;
-            line-height: 1.6;
-            font-size: 0.95rem;
-        }
-        .remark-source-badge {
-            font-size: 0.75rem;
-            padding: 3px 8px;
-            margin-left: 6px;
-            border-radius: 12px;
-            font-weight: 600;
-        }
-        .remarks-info-section {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-        }
-        .remarks-info-section .info-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
-        }
-        .remarks-info-section .info-item i {
-            width: 20px;
-            margin-right: 8px;
-        }
-        .remarks-info-section .info-item strong {
-            margin-right: 8px;
-            min-width: 100px;
-        }
-        .remarks-modal {
-            margin: 0 auto !important;
-            padding-top: 250px; 
-            overflow: hidden;
-        }
+       .remarks-cell {
+        max-width: 250px;
+        cursor: pointer;
+        position: relative;
+    }
+    .remarks-preview {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+    }
+    .remarks-cell:hover .remarks-preview {
+        text-decoration: underline;
+        color: #667eea;
+    }
+    .modal-remarks {
+        margin-top: 10px;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        max-height: 500px;
+        overflow-y: auto;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+        line-height: 1.6;
+        font-size: 0.95rem;
+    }
+    .remark-source-badge {
+        font-size: 0.75rem;
+        padding: 3px 8px;
+        margin-left: 6px;
+        border-radius: 12px;
+        font-weight: 600;
+    }
+    .remarks-info-section {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+    }
+    .remarks-info-section .info-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+    }
+    .remarks-info-section .info-item i {
+        width: 20px;
+        margin-right: 8px;
+    }
+    .remarks-info-section .info-item strong {
+        margin-right: 8px;
+        min-width: 100px;
+    }
+    .remarks-modal {
+        margin: 0 auto !important;
+        padding-top: 250px; 
+        overflow: hidden;
+    }
+    .sap-table tbody tr {
+        cursor: default;
+    }
+    .sap-table tbody tr:hover {
+        background: inherit !important;
+        transform: none;
+    }
 
     </style>
 </head>
@@ -293,20 +326,6 @@ usort($filteredResults, function($a, $b) {
                                 } else {
                                     $userDisplay = $log['firstname'] . ' ' . $log['lastname'];
                                 }
-                                
-                                $sourceBadgeText = match($log['remark_source']) {
-                                    'activity_log' => 'System Log',
-                                    'vehicle_acquisition' => 'Vehicle',
-                                    'quality_check' => 'Quality',
-                                    default => 'Other'
-                                };
-                                
-                                $sourceBadgeColor = match($log['remark_source']) {
-                                    'activity_log' => 'bg-info',
-                                    'vehicle_acquisition' => 'bg-primary',
-                                    'quality_check' => 'bg-success',
-                                    default => 'bg-secondary'
-                                };
                             ?>
                                 <tr>
                                     <td><?= htmlspecialchars($userDisplay); ?></td>
@@ -324,7 +343,6 @@ usort($filteredResults, function($a, $b) {
                                                     <i class="fas fa-comment-dots text-primary"></i>
                                                     <?= htmlspecialchars(substr($log['display_remarks'], 0, 50)) ?>
                                                     <?= strlen($log['display_remarks']) > 50 ? '...' : '' ?>
-                                                    
                                                 </span>
                                             </div>
                                         <?php else: ?>

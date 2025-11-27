@@ -202,12 +202,12 @@ $result = $conn->query($query);
                                     <div class="cost-row mt-3">
                                         <span>Markup Percentage:</span>
                                         <div class="input-group input-group-sm" style="width: 200px;">
-                                            <input type="number" step="0.01" class="form-control markup-input" 
-                                                name="markup_percentage" 
-                                                value="<?= number_format($markupPercentage, 2, '.', '') ?>"
-                                                onchange="calculateCosts(<?= $row['acquisition_id'] ?>)">
-                                            <span class="input-group-text">%</span>
-                                        </div>
+                                        <input type="number" step="0.01" class="form-control markup-input" 
+                                            name="markup_percentage" 
+                                            value="<?= number_format($markupPercentage, 2, '.', '') ?>"
+                                            onchange="calculateCosts(<?= $row['acquisition_id'] ?>)" required>
+                                        <span class="input-group-text">%</span>
+                                    </div>
                                     </div>
                                     
                                     <div class="cost-row">
@@ -441,7 +441,7 @@ $result = $conn->query($query);
 <div class="modal fade" id="errorModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
+            <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title"><i class="fas fa-exclamation-triangle"></i> Error</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
@@ -461,7 +461,7 @@ $result = $conn->query($query);
                 <h5 class="modal-title"><i class="fas fa-rocket"></i> Confirm Release</h5>
             </div>
             <div class="modal-body">
-                Are you sure you want to release this vehicle for viewing?
+                Are you sure you want to release this vehicle?
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>

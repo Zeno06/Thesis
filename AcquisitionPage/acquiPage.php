@@ -44,16 +44,50 @@ $user_id = $_SESSION['id'];
         .doc-upload-wrapper.disabled::after {
             content: "Missing";
             position: absolute;
-            top: 50%;
+            top: 35%;
             left: 50%;
             transform: translate(-50%, -50%);
             background: rgba(220, 53, 69, 0.9);
             color: white;
-            padding: 5px 10px;
+            padding: 5px 5px;
             border-radius: 4px;
             font-size: 12px;
             font-weight: bold;
             z-index: 10;
+        }
+        .remove-image-btn {
+            position: absolute;
+            top: 5px;
+            right: 1px;
+            background: rgba(220, 53, 69, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            font-size: 14px;
+            cursor: pointer;
+            display: none;
+            z-index: 10;
+        }
+
+        .image-preview-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .image-preview-container:hover .remove-image-btn {
+            display: block;
+        }
+        .doc-upload-wrapper .image-preview-container {
+            width: 100%;
+        }
+
+        .doc-upload-wrapper .image-preview {
+            width: 100%;
+            max-width: 300px;
+            height: 200px;
+            object-fit: contain;
         }
     </style>
 </head>
@@ -108,7 +142,9 @@ $user_id = $_SESSION['id'];
             <div class="row g-3 mb-4">
                 <div class="col-md-6">
                     <label>Supplier</label>
-                    <input type="text" class="form-control" name="supplier" placeholder="Enter supplier name" required>
+                    <input type="text" class="form-control" name="supplier" placeholder="Enter supplier name" 
+                           pattern="[A-Za-z\s]+" title="Only alphabets and spaces are allowed" required 
+                           oninput="this.value = this.value.replace(/[^A-Za-z\s]/g, '')">
                 </div>
                 <div class="col-md-6">
                     <label>Date Acquired</label>
@@ -121,27 +157,40 @@ $user_id = $_SESSION['id'];
             <div class="row g-3 mb-4">
                 <div class="col-md-3">
                     <label>Year Model</label>
-                    <input type="number" class="form-control" name="year" placeholder="e.g., 2021" required>
+                    <input type="number" class="form-control" name="year" placeholder="e.g., 2021" 
+                           min="1900" max="2030" maxlength="4" required
+                           oninput="if(this.value.length > 4) this.value = this.value.slice(0,4);">
                 </div>
                 <div class="col-md-3">
                     <label>Make</label>
-                    <input type="text" class="form-control" name="make" placeholder="e.g., Honda, Toyota" required>
+                    <input type="text" class="form-control" name="make" placeholder="e.g., Honda, Toyota" 
+                           pattern="[A-Za-z\s]+" title="Only alphabets and spaces are allowed" required
+                           oninput="this.value = this.value.replace(/[^A-Za-z\s]/g, '')">
                 </div>
                 <div class="col-md-3">
                     <label>Model</label>
-                    <input type="text" class="form-control" name="vehicleModel" placeholder="e.g., Civic, BR-V" required>
+                    <input type="text" class="form-control" name="vehicleModel" placeholder="e.g., Civic, BR-V" 
+                           pattern="[A-Za-z\s]+" title="Only alphabets and spaces are allowed" required
+                           oninput="this.value = this.value.replace(/[^A-Za-z\s]/g, '')">
                 </div>
                 <div class="col-md-3">
                     <label>Variant</label>
-                    <input type="text" class="form-control" name="variant" placeholder="e.g., 1.8 EL">
+                    <input type="text" class="form-control" name="variant" placeholder="e.g., 1.8 EL"
+                        oninput="this.value = this.value.replace(/[^A-Za-z0-9.\s]/g, '')">
                 </div>
                 <div class="col-md-3">
                     <label>Color</label>
-                    <input type="text" class="form-control" name="color" placeholder="e.g., White Pearl" required>
+                    <input type="text" class="form-control" name="color" placeholder="e.g., White Pearl" 
+                           pattern="[A-Za-z\s]+" title="Only alphabets and spaces are allowed" required
+                           oninput="this.value = this.value.replace(/[^A-Za-z\s]/g, '')">
                 </div>
                 <div class="col-md-3">
                     <label>Plate Number</label>
-                    <input type="text" class="form-control" name="plateNumber" placeholder="e.g., NEM1034" required>
+                    <input type="text" class="form-control" name="plateNumber" placeholder="e.g., ABC1234" 
+                           pattern="[A-Z]{3}[0-9]{3,4}" title="3 capital letters followed by 3-4 numbers (e.g., ABC123)" 
+                           maxlength="7" required
+                           oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); 
+                                    if(this.value.length > 7) this.value = this.value.slice(0,7);">
                 </div>
                 <div class="col-md-3">
                     <label>Fuel Type</label>
@@ -155,22 +204,31 @@ $user_id = $_SESSION['id'];
                 </div>
                 <div class="col-md-3">
                     <label>Odometer (km)</label>
-                    <input type="number" class="form-control" name="odometer" placeholder="e.g., 50000" min="0" required>
+                    <input type="number" class="form-control" name="odometer" placeholder="e.g., 50000" 
+                           min="0" max="999999" maxlength="6" required
+                           oninput="if(this.value.length > 6) this.value = this.value.slice(0,6);">
                 </div>
                 <div class="col-md-4">
                     <label>Body Type</label>
-                    <input type="text" class="form-control" name="bodyType" placeholder="e.g., Sedan, SUV" required>
+                    <select class="form-select" name="bodyType" required>
+                        <option value="">Select Body Type</option>
+                        <option value="Sedan">Sedan</option>
+                        <option value="SUV">SUV</option>
+                        <option value="Van">Van</option>
+                        <option value="Pickup">Pickup</option>
+                        <option value="Hatchback">Hatchback</option>
+                        <option value="FB body">FB body</option>
+                        <option value="Coupe">Coupe</option>
+                        <option value="MPV">MPV</option>
+                    </select>
                 </div>
-                <div class="col-md-4">
+               <div class="col-md-4">
                     <label>Transmission</label>
-                    <div class="d-flex gap-3 mt-2">
-                        <label class="d-flex align-items-center">
-                            <input type="radio" name="transmission" value="Manual" required class="me-2"> Manual
-                        </label>
-                        <label class="d-flex align-items-center">
-                            <input type="radio" name="transmission" value="Automatic" class="me-2"> Automatic
-                        </label>
-                    </div>
+                    <select class="form-select" name="transmission" required>
+                        <option value="">Select Transmission</option>
+                        <option value="Manual">Manual</option>
+                        <option value="Automatic">Automatic</option>
+                    </select>
                 </div>
             </div>
 
@@ -179,27 +237,42 @@ $user_id = $_SESSION['id'];
                 <div class="col-md-4">
                     <label>Exterior</label>
                     <input type="file" class="form-control" name="exterior" accept="image/*" onchange="previewImage(this)" required>
-                    <img class="image-preview d-none" alt="Preview">
+                    <div class="image-preview-container">
+                        <img class="image-preview d-none" alt="Preview">
+                        <button type="button" class="remove-image-btn" onclick="removeImage(this)">×</button>
+                    </div>
                 </div>
                 <div class="col-md-4">
                     <label>Dashboard</label>
                     <input type="file" class="form-control" name="dashboard" accept="image/*" onchange="previewImage(this)" required>
-                    <img class="image-preview d-none" alt="Preview">
+                    <div class="image-preview-container">
+                        <img class="image-preview d-none" alt="Preview">
+                        <button type="button" class="remove-image-btn" onclick="removeImage(this)">×</button>
+                    </div>
                 </div>
                 <div class="col-md-4">
                     <label>Hood</label>
                     <input type="file" class="form-control" name="hood" accept="image/*" onchange="previewImage(this)" required>
-                    <img class="image-preview d-none" alt="Preview">
+                    <div class="image-preview-container">
+                        <img class="image-preview d-none" alt="Preview">
+                        <button type="button" class="remove-image-btn" onclick="removeImage(this)">×</button>
+                    </div>
                 </div>
                 <div class="col-md-4">
                     <label>Trunk</label>
                     <input type="file" class="form-control" name="trunk" accept="image/*" onchange="previewImage(this)" required>
-                    <img class="image-preview d-none" alt="Preview">
+                    <div class="image-preview-container">
+                        <img class="image-preview d-none" alt="Preview">
+                        <button type="button" class="remove-image-btn" onclick="removeImage(this)">×</button>
+                    </div>
                 </div>
                 <div class="col-md-4">
                     <label>Interior</label>
                     <input type="file" class="form-control" name="interior" accept="image/*" onchange="previewImage(this)" required>
-                    <img class="image-preview d-none" alt="Preview">
+                    <div class="image-preview-container">
+                        <img class="image-preview d-none" alt="Preview">
+                        <button type="button" class="remove-image-btn" onclick="removeImage(this)">×</button>
+                    </div>
                 </div>
             </div>
 
@@ -214,10 +287,17 @@ $user_id = $_SESSION['id'];
                 </thead>
                 <tbody>
                     <tr>
-                        <td><input type="text" class="form-control" name="issue_names[]" placeholder="e.g., Dent on door"></td>
+                        <td>
+                            <input type="text" class="form-control" name="issue_names[]" placeholder="e.g., Dent on door"
+                                   pattern="[A-Za-z\s]+" title="Only alphabets and spaces are allowed"
+                                   oninput="this.value = this.value.replace(/[^A-Za-z\s]/g, '')">
+                        </td>
                         <td>
                             <input type="file" class="form-control" name="issue_photos[]" accept="image/*" onchange="previewImage(this)">
-                            <img class="image-preview d-none mt-2" alt="Preview" style="max-width: 300px; border-radius: 6px;">
+                            <div class="image-preview-container">
+                                <img class="image-preview d-none mt-2" alt="Preview" style="max-width: 300px; border-radius: 6px;">
+                                <button type="button" class="remove-image-btn" onclick="removeImage(this)">×</button>
+                            </div>
                         </td>
                         <td>
                             <button type="button" class="btn btn-sm btn-danger" onclick="removeIssueRow(this)">
@@ -241,7 +321,11 @@ $user_id = $_SESSION['id'];
                 </thead>
                 <tbody>
                     <tr>
-                        <td><input type="text" class="form-control" name="parts_needed[]" placeholder="Enter part name"></td>
+                        <td>
+                            <input type="text" class="form-control" name="parts_needed[]" placeholder="Enter part name"
+                                   pattern="[A-Za-z\s]+" title="Only alphabets and spaces are allowed"
+                                   oninput="this.value = this.value.replace(/[^A-Za-z\s]/g, '')">
+                        </td>
                         <td><button type="button" class="btn btn-sm btn-danger" onclick="removeRow(this)"><i class="fas fa-trash"></i></button></td>
                     </tr>
                 </tbody>
@@ -324,21 +408,30 @@ $user_id = $_SESSION['id'];
                     <label>OR/CR Photo</label>
                     <div class="doc-upload-wrapper" id="orcrWrapper">
                         <input type="file" class="form-control doc-upload" id="orcrPhoto" name="orcrPhoto" accept="image/*,application/pdf" onchange="previewImage(this)">
-                        <img class="image-preview d-none mt-2" alt="Preview" style="max-width: 300px; border-radius: 6px;">
+                        <div class="image-preview-container">
+                            <img class="image-preview d-none mt-2" alt="Preview" style="max-width: 300px; border-radius: 6px;">
+                            <button type="button" class="remove-image-btn" onclick="removeImage(this)">×</button>
+                        </div>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <label>Deed of Sale Photo</label>
                     <div class="doc-upload-wrapper" id="deedWrapper">
                         <input type="file" class="form-control doc-upload" id="deedOfSalePhoto" name="deedOfSalePhoto" accept="image/*,application/pdf" onchange="previewImage(this)">
-                        <img class="image-preview d-none mt-2" alt="Preview" style="max-width: 300px; border-radius: 6px;">
+                        <div class="image-preview-container">
+                            <img class="image-preview d-none mt-2" alt="Preview" style="max-width: 300px; border-radius: 6px;">
+                            <button type="button" class="remove-image-btn" onclick="removeImage(this)">×</button>
+                        </div>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <label>Insurance Photo</label>
                     <div class="doc-upload-wrapper" id="insuranceWrapper">
                         <input type="file" class="form-control doc-upload" id="insurancePhoto" name="insurancePhoto" accept="image/*,application/pdf" onchange="previewImage(this)">
-                        <img class="image-preview d-none mt-2" alt="Preview" style="max-width: 300px; border-radius: 6px;">
+                        <div class="image-preview-container">
+                            <img class="image-preview d-none mt-2" alt="Preview" style="max-width: 300px; border-radius: 6px;">
+                            <button type="button" class="remove-image-btn" onclick="removeImage(this)">×</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -346,11 +439,14 @@ $user_id = $_SESSION['id'];
             <h5 class="section-title">Acquired Price</h5>
             <div class="input-group mb-3">
                 <span class="input-group-text">₱</span>
-                <input type="number" step="0.01" class="form-control" name="acquiredPrice" placeholder="0.00" required>
+                <input type="number" step="0.01" class="form-control" name="acquiredPrice" placeholder="0.00" 
+                       min="0" max="9999999" maxlength="7" required
+                       oninput="if(this.value.length > 7) this.value = this.value.slice(0,7);">
             </div>
 
             <h5 class="section-title">Remarks</h5>
-            <textarea class="form-control mb-3" name="remarks" rows="3" placeholder="Enter additional remarks or notes..." required></textarea>
+            <textarea class="form-control mb-3" name="remarks" rows="3" placeholder="Enter additional remarks or notes..." 
+                    oninput="this.value = this.value.replace(/[^A-Za-z\s.,!]/g, '')"></textarea>
 
             <div class="mt-3 d-flex justify-content-end gap-2">
                 <button type="button" class="btn btn-carmax-primary" onclick="confirmSaveDraft()">
@@ -479,12 +575,16 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function previewImage(input) {
-    const preview = input.parentElement.querySelector('.image-preview');
-    if (preview && input.files && input.files[0]) {
+    const container = input.parentElement.querySelector('.image-preview-container');
+    const preview = container.querySelector('.image-preview');
+    const removeBtn = container.querySelector('.remove-image-btn');
+    
+    if (input.files && input.files[0]) {
         const reader = new FileReader();
         reader.onload = function(e) {
             preview.src = e.target.result;
             preview.classList.remove('d-none');
+            removeBtn.style.display = 'block';
             
             preview.onclick = function() {
                 openImageModal(this.src);
@@ -494,17 +594,33 @@ function previewImage(input) {
     }
 }
 
+function removeImage(btn) {
+    const container = btn.parentElement;
+    const preview = container.querySelector('.image-preview');
+    const fileInput = container.parentElement.querySelector('input[type="file"]');
+    
+    preview.src = '';
+    preview.classList.add('d-none');
+    btn.style.display = 'none';
+    fileInput.value = '';
+}
+
 function addIssueRow() {
     const table = document.getElementById('issuesTable').querySelector('tbody');
     const newRow = document.createElement('tr');
 
     newRow.innerHTML = `
         <td>
-            <input type="text" class="form-control" name="issue_names[]" placeholder="e.g., Dent on door">
+            <input type="text" class="form-control" name="issue_names[]" placeholder="e.g., Dent on door"
+                   pattern="[A-Za-z\s]+" title="Only alphabets and spaces are allowed"
+                   oninput="this.value = this.value.replace(/[^A-Za-z\s]/g, '')">
         </td>
         <td>
             <input type="file" class="form-control" name="issue_photos[]" accept="image/*" onchange="previewImage(this)">
-            <img class="image-preview d-none mt-2" alt="Preview" style="max-width: 100px; border-radius: 6px;">
+            <div class="image-preview-container">
+                <img class="image-preview d-none mt-2" alt="Preview" style="max-width: 300px; border-radius: 6px;">
+                <button type="button" class="remove-image-btn" onclick="removeImage(this)">×</button>
+            </div>
         </td>
         <td>
             <button type="button" class="btn btn-sm btn-danger" onclick="removeIssueRow(this)">
@@ -529,7 +645,11 @@ function addPartRow() {
     const table = document.getElementById('partsTable').getElementsByTagName('tbody')[0];
     const newRow = table.insertRow();
     newRow.innerHTML = `
-        <td><input type="text" class="form-control" name="parts_needed[]" placeholder="Enter part name"></td>
+        <td>
+            <input type="text" class="form-control" name="parts_needed[]" placeholder="Enter part name"
+                   pattern="[A-Za-z\s]+" title="Only alphabets and spaces are allowed"
+                   oninput="this.value = this.value.replace(/[^A-Za-z\s]/g, '')">
+        </td>
         <td><button type="button" class="btn btn-sm btn-danger" onclick="removeRow(this)"><i class='fas fa-trash'></i></button></td>
     `;
 }

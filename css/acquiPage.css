@@ -108,10 +108,26 @@ body {
 /* ---------- Cards ---------- */
 .sap-card {
     background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+    margin-bottom: 25px;
+    padding: 25px;             
+    border: 1px solid #e5e7eb;
+}
+
+.sap-card h4.section-title {
+    margin-top: 25px;
+    margin-bottom: 15px;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--carmax-blue);
+    border-bottom: 2px solid var(--carmax-orange);
+    padding-bottom: 5px;
+}
+
+
+.sap-card .row {
+    margin-bottom: 15px;
 }
 
 .sap-card-header {
